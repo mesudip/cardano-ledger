@@ -10,8 +10,6 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
--- | This module provides type classes that allow us to introduce random
---   yet valid variations to CBOR-encoded data
 module Test.Cardano.Ledger.Binary.Twiddle
   ( Twiddler (unTwiddler),
     Twiddle (..),
@@ -47,11 +45,8 @@ import qualified Data.Text.Lazy as T
 import Data.Typeable (Typeable)
 import Data.Void (Void, absurd)
 import GHC.Generics
-import Test.QuickCheck (Arbitrary (..), Gen, elements, shuffle)
+import Test.QuickCheck (Arbitrary (..), Gen, Property, elements, shuffle, (===))
 
--- | `Twiddler` is a wrapper that lets us introduce random variations to the
---   CBOR encoding of arbitrary data as long as that data implements
---   `Twiddle`.
 data Twiddler a = Twiddler
   { unTwiddler :: !a,
     _unEnc :: Term
@@ -60,23 +55,7 @@ data Twiddler a = Twiddler
 gTwiddleTList :: forall a p. (Generic a, TwiddleL (Rep a p)) => a -> Gen Term
 gTwiddleTList a = TList <$> twiddleL (from @a @p a)
 
--- | Introducing random variations into the CBOR encoding of a value while
---   preserving the round-trip properties.
---
---   For any value `x :: a`, where `a` derives `Twiddle`, and for any version
---   of the decoder, the following property must hold:
---   >>> fmap ((== x) . encodingToTerm version . toCBOR) (twiddle x)
-class FromCBOR a => Twiddle a where
-  -- | Given a value of type `a`, generates a CBOR `Term` that can contain
-  -- slight variations without changing the semantics. After encoding and
-  -- decoding the `Term`, we should get back the original value that was being
-  -- twiddled.
-  --
-  -- In addition to varying the low-level CBOR tokens, `twiddle` can also
-  -- be used to introduce higher level variations. For example if the schema
-  -- of a value allows a field to be either an empty list or absent
-  -- entirely, and both are interpreted the same way, then `twiddle` 
-  -- can be used to randomly pick either of these representations.
+class Twiddle a where
   twiddle :: a -> Gen Term
   default twiddle :: forall p. (Generic a, TwiddleL (Rep a p)) => a -> Gen Term
   twiddle = gTwiddleTList @a @p
@@ -87,7 +66,7 @@ instance Twiddle a => Twiddle [a] where
     l' <- traverse twiddle l
     pure $ f l'
 
-instance (Twiddle k, Twiddle v, Ord k) => Twiddle (Map k v) where
+instance (Twiddle k, Twiddle v) => Twiddle (Map k v) where
   twiddle m = do
     -- Elements of a map do not have to be in a specific order so we shuffle them
     m' <- shuffle $ Map.toList m
@@ -117,13 +96,13 @@ instance (Twiddle a, Arbitrary a, ToCBOR a) => Arbitrary (Twiddler a) where
     enc' <- twiddle x
     pure $ Twiddler x enc'
 
-instance (Twiddle a, Ord a) => Twiddle (Set a) where
+instance Twiddle a => Twiddle (Set a) where
   twiddle = twiddle . toList
 
-instance (Twiddle a, Ord a) => Twiddle (Seq a) where
+instance Twiddle a => Twiddle (Seq a) where
   twiddle = twiddle . toList
 
-instance (Twiddle a, Ord a) => Twiddle (StrictSeq a) where
+instance Twiddle a => Twiddle (StrictSeq a) where
   twiddle = twiddle . toList
 
 instance Typeable a => ToCBOR (Twiddler a) where
@@ -199,18 +178,15 @@ instance Twiddle Term where
   twiddle (TFloat x) = twiddle x
   twiddle (TDouble x) = twiddle x
 
--- | Helper function for decoding an `Encoding` into a CBOR `Term`
 encodingToTerm :: Version -> Encoding -> Term
 encodingToTerm version enc =
   case decodeFull version (serialize version enc) of
     Right t -> t
     Left err -> error $ show err
 
--- | Helper function for converting an arbitrary value into a CBOR `Term`
 toTerm :: ToCBOR a => Version -> a -> Term
 toTerm version = encodingToTerm version . toCBOR
 
--- | Wraps an arbitrary value into a `Twiddler`
 toTwiddler :: Twiddle a => a -> Gen (Twiddler a)
 toTwiddler x = Twiddler x <$> twiddle x
 

@@ -16,6 +16,7 @@ module Data.Twiddle
     toTwiddler,
     encodingToTerm,
     toTerm,
+    twiddleInvariantProp,
   )
 where
 
@@ -29,6 +30,7 @@ import Data.ByteString.Lazy (fromStrict, toStrict)
 import Data.Foldable (toList)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
+import Data.Orphans ()
 import Data.Sequence (Seq)
 import Data.Sequence.Strict (StrictSeq)
 import Data.Set (Set)
@@ -37,7 +39,7 @@ import qualified Data.Text.Lazy as T
 import Data.Typeable (Typeable)
 import Data.Void (Void, absurd)
 import GHC.Generics
-import Test.QuickCheck (Arbitrary (..), Gen, elements, shuffle)
+import Test.QuickCheck (Arbitrary (..), Gen, Property, elements, shuffle, (===))
 
 data Twiddler a = Twiddler
   { unTwiddler :: !a,
@@ -182,3 +184,11 @@ toTerm = encodingToTerm . toCBOR
 
 toTwiddler :: Twiddle a => a -> Gen (Twiddler a)
 toTwiddler x = Twiddler x <$> twiddle x
+
+-- | Function for testing the invariant of a `Twiddle` instance. For a correct
+-- implementation, this property should always hold.
+twiddleInvariantProp :: forall a. Twiddle a => a -> Gen Property
+twiddleInvariantProp x = do
+  t <- twiddle x
+  let t' = encodingToTerm $ toCBOR t
+  pure $ t === t'

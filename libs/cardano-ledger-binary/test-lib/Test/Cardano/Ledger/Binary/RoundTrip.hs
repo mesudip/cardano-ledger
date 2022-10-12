@@ -100,7 +100,7 @@ cborTrip = Trip toCBOR fromCBOR
 roundTrip :: Typeable t => Version -> Trip t t -> t -> Either RoundTripFailure t
 roundTrip = embedTrip
 
-roundTripTwiddled :: Twiddle t => Version -> t -> Gen (Either RoundTripFailure t)
+roundTripTwiddled :: (Twiddle t, FromCBOR t) => Version -> t -> Gen (Either RoundTripFailure t)
 roundTripTwiddled version x = do
   tw <- twiddle x
   pure (roundTrip version (Trip (const (encodeTerm tw)) fromCBOR) x)
