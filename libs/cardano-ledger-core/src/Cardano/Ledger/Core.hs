@@ -483,6 +483,8 @@ class
   -- | The number of segregated components
   numSegComponents :: Word64
 
+
+-- TODO: Move to Cardano.Ledger.Core.Translation
 --------------------------------------------------------------------------------
 -- Era translation
 --------------------------------------------------------------------------------
@@ -572,6 +574,8 @@ translateEraMaybe ::
   Maybe (f era)
 translateEraMaybe ctxt =
   either (const Nothing) Just . runExcept . translateEra ctxt
+
+------- UP TO HERE --------------
 
 -- ====================================================
 -- Reflecting the phase of scripts into types

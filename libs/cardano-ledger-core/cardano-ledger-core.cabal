@@ -52,7 +52,6 @@ library
     Cardano.Ledger.Credential
     Cardano.Ledger.Crypto
     Cardano.Ledger.Era
-    Cardano.Ledger.Era.Class
     Cardano.Ledger.Hashes
     Cardano.Ledger.HKD
     Cardano.Ledger.Keys
@@ -62,7 +61,6 @@ library
     Cardano.Ledger.MemoBytes
     Cardano.Ledger.PoolDistr
     Cardano.Ledger.Rewards
-    Cardano.Ledger.PParams
     Cardano.Ledger.ProtVer
     Cardano.Ledger.Rules.ValidationMode
     Cardano.Ledger.SafeHash
@@ -71,6 +69,11 @@ library
     Cardano.Ledger.TxIn
     Cardano.Ledger.UnifiedMap
     Cardano.Ledger.Val
+
+other-modules:
+    Cardano.Ledger.Core.Era
+    Cardano.Ledger.Core.PParams
+    Cardano.Ledger.Core.Translation
 
   build-depends:
     aeson >= 2,

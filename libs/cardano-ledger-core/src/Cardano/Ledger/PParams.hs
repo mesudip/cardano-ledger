@@ -16,7 +16,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Cardano.Ledger.PParams
+module Cardano.Ledger.PParams -- Rename to: Cardano.Ledger.Core.PParams
   ( EraPParams (..),
     PParams (..),
     PParamsUpdate (..),
@@ -202,6 +202,10 @@ class
   -- | Protocol parameters where the fields are represented with a HKD
   type PParamsHKD (f :: Type -> Type) era = (r :: Type) | r -> era
 
+  type UpgradeArgs era :: Type
+
+  type DowngradeArgs era :: Type
+
   -- | Applies a protocol parameters update
   applyPPUpdates ::
     PParams era ->
@@ -220,6 +224,10 @@ class
 
   emptyPParams :: PParams era
   emptyPParamsUpdate :: PParamsUpdate era
+
+  upgradePParamsHKD :: UpgradeArgs era -> PParamsHKD f (PreviousEra era) -> PParamsHKD f era
+
+  downgradePParamsHKD :: DowngradeArgs era -> PParamsHKD f era -> PParamsHKD f (PreviousEra era)
 
   -- HKD Versions of lenses
 
@@ -434,3 +442,15 @@ mapPParams f (PParams pp) = PParams $ f pp
 
 mapPParamsUpdate :: (PParamsHKD StrictMaybe era1 -> PParamsHKD StrictMaybe era2) -> PParamsUpdate era1 -> PParamsUpdate era2
 mapPParamsUpdate f (PParamsUpdate pp) = PParamsUpdate $ f pp
+
+
+upgradePParams :: EraPParams era => UpgradeArgs era -> PParams (Previous era) -> PParams era
+upgradePParams args (PParams pphkd) = PParams (upgradePParamsHKD args pphkd)
+
+downgradePParams = downgradePParamsHKD
+
+
+upgradePParamsUpdate = upgradePParamsHKD
+upgradePParamsUpdate args (PParamsUpdate pphkd) = PParamsUpdate (upgradePParamsHKD args pphkd)
+
+downgradePParamsUpdate = downgradePParamsHKD

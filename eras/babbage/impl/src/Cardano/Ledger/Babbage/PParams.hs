@@ -144,9 +144,24 @@ type BabbagePParamsUpdate era = BabbagePParamsHKD StrictMaybe era
 
 instance CC.Crypto c => EraPParams (BabbageEra c) where
   type PParamsHKD f (BabbageEra c) = BabbagePParamsHKD f (BabbageEra c)
+  type UpgradeArgs (BabbageEra era) = -- TODO custom record type
+     (HKD f Coin,
+      HKD f CostModels,
+      HKD f Prices,
+      HKD f ExUnits,
+      HKD f ExUnits,
+      HKD f Natural,
+      HKD f Natural,
+      HKD f Natural
+      )
+  type DowngradeArgs (BabbageEra era) = (HKD f Coin, HKD f UnitInterval, HKD f Nonce)
 
   emptyPParams = def
   emptyPParamsUpdate = def
+
+  upgradePParamsHKD args = extendPP
+
+  downgradePParamsHKD args ppCurrent = retractPP
 
   hkdMinFeeAL = lens _minfeeA (\pp x -> pp {_minfeeA = x})
   hkdMinFeeBL = lens _minfeeB (\pp x -> pp {_minfeeB = x})
@@ -417,31 +432,7 @@ instance Era era => FromCBOR (BabbagePParamsUpdate era) where
 
 -- | Update operation for protocol parameters structure @PParams
 updatePParams :: BabbagePParams era -> BabbagePParamsUpdate era -> BabbagePParams era
-updatePParams pp ppup =
-  BabbagePParams
-    { _minfeeA = fromSMaybe (_minfeeA pp) (_minfeeA ppup),
-      _minfeeB = fromSMaybe (_minfeeB pp) (_minfeeB ppup),
-      _maxBBSize = fromSMaybe (_maxBBSize pp) (_maxBBSize ppup),
-      _maxTxSize = fromSMaybe (_maxTxSize pp) (_maxTxSize ppup),
-      _maxBHSize = fromSMaybe (_maxBHSize pp) (_maxBHSize ppup),
-      _keyDeposit = fromSMaybe (_keyDeposit pp) (_keyDeposit ppup),
-      _poolDeposit = fromSMaybe (_poolDeposit pp) (_poolDeposit ppup),
-      _eMax = fromSMaybe (_eMax pp) (_eMax ppup),
-      _nOpt = fromSMaybe (_nOpt pp) (_nOpt ppup),
-      _a0 = fromSMaybe (_a0 pp) (_a0 ppup),
-      _rho = fromSMaybe (_rho pp) (_rho ppup),
-      _tau = fromSMaybe (_tau pp) (_tau ppup),
-      _protocolVersion = fromSMaybe (_protocolVersion pp) (_protocolVersion ppup),
-      _minPoolCost = fromSMaybe (_minPoolCost pp) (_minPoolCost ppup),
-      _coinsPerUTxOByte = fromSMaybe (_coinsPerUTxOByte pp) (_coinsPerUTxOByte ppup),
-      _costmdls = fromSMaybe (_costmdls pp) (_costmdls ppup),
-      _prices = fromSMaybe (_prices pp) (_prices ppup),
-      _maxTxExUnits = fromSMaybe (_maxTxExUnits pp) (_maxTxExUnits ppup),
-      _maxBlockExUnits = fromSMaybe (_maxBlockExUnits pp) (_maxBlockExUnits ppup),
-      _maxValSize = fromSMaybe (_maxValSize pp) (_maxValSize ppup),
-      _collateralPercentage = fromSMaybe (_collateralPercentage pp) (_collateralPercentage ppup),
-      _maxCollateralInputs = fromSMaybe (_maxCollateralInputs pp) (_maxCollateralInputs ppup)
-    }
+updatePParams = applyPPUpdates
 
 -- | Turn an BabbagePParamsHKD into a ShelleyPParamsHKD
 retractPP ::

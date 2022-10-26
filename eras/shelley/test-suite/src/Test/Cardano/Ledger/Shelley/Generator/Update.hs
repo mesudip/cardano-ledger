@@ -242,9 +242,11 @@ genShelleyPParamsUpdate c@Constants {maxMinFeeA, maxMinFeeB} pp = do
   minUTxOValue <- genM $ genMinUTxOValue
   minPoolCost <- genM $ genMinPoolCost
   pure
-    ( PParamsUpdate $ ShelleyPParams
-        { _minfeeA = minFeeA,
-          _minfeeB = minFeeB,
+    ( emptyPParamsUpdate
+      & ppuMinFeeAL .~ minFeeA
+      & ppuMinFeeBL .~ minFeeB
+      & ppuMaxBBSizeL .~ maxBBSize
+      ...
           _maxBBSize = maxBBSize,
           _maxTxSize = maxTxSize,
           _maxBHSize = maxBHSize,
