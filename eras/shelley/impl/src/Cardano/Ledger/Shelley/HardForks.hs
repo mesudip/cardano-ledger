@@ -24,7 +24,7 @@ aggregatedRewards pv = pvMajor pv > 2
 -- able to transfer funds between the reserves and the treasury.
 -- Additionally, the semantics for the pervious functionality will
 -- change a bit. Before version 5 redundancies in the instantaneous
--- reward mapving were handled by overriding. Now they are handled
+-- reward mapping were handled by overriding. Now they are handled
 -- by adding the values and allowing for negatives updates, provided
 -- the sum for each key remains positive.
 allowMIRTransfer ::
