@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE RankNTypes #-}
 
 -- | Benchmarks for Shelley test generators.
 module Cardano.Ledger.Shelley.Bench.Gen
