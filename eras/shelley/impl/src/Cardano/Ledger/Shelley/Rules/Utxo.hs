@@ -57,14 +57,14 @@ import Cardano.Ledger.Core
 import qualified Cardano.Ledger.Crypto as CC
 import Cardano.Ledger.Keys (GenDelegs, KeyHash, KeyRole (..))
 import Cardano.Ledger.Rules.ValidationMode (Inject (..), Test, runTest)
+import Cardano.Ledger.Shelley.Core.PParams
+  ( PPUPState (..),
+    Update,
+  )
 import Cardano.Ledger.Shelley.Era (ShelleyEra, ShelleyUTXO)
 import Cardano.Ledger.Shelley.LedgerState.IncrementalStake
 import Cardano.Ledger.Shelley.LedgerState.Types
   ( UTxOState (..),
-  )
-import Cardano.Ledger.Shelley.Core.PParams
-  ( PPUPState (..),
-    Update,
   )
 import Cardano.Ledger.Shelley.Rules.Ppup
   ( PpupEnv (..),

@@ -1,12 +1,12 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Cardano.Ledger.Mary.Translation where
 
@@ -17,6 +17,7 @@ import Cardano.Binary
     serialize,
   )
 import Cardano.Ledger.Compactible (Compactible (..))
+import Cardano.Ledger.Core (EraTx, PParams (..), PParamsUpdate (..))
 import Cardano.Ledger.Crypto (Crypto)
 import Cardano.Ledger.Era hiding (EraCrypto)
 import Cardano.Ledger.Mary.Value (MaryValue (..))
@@ -38,14 +39,13 @@ import Cardano.Ledger.Shelley.TxWits (ShelleyTxWits (..), decodeWits)
 import Cardano.Ledger.ShelleyMA.AuxiliaryData
   ( AllegraTxAuxData (..),
   )
-import Cardano.Ledger.ShelleyMA.Era (MaryEra, AllegraEra)
+import Cardano.Ledger.ShelleyMA.Era (AllegraEra, MaryEra)
 import Cardano.Ledger.ShelleyMA.Timelocks (Timelock, translateTimelock)
 import qualified Cardano.Ledger.Val as Val
 import Control.Monad.Except (throwError)
 import Data.Coerce (coerce)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe)
-import Cardano.Ledger.Core (PParams(..), PParamsUpdate (..), EraTx)
 import Data.Void (Void)
 
 --------------------------------------------------------------------------------
@@ -62,7 +62,6 @@ import Data.Void (Void)
 -- 'TranslationError', i.e., 'Void', it means the consensus layer relies on it
 -- being total. Do not change it!
 --------------------------------------------------------------------------------
-
 
 -- | Currently no context is needed to translate from Allegra to Mary.
 --

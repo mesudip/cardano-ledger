@@ -365,5 +365,5 @@ viewTwo = \case
   [] -> []
   [_] -> []
   x : x' : xs ->
-    ([], x, x', xs)
-      : fmap (\(as, b, c, ds) -> (x : as, b, c, ds)) (viewTwo (x' : xs))
+    ([], x, x', xs) :
+    fmap (\(as, b, c, ds) -> (x : as, b, c, ds)) (viewTwo (x' : xs))

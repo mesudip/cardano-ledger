@@ -39,6 +39,7 @@ import Cardano.Ledger.Keys
     hashKey,
   )
 import Cardano.Ledger.Keys.Bootstrap
+import Cardano.Ledger.PParams
 import Cardano.Ledger.SafeHash (extractHash, hashAnnotated)
 import Cardano.Ledger.Shelley (ShelleyEra)
 import Cardano.Ledger.Shelley.LedgerState
@@ -71,6 +72,7 @@ import Cardano.Ledger.Slot (SlotNo (..))
 import Cardano.Ledger.TxIn (TxId (..), TxIn (..), mkTxInPartial)
 import Cardano.Ledger.Val ((<->))
 import Data.ByteString (ByteString)
+import Data.Default.Class (Default (..))
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust)
 import qualified Data.Sequence.Strict as StrictSeq
@@ -89,8 +91,6 @@ import Test.QuickCheck.Hedgehog (hedgehog)
 import Test.Tasty (TestTree)
 import Test.Tasty.HUnit (Assertion)
 import Test.Tasty.QuickCheck (testProperty, (===))
-import Cardano.Ledger.PParams
-import Data.Default.Class (Default(..))
 
 bootstrapHashTest :: TestTree
 bootstrapHashTest = testProperty "rebuild the 'addr root' using a bootstrap witness" $

@@ -25,13 +25,14 @@ import Cardano.Ledger.Mary.Value
     multiAssetFromList,
     policies,
   )
-import Cardano.Ledger.Shelley.PParams (ShelleyPParams, ShelleyPParamsHKD (..), Update, ShelleyPParamsUpdate)
+import Cardano.Ledger.Shelley.PParams (ShelleyPParams, ShelleyPParamsHKD (..), ShelleyPParamsUpdate, Update)
 import Cardano.Ledger.Shelley.Tx
   ( ShelleyTxOut (..),
     TxIn,
   )
 import Cardano.Ledger.Shelley.TxBody (DCert, Wdrl)
 import Cardano.Ledger.Shelley.TxWits (ShelleyTxWits (ShelleyTxWits))
+import Cardano.Ledger.Shelley.Utils (Split (..))
 import Cardano.Ledger.ShelleyMA.Timelocks (Timelock (..))
 import Cardano.Ledger.ShelleyMA.TxBody (MATxBody (MATxBody), scaledMinDeposit)
 import Cardano.Ledger.Val ((<+>))
@@ -61,9 +62,8 @@ import Test.Cardano.Ledger.Shelley.Generator.ScriptClass
   ( ScriptClass (..),
     exponential,
   )
-import Test.Cardano.Ledger.Shelley.Utils (ShelleyTest)
 import Test.Cardano.Ledger.Shelley.Generator.Update (genPParams, genShelleyPParamsUpdate)
-import Cardano.Ledger.Shelley.Utils (Split (..))
+import Test.Cardano.Ledger.Shelley.Utils (ShelleyTest)
 import Test.QuickCheck (Gen, arbitrary, frequency)
 import qualified Test.QuickCheck as QC
 
@@ -325,9 +325,9 @@ instance Split (MaryValue era) where
   vsplit (MaryValue n mp) m
     | m <= 0 = error "must split coins into positive parts"
     | otherwise =
-        ( take (fromIntegral m) (MaryValue (n `div` m) mp : repeat (MaryValue (n `div` m) mempty)),
-          Coin (n `rem` m)
-        )
+      ( take (fromIntegral m) (MaryValue (n `div` m) mp : repeat (MaryValue (n `div` m) mempty)),
+        Coin (n `rem` m)
+      )
 
 instance Mock c => MinGenTxout (MaryEra c) where
   calcEraMinUTxO _txout pp = pp ^. ppMinUTxOValueL

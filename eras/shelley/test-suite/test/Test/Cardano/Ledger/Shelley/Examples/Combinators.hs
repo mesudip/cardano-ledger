@@ -68,6 +68,7 @@ import Cardano.Ledger.Keys
     KeyHash,
     KeyRole (..),
   )
+import Cardano.Ledger.PParams
 import Cardano.Ledger.PoolDistr (PoolDistr (..))
 import Cardano.Ledger.Shelley.EpochBoundary (SnapShot, SnapShots (..))
 import Cardano.Ledger.Shelley.LedgerState
@@ -112,10 +113,9 @@ import qualified Data.Set as Set
 import Data.UMap (View (Delegations, Ptrs, Rewards), unView)
 import qualified Data.UMap as UM
 import Data.Word (Word64)
-import Test.Cardano.Ledger.Shelley.Rules.Chain (ChainState (..))
-import Test.Cardano.Ledger.Shelley.Utils (epochFromSlotNo, getBlockNonce, ShelleyTest)
 import Lens.Micro ((^.))
-import Cardano.Ledger.PParams
+import Test.Cardano.Ledger.Shelley.Rules.Chain (ChainState (..))
+import Test.Cardano.Ledger.Shelley.Utils (ShelleyTest, epochFromSlotNo, getBlockNonce)
 
 -- ======================================================
 

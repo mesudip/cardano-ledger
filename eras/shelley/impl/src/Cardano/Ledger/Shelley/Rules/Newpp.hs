@@ -20,6 +20,10 @@ where
 import Cardano.Ledger.BaseTypes (ShelleyBase)
 import Cardano.Ledger.Coin (Coin (..))
 import Cardano.Ledger.Core
+import Cardano.Ledger.Shelley.Core.PParams
+  ( ProposedPPUpdates (..),
+    emptyPPPUpdates,
+  )
 import Cardano.Ledger.Shelley.EpochBoundary (obligation)
 import Cardano.Ledger.Shelley.Era (ShelleyNEWPP)
 import Cardano.Ledger.Shelley.LedgerState
@@ -33,10 +37,6 @@ import Cardano.Ledger.Shelley.LedgerState
     _deposited,
     _irwd,
   )
-import Cardano.Ledger.Shelley.Core.PParams
-  ( ProposedPPUpdates (..),
-    emptyPPPUpdates
-  )
 import Cardano.Ledger.Shelley.TxBody (MIRPot (..))
 import Control.State.Transition
   ( STS (..),
@@ -49,8 +49,8 @@ import Data.Default.Class (Default, def)
 import Data.Typeable (Typeable)
 import Data.UMap (rewView)
 import GHC.Generics (Generic)
-import NoThunks.Class (NoThunks (..))
 import Lens.Micro ((^.))
+import NoThunks.Class (NoThunks (..))
 
 data ShelleyNewppState era
   = NewppState (PParams era) (PPUPState era)

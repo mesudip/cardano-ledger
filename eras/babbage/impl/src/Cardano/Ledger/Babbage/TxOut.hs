@@ -72,6 +72,7 @@ import Cardano.Ledger.Alonzo.TxBody
   )
 import qualified Cardano.Ledger.Alonzo.TxBody as Alonzo
 import Cardano.Ledger.Babbage.Era (BabbageEra)
+import Cardano.Ledger.Babbage.PParams.Class
 import Cardano.Ledger.Babbage.Scripts ()
 import Cardano.Ledger.BaseTypes
   ( StrictMaybe (..),
@@ -109,7 +110,6 @@ import GHC.Stack (HasCallStack)
 import Lens.Micro
 import NoThunks.Class (InspectHeapNamed (..), NoThunks)
 import Prelude hiding (lookup)
-import Cardano.Ledger.Babbage.PParams.Class
 
 data BabbageTxOut era
   = TxOutCompact'
@@ -350,14 +350,14 @@ mkTxOut addr _cAddr vl NoDatum SNothing
     Addr network paymentCred stakeRef <- addr,
     StakeRefBase stakeCred <- stakeRef,
     Just (Refl, addr28Extra) <- encodeAddress28 network paymentCred =
-      TxOut_AddrHash28_AdaOnly stakeCred addr28Extra adaCompact
+    TxOut_AddrHash28_AdaOnly stakeCred addr28Extra adaCompact
 mkTxOut addr _cAddr vl (DatumHash dh) SNothing
   | Just adaCompact <- getAdaOnly (Proxy @era) vl,
     Addr network paymentCred stakeRef <- addr,
     StakeRefBase stakeCred <- stakeRef,
     Just (Refl, addr28Extra) <- encodeAddress28 network paymentCred,
     Just (Refl, dataHash32) <- encodeDataHash32 dh =
-      TxOut_AddrHash28_AdaOnly_DataHash32 stakeCred addr28Extra adaCompact dataHash32
+    TxOut_AddrHash28_AdaOnly_DataHash32 stakeCred addr28Extra adaCompact dataHash32
 mkTxOut _addr cAddr vl d rs =
   let cVal = fromMaybe (error "Illegal value in txout") $ toCompact vl
    in case rs of
@@ -389,7 +389,7 @@ pattern TxOutCompact addr vl <-
   where
     TxOutCompact cAddr cVal
       | isAdaOnlyCompact cVal =
-          mkTxOut (decompactAddr cAddr) cAddr (fromCompact cVal) NoDatum SNothing
+        mkTxOut (decompactAddr cAddr) cAddr (fromCompact cVal) NoDatum SNothing
       | otherwise = TxOutCompact' cAddr cVal
 
 pattern TxOutCompactDH ::
@@ -403,7 +403,7 @@ pattern TxOutCompactDH addr vl dh <-
   where
     TxOutCompactDH cAddr cVal dh
       | isAdaOnlyCompact cVal =
-          mkTxOut (decompactAddr cAddr) cAddr (fromCompact cVal) (DatumHash dh) SNothing
+        mkTxOut (decompactAddr cAddr) cAddr (fromCompact cVal) (DatumHash dh) SNothing
       | otherwise = TxOutCompactDH' cAddr cVal dh
 
 {-# COMPLETE TxOutCompact, TxOutCompactDH #-}

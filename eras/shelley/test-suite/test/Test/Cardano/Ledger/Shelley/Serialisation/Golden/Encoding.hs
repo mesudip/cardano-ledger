@@ -44,7 +44,7 @@ import Cardano.Ledger.BaseTypes
   )
 import Cardano.Ledger.Block (Block (..))
 import Cardano.Ledger.Coin (Coin (..), CompactForm (..), DeltaCoin (..))
-import Cardano.Ledger.Core (EraTx, Tx, hashScript, hashTxAuxData, PParamsUpdate)
+import Cardano.Ledger.Core (EraTx, PParamsUpdate, Tx, hashScript, hashTxAuxData)
 import Cardano.Ledger.Credential (Credential (..), StakeReference (..))
 import qualified Cardano.Ledger.Crypto as CC
 import Cardano.Ledger.Era (EraCrypto (..))
@@ -108,11 +108,11 @@ import Cardano.Ledger.Shelley.LedgerState
   )
 import qualified Cardano.Ledger.Shelley.Metadata as MD
 import Cardano.Ledger.Shelley.PParams
-  ( ShelleyPParamsHKD (..),
+  ( ProposedPPUpdates (..),
+    ShelleyPParamsHKD (..),
     ShelleyPParamsUpdate,
     emptyPParams,
     pattern ProposedPPUpdates,
-    ProposedPPUpdates (..),
     pattern Update,
   )
 import Cardano.Ledger.Shelley.Rewards ()
@@ -178,12 +178,12 @@ import Cardano.Protocol.TPraos.OCert
   )
 import Codec.CBOR.Encoding (Encoding (..), Tokens (..))
 import Data.ByteString (ByteString)
-import Data.Functor.Identity (Identity)
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as BS (pack)
 import qualified Data.ByteString.Lazy as BSL (ByteString)
 import Data.Coerce (coerce)
 import Data.Default.Class (def)
+import Data.Functor.Identity (Identity)
 import Data.IP (toIPv4)
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe (fromJust)
@@ -757,25 +757,26 @@ tests =
             ProposedPPUpdates @C
               ( Map.singleton
                   (testGKeyHash @C_Crypto)
-                  ( PParamsUpdate $ ShelleyPParams
-                      { _minfeeA = SNothing,
-                        _minfeeB = SNothing,
-                        _maxBBSize = SNothing,
-                        _maxTxSize = SNothing,
-                        _maxBHSize = SNothing,
-                        _keyDeposit = SNothing,
-                        _poolDeposit = SNothing,
-                        _eMax = SNothing,
-                        _nOpt = SJust 100,
-                        _a0 = SNothing,
-                        _rho = SNothing,
-                        _tau = SNothing,
-                        _d = SNothing,
-                        _extraEntropy = SNothing,
-                        _protocolVersion = SNothing,
-                        _minUTxOValue = SNothing,
-                        _minPoolCost = SNothing
-                      }
+                  ( PParamsUpdate $
+                      ShelleyPParams
+                        { _minfeeA = SNothing,
+                          _minfeeB = SNothing,
+                          _maxBBSize = SNothing,
+                          _maxTxSize = SNothing,
+                          _maxBHSize = SNothing,
+                          _keyDeposit = SNothing,
+                          _poolDeposit = SNothing,
+                          _eMax = SNothing,
+                          _nOpt = SJust 100,
+                          _a0 = SNothing,
+                          _rho = SNothing,
+                          _tau = SNothing,
+                          _d = SNothing,
+                          _extraEntropy = SNothing,
+                          _protocolVersion = SNothing,
+                          _minUTxOValue = SNothing,
+                          _minPoolCost = SNothing
+                        }
                   )
               )
           e = EpochNo 0
@@ -821,25 +822,26 @@ tests =
               ( ProposedPPUpdates
                   ( Map.singleton
                       testGKeyHash
-                      ( PParamsUpdate $ ShelleyPParams
-                          { _minfeeA = SNothing,
-                            _minfeeB = SNothing,
-                            _maxBBSize = SNothing,
-                            _maxTxSize = SNothing,
-                            _maxBHSize = SNothing,
-                            _keyDeposit = SNothing,
-                            _poolDeposit = SNothing,
-                            _eMax = SNothing,
-                            _nOpt = SJust 100,
-                            _a0 = SNothing,
-                            _rho = SNothing,
-                            _tau = SNothing,
-                            _d = SNothing,
-                            _extraEntropy = SNothing,
-                            _protocolVersion = SNothing,
-                            _minUTxOValue = SNothing,
-                            _minPoolCost = SNothing
-                          }
+                      ( PParamsUpdate $
+                          ShelleyPParams
+                            { _minfeeA = SNothing,
+                              _minfeeB = SNothing,
+                              _maxBBSize = SNothing,
+                              _maxTxSize = SNothing,
+                              _maxBHSize = SNothing,
+                              _keyDeposit = SNothing,
+                              _poolDeposit = SNothing,
+                              _eMax = SNothing,
+                              _nOpt = SJust 100,
+                              _a0 = SNothing,
+                              _rho = SNothing,
+                              _tau = SNothing,
+                              _d = SNothing,
+                              _extraEntropy = SNothing,
+                              _protocolVersion = SNothing,
+                              _minUTxOValue = SNothing,
+                              _minPoolCost = SNothing
+                            }
                       )
                   )
               )
@@ -878,29 +880,30 @@ tests =
           ra = RewardAcnt Testnet (KeyHashObj testKeyHash2)
           ras = Map.singleton ra (Coin 123)
           up =
-            Update 
+            Update
               ( ProposedPPUpdates
                   ( Map.singleton
                       testGKeyHash
-                      ( PParamsUpdate $ ShelleyPParams
-                          { _minfeeA = SNothing,
-                            _minfeeB = SNothing,
-                            _maxBBSize = SNothing,
-                            _maxTxSize = SNothing,
-                            _maxBHSize = SNothing,
-                            _keyDeposit = SNothing,
-                            _poolDeposit = SNothing,
-                            _eMax = SNothing,
-                            _nOpt = SJust 100,
-                            _a0 = SNothing,
-                            _rho = SNothing,
-                            _tau = SNothing,
-                            _d = SNothing,
-                            _extraEntropy = SNothing,
-                            _protocolVersion = SNothing,
-                            _minUTxOValue = SNothing,
-                            _minPoolCost = SNothing
-                          }
+                      ( PParamsUpdate $
+                          ShelleyPParams
+                            { _minfeeA = SNothing,
+                              _minfeeB = SNothing,
+                              _maxBBSize = SNothing,
+                              _maxTxSize = SNothing,
+                              _maxBHSize = SNothing,
+                              _keyDeposit = SNothing,
+                              _poolDeposit = SNothing,
+                              _eMax = SNothing,
+                              _nOpt = SJust 100,
+                              _a0 = SNothing,
+                              _rho = SNothing,
+                              _tau = SNothing,
+                              _d = SNothing,
+                              _extraEntropy = SNothing,
+                              _protocolVersion = SNothing,
+                              _minUTxOValue = SNothing,
+                              _minPoolCost = SNothing
+                            }
                       )
                   )
               )

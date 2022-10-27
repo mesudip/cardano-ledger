@@ -135,7 +135,9 @@ utxosTransition ::
     State (EraRule "PPUP" era) ~ PPUPState era,
     Signal (EraRule "PPUP" era) ~ Maybe (Update era),
     Embed (EraRule "PPUP" era) (BabbageUTXOS era),
-    ToCBOR (PredicateFailure (EraRule "PPUP" era)), AlonzoEraPParams era) =>
+    ToCBOR (PredicateFailure (EraRule "PPUP" era)),
+    AlonzoEraPParams era
+  ) =>
   TransitionRule (BabbageUTXOS era)
 utxosTransition =
   judgmentContext >>= \(TRC (_, _, tx)) -> do
@@ -157,7 +159,9 @@ scriptsYes ::
     Environment (EraRule "PPUP" era) ~ PpupEnv era,
     State (EraRule "PPUP" era) ~ PPUPState era,
     Signal (EraRule "PPUP" era) ~ Maybe (Update era),
-    Embed (EraRule "PPUP" era) (BabbageUTXOS era), AlonzoEraPParams era) =>
+    Embed (EraRule "PPUP" era) (BabbageUTXOS era),
+    AlonzoEraPParams era
+  ) =>
   TransitionRule (BabbageUTXOS era)
 scriptsYes = do
   TRC (UtxoEnv slot pp poolParams genDelegs, u@(UTxOState utxo _ _ pup _), tx) <-
@@ -245,8 +249,8 @@ scriptsNo = do
   let !(utxoKeep, utxoDel) = extractKeys (unUTxO utxo) (txBody ^. collateralInputsTxBodyL)
       UTxO collouts = collOuts txBody
       collateralFees = collAdaBalance txBody utxoDel -- NEW to Babbage
-  pure $!
-    us {- (collInputs txb ⋪ utxo) ∪ collouts tx -}
+  pure
+    $! us {- (collInputs txb ⋪ utxo) ∪ collouts tx -}
       { _utxo = UTxO (Map.union utxoKeep collouts), -- NEW to Babbage
       {- fees + collateralFees -}
         _fees = fees <> collateralFees, -- NEW to Babbage

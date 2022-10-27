@@ -70,16 +70,16 @@ module Cardano.Ledger.Core.PParams -- Rename to: Cardano.Ledger.Core.PParams
     upgradePParams,
     downgradePParams,
     upgradePParamsUpdate,
-    downgradePParamsUpdate
+    downgradePParamsUpdate,
   )
 where
 
 import Cardano.Binary (FromCBOR, ToCBOR)
 import Cardano.Ledger.BaseTypes (NonNegativeInterval, Nonce (..), StrictMaybe (..), UnitInterval)
 import qualified Cardano.Ledger.BaseTypes as BT
-import Cardano.Ledger.Core.Translation
 import Cardano.Ledger.Coin (Coin (..))
 import Cardano.Ledger.Core.Era (Era (..))
+import Cardano.Ledger.Core.Translation
 import Cardano.Ledger.HKD (HKD)
 import Cardano.Ledger.ProtVer (ProtVerAtMost)
 import Cardano.Ledger.Slot (EpochNo (..))
@@ -226,9 +226,10 @@ class
 
   emptyPParams :: PParams era
   emptyPParamsUpdate :: PParamsUpdate era
-  
-  -- | 
+
+  -- |
   type UpgradePParams era :: Type
+
   type DowngradePParams era :: Type
 
   upgradePParamsHKD :: (EraPParams era) => UpgradePParams era -> PParamsHKD f (PreviousEra era) -> PParamsHKD f era

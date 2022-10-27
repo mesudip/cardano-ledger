@@ -22,6 +22,7 @@ import Cardano.Ledger.Coin (Coin)
 import qualified Cardano.Ledger.Core as Core
 import Cardano.Ledger.Era (Era, EraCrypto)
 import Cardano.Ledger.Keys (HasKeyRole (coerceKeyRole), asWitness)
+import Cardano.Ledger.PParams
 import Cardano.Ledger.Shelley.API
   ( AccountState,
     DCert,
@@ -68,15 +69,14 @@ import Data.Sequence.Strict (StrictSeq)
 import qualified Data.Sequence.Strict as StrictSeq
 import GHC.Generics (Generic)
 import GHC.Stack (HasCallStack)
+import Lens.Micro ((^.))
 import Test.Cardano.Ledger.Shelley.Generator.Constants (Constants (..))
 import Test.Cardano.Ledger.Shelley.Generator.Core (GenEnv (..), KeySpace (..))
 import Test.Cardano.Ledger.Shelley.Generator.Delegation (CertCred (..), genDCert)
 import Test.Cardano.Ledger.Shelley.Generator.EraGen (EraGen (..))
 import Test.Cardano.Ledger.Shelley.Generator.ScriptClass (scriptKeyCombination)
-import Test.Cardano.Ledger.Shelley.Utils (testGlobals, ShelleyTest)
+import Test.Cardano.Ledger.Shelley.Utils (ShelleyTest, testGlobals)
 import Test.QuickCheck (Gen)
-import Lens.Micro ((^.))
-import Cardano.Ledger.PParams
 
 -- | This is a non-spec STS used to generate a sequence of certificates with
 -- witnesses.

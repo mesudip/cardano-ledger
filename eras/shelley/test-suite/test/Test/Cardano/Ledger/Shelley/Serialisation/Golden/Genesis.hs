@@ -2,8 +2,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Test.Cardano.Ledger.Shelley.Serialisation.Golden.Genesis
   ( tests,
@@ -20,8 +20,8 @@ import Cardano.Ledger.BaseTypes (textToDns, textToUrl)
 import Cardano.Ledger.Crypto (HASH)
 import Cardano.Ledger.Era (EraCrypto (..))
 import Cardano.Ledger.Keys (hashKey, hashVerKeyVRF, vKey)
-import Cardano.Ledger.Shelley (Shelley)
 import Cardano.Ledger.PParams (PParams (..), emptyPParams, ppDL, ppMaxBBSizeL, ppMaxBHSizeL)
+import Cardano.Ledger.Shelley (Shelley)
 import qualified Cardano.Ledger.Shelley.API as L
 import Cardano.Ledger.Shelley.Genesis
 import Cardano.Slotting.Slot (EpochSize (..))
@@ -34,15 +34,15 @@ import Data.Scientific (Scientific)
 import qualified Data.Sequence.Strict as StrictSeq
 import qualified Data.Set as Set
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
+import Lens.Micro
 import Paths_cardano_ledger_shelley_test (getDataFileName)
 import qualified Test.Cardano.Ledger.Shelley.Examples.Cast as Cast
-import Lens.Micro
 import Test.Cardano.Ledger.Shelley.Utils
   ( RawSeed (..),
+    ShelleyTest,
     mkKeyPair,
     mkVRFKeyPair,
     unsafeBoundRational,
-    ShelleyTest,
   )
 import Test.Tasty
 import Test.Tasty.HUnit (Assertion, assertFailure, testCase, (@?=))
@@ -212,7 +212,7 @@ exampleShelleyGenesis =
       sgSlotLength = 8,
       sgUpdateQuorum = 16991,
       sgMaxLovelaceSupply = 71,
-      sgProtocolParams = 
+      sgProtocolParams =
         emptyPParams @era
           & ppDL .~ (unsafeBoundRational . realToFrac $ (1.9e-2 :: Scientific))
           & ppMaxBBSizeL .~ 239857

@@ -13,17 +13,18 @@ module Cardano.Ledger.ShelleyMA.Tx
   )
 where
 
-import Cardano.Ledger.Core (EraTx (..), EraTxWits (..), PhasedScript (..), ProtVerAtMost, EraPParams, EraTxOut (..))
+import Cardano.Ledger.Core (EraPParams, EraTx (..), EraTxOut (..), EraTxWits (..), PhasedScript (..), ProtVerAtMost)
 import Cardano.Ledger.Crypto (StandardCrypto)
 import Cardano.Ledger.Keys.WitVKey (witVKeyHash)
 import Cardano.Ledger.Shelley.Tx
   ( ShelleyTx,
+    ShelleyTxOut,
     auxDataShelleyTxL,
     bodyShelleyTxL,
     mkBasicShelleyTx,
     shelleyMinFeeTx,
     sizeShelleyTxF,
-    witsShelleyTxL, ShelleyTxOut
+    witsShelleyTxL,
   )
 import Cardano.Ledger.ShelleyMA.AuxiliaryData ()
 import Cardano.Ledger.ShelleyMA.Era (MAClass, MaryOrAllegra (..), ShelleyMAEra)

@@ -99,6 +99,7 @@ import Cardano.Ledger.Keys
 import Cardano.Ledger.Shelley.API (ApplyBlock)
 import Cardano.Ledger.Shelley.BlockChain (ShelleyTxSeq)
 import Cardano.Ledger.Shelley.LedgerState (StashedAVVMAddresses)
+import Cardano.Ledger.Shelley.PParams
 import Cardano.Ledger.Shelley.Tx (ShelleyTx, ShelleyTxOut)
 import Cardano.Ledger.Shelley.TxBody (ShelleyEraTxBody)
 import Cardano.Ledger.Shelley.TxWits (ShelleyTxWits)
@@ -125,8 +126,9 @@ import Control.State.Transition.Trace
   )
 import Data.Coerce (Coercible, coerce)
 import Data.Default.Class (Default)
-import Data.Functor.Identity (runIdentity, Identity)
+import Data.Functor.Identity (Identity, runIdentity)
 import Data.Maybe (fromMaybe)
+import Data.Maybe.Strict (StrictMaybe)
 import Data.Time.Clock.POSIX
 import Data.Typeable (Proxy (Proxy))
 import Data.Word (Word64)
@@ -137,8 +139,6 @@ import Test.Tasty.HUnit
   ( Assertion,
     (@?=),
   )
-import Cardano.Ledger.Shelley.PParams
-import Data.Maybe.Strict (StrictMaybe)
 
 type ChainProperty era =
   ( Mock (EraCrypto era),

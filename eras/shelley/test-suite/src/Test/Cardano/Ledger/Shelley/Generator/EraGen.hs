@@ -55,6 +55,7 @@ import Cardano.Ledger.Shelley.PParams (Update)
 import Cardano.Ledger.Shelley.Rules (UtxoEnv)
 import Cardano.Ledger.Shelley.TxBody (DCert, ShelleyEraTxBody, Wdrl, WitVKey)
 import Cardano.Ledger.Shelley.UTxO (UTxO)
+import Cardano.Ledger.Shelley.Utils (Split (..))
 import Cardano.Ledger.TxIn (TxId (TxId), TxIn)
 import Cardano.Protocol.TPraos.BHeader (BHeader)
 import Cardano.Slotting.Slot (SlotNo)
@@ -77,7 +78,6 @@ import Test.Cardano.Ledger.Shelley.Generator.Core
   )
 import Test.Cardano.Ledger.Shelley.Generator.ScriptClass (ScriptClass, baseScripts, combinedScripts, keyPairs)
 import Test.Cardano.Ledger.Shelley.Rules.Chain (CHAIN, ChainState)
-import Cardano.Ledger.Shelley.Utils (Split (..))
 import Test.QuickCheck (Gen, choose, shuffle)
 
 {------------------------------------------------------------------------------

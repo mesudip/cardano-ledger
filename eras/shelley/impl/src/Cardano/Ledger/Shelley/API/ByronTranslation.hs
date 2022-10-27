@@ -23,6 +23,7 @@ import Cardano.Ledger.BaseTypes (BlocksMade (..), TxIx (..))
 import Cardano.Ledger.Coin (CompactForm (CompactCoin))
 import Cardano.Ledger.CompactAddress (CompactAddr (UnsafeCompactAddr))
 import Cardano.Ledger.Core
+import qualified Cardano.Ledger.Core as Core
 import qualified Cardano.Ledger.Crypto as CC
 import Cardano.Ledger.SafeHash (unsafeMakeSafeHash)
 import Cardano.Ledger.Shelley (ShelleyEra)
@@ -38,7 +39,6 @@ import qualified Data.Map.Strict as Map
 import Data.Word
 import GHC.Stack (HasCallStack)
 import Lens.Micro.Extras (view)
-import qualified Cardano.Ledger.Core as Core
 
 -- | We use the same hashing algorithm so we can unwrap and rewrap the bytes.
 -- We don't care about the type that is hashed, which will differ going from

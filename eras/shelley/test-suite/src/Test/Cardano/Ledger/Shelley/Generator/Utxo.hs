@@ -58,6 +58,7 @@ import Cardano.Ledger.Shelley.UTxO
     makeWitnessesVKey,
     sumAllValue,
   )
+import Cardano.Ledger.Shelley.Utils (Split (..))
 import Cardano.Ledger.Val (Val (..), sumVal, (<+>), (<->), (<×>))
 import Control.Monad (when)
 import Control.State.Transition
@@ -95,7 +96,6 @@ import Test.Cardano.Ledger.Shelley.Generator.ScriptClass (scriptKeyCombination)
 import Test.Cardano.Ledger.Shelley.Generator.Trace.DCert (CERTS, genDCerts)
 import Test.Cardano.Ledger.Shelley.Generator.Update (genUpdate)
 import Test.Cardano.Ledger.Shelley.Utils (ShelleyTest)
-import Cardano.Ledger.Shelley.Utils (Split (..))
 import Test.QuickCheck (Gen, discard)
 import qualified Test.QuickCheck as QC
 
@@ -524,7 +524,8 @@ fix :: (Eq d, Monad m) => Int -> (Int -> d -> m d) -> d -> m d
 fix n f d = do d1 <- f n d; if d1 == d then pure d else fix (n + 1) f d1
 
 converge ::
-  forall era. ShelleyTest era =>
+  forall era.
+  ShelleyTest era =>
   (EraGen era, Mock (EraCrypto era)) =>
   ScriptInfo era ->
   Coin ->
@@ -565,17 +566,17 @@ ruffle k items = do
 genIndices :: Int -> (Int, Int) -> Gen ([Int], IntSet.IntSet)
 genIndices k (l', u')
   | k < 0 || u - l + 1 < k =
-      error $
-        "Cannot generate "
-          ++ show k
-          ++ " indices in the range ["
-          ++ show l
-          ++ ", "
-          ++ show u
-          ++ "]"
+    error $
+      "Cannot generate "
+        ++ show k
+        ++ " indices in the range ["
+        ++ show l
+        ++ ", "
+        ++ show u
+        ++ "]"
   | u - l < k `div` 2 = do
-      xs <- take k <$> QC.shuffle [l .. u]
-      pure (xs, IntSet.fromList xs)
+    xs <- take k <$> QC.shuffle [l .. u]
+    pure (xs, IntSet.fromList xs)
   | otherwise = go k [] mempty
   where
     (l, u) =
@@ -585,10 +586,10 @@ genIndices k (l', u')
     go n !res !acc
       | n <= 0 = pure (res, acc)
       | otherwise = do
-          i <- QC.choose (l, u)
-          if IntSet.member i acc
-            then go n res acc
-            else go (n - 1) (i : res) $ IntSet.insert i acc
+        i <- QC.choose (l, u)
+        if IntSet.member i acc
+          then go n res acc
+          else go (n - 1) (i : res) $ IntSet.insert i acc
 
 -- | Select @n@ random key value pairs from the supplied map. Order of keys with
 -- respect to each other will also be random, i.e. not sorted.
@@ -598,9 +599,9 @@ pickRandomFromMap n' initMap = go (min (max 0 n') (Map.size initMap)) [] initMap
     go n !acc !m
       | n <= 0 = pure acc
       | otherwise = do
-          i <- QC.choose (0, n - 1)
-          let (k, y) = Map.elemAt i m
-          go (n - 1) ((k, y) : acc) (Map.deleteAt i m)
+        i <- QC.choose (0, n - 1)
+        let (k, y) = Map.elemAt i m
+        go (n - 1) ((k, y) : acc) (Map.deleteAt i m)
 
 mkScriptWits ::
   forall era.

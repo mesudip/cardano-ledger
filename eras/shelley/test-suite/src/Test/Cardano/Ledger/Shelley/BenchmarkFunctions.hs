@@ -1,10 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 
 module Test.Cardano.Ledger.Shelley.BenchmarkFunctions
   ( ledgerSpendOneUTxO,
@@ -46,6 +46,7 @@ import Cardano.Ledger.Keys
     hashVerKeyVRF,
     vKey,
   )
+import Cardano.Ledger.PParams
 import Cardano.Ledger.SafeHash (hashAnnotated)
 import Cardano.Ledger.Shelley (ShelleyEra)
 import Cardano.Ledger.Shelley.Delegation.Certificates (DelegCert (..))
@@ -54,6 +55,7 @@ import Cardano.Ledger.Shelley.LedgerState
     LedgerState (..),
     UTxOState (..),
   )
+import Cardano.Ledger.Shelley.PParams (ShelleyPParamsHKD (..))
 import Cardano.Ledger.Shelley.Rules (LedgerEnv (..), ShelleyLEDGER)
 import Cardano.Ledger.Shelley.Tx (ShelleyTx (..))
 import Cardano.Ledger.Shelley.TxBody
@@ -81,6 +83,7 @@ import Cardano.Ledger.Slot (EpochNo (..), SlotNo (..))
 import Cardano.Ledger.TxIn (TxIn (..), mkTxInPartial)
 import Cardano.Ledger.Val (Val (inject))
 import Cardano.Protocol.TPraos.API (PraosCrypto)
+import Control.Monad.Identity (Identity)
 import Control.State.Transition.Extended (TRC (..), applySTS)
 import Data.Default.Class (def)
 import qualified Data.Map.Strict as Map
@@ -99,16 +102,14 @@ import Test.Cardano.Ledger.Shelley.Generator.EraGen (genesisId)
 import Test.Cardano.Ledger.Shelley.Generator.ShelleyEraGen ()
 import Test.Cardano.Ledger.Shelley.Utils
   ( RawSeed (..),
+    ShelleyTest,
     mkAddr,
     mkKeyPair,
     mkKeyPair',
     mkVRFKeyPair,
     runShelleyBase,
-    unsafeBoundRational, ShelleyTest
+    unsafeBoundRational,
   )
-import Cardano.Ledger.Shelley.PParams (ShelleyPParamsHKD(..))
-import Cardano.Ledger.PParams
-import Control.Monad.Identity (Identity)
 
 -- ===============================================
 -- A special Era to run the Benchmarks in
@@ -161,20 +162,21 @@ initUTxO n =
 -- ease of creating transactions.
 ppsBench :: forall era. ShelleyTest era => Core.PParams era
 ppsBench =
-  PParams $ (def @(ShelleyPParamsHKD Identity era))
-    { _maxBBSize = 50000,
-      _d = unsafeBoundRational 0.5,
-      _eMax = EpochNo 10000,
-      _keyDeposit = Coin 0,
-      _maxBHSize = 10000,
-      _maxTxSize = 1000000000,
-      _minfeeA = 0,
-      _minfeeB = 0,
-      _minUTxOValue = Coin 10,
-      _poolDeposit = Coin 0,
-      _rho = unsafeBoundRational 0.0021,
-      _tau = unsafeBoundRational 0.2
-    }
+  PParams $
+    (def @(ShelleyPParamsHKD Identity era))
+      { _maxBBSize = 50000,
+        _d = unsafeBoundRational 0.5,
+        _eMax = EpochNo 10000,
+        _keyDeposit = Coin 0,
+        _maxBHSize = 10000,
+        _maxTxSize = 1000000000,
+        _minfeeA = 0,
+        _minfeeB = 0,
+        _minUTxOValue = Coin 10,
+        _poolDeposit = Coin 0,
+        _rho = unsafeBoundRational 0.0021,
+        _tau = unsafeBoundRational 0.2
+      }
 
 ledgerEnv :: (ShelleyTest era) => LedgerEnv era
 ledgerEnv = LedgerEnv (SlotNo 0) minBound ppsBench (AccountState (Coin 0) (Coin 0))

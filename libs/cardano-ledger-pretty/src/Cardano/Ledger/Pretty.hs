@@ -84,6 +84,7 @@ import Cardano.Ledger.Keys
   )
 import Cardano.Ledger.Keys.Bootstrap (BootstrapWitness (..), ChainCode (..))
 import Cardano.Ledger.MemoBytes (MemoBytes (..))
+import Cardano.Ledger.PParams
 import Cardano.Ledger.PoolDistr (IndividualPoolStake (..), PoolDistr (..))
 import Cardano.Ledger.SafeHash (SafeHash, extractHash)
 import Cardano.Ledger.Shelley.EpochBoundary
@@ -206,7 +207,6 @@ import Lens.Micro ((^.))
 import Prettyprinter
 import Prettyprinter.Internal (Doc (Empty))
 import Prettyprinter.Util (putDocW)
-import Cardano.Ledger.PParams
 
 -- =====================================================================================================
 -- HELPER FUNCTIONS

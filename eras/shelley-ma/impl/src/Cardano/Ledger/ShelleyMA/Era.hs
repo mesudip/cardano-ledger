@@ -2,12 +2,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE RecordWildCards #-}
 
 module Cardano.Ledger.ShelleyMA.Era
   ( ShelleyMAEra,
@@ -27,8 +27,8 @@ import Cardano.Ledger.Core
 import Cardano.Ledger.Crypto as CC (Crypto)
 import Cardano.Ledger.Mary.Value (MaryValue (..), MultiAsset (..), policies, policyID)
 import Cardano.Ledger.ProtVer ()
-import qualified Cardano.Ledger.Shelley.API as API
 import Cardano.Ledger.Shelley (ShelleyEra)
+import qualified Cardano.Ledger.Shelley.API as API
 import Cardano.Ledger.Shelley.Core (ShelleyPParamsHKD (..))
 import Cardano.Ledger.Shelley.Rules
   ( ShelleyBBODY,
@@ -66,6 +66,7 @@ data ShelleyMAEra (ma :: MaryOrAllegra) c
 data MaryOrAllegra = Mary | Allegra
 
 type instance PreviousEra (AllegraEra c) = ShelleyEra c
+
 type instance PreviousEra (MaryEra c) = AllegraEra c
 
 -- | The MAClass provides a method and a type, which implement the differences
@@ -111,7 +112,7 @@ instance MAClass ma c => Era (ShelleyMAEra ma c) where
 type family MAProtVer (ma :: MaryOrAllegra) :: Nat where
   MAProtVer 'Allegra = 3
   MAProtVer 'Mary = 4
-  
+
 --------------------------------------------------------------------------------
 -- Core instances
 --------------------------------------------------------------------------------
@@ -125,7 +126,7 @@ type instance Value (ShelleyMAEra ma c) = MAValue ma c
 
 --   emptyPParams = def
 --   emptyPParamsUpdate = def
-  
+
 --   type UpgradePParams (ShelleyMAEra ma c) = ()
 --   type DowngradePParams (ShelleyMAEra ma c) = ()
 --   upgradePParamsHKD _ ShelleyPParams{..} = ShelleyPParams {..}
@@ -154,11 +155,11 @@ instance (Crypto c, MAClass 'Allegra c, ProtVerAtMost (AllegraEra c) 6) => EraPP
 
   emptyPParams = def
   emptyPParamsUpdate = def
-  
+
   type UpgradePParams (AllegraEra c) = ()
   type DowngradePParams (AllegraEra c) = ()
-  upgradePParamsHKD _ ShelleyPParams{..} = ShelleyPParams {..}
-  downgradePParamsHKD _ ShelleyPParams{..} = ShelleyPParams {..}
+  upgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
+  downgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
 
   hkdMinFeeAL = lens _minfeeA $ \pp x -> pp {_minfeeA = x}
   hkdMinFeeBL = lens _minfeeB $ \pp x -> pp {_minfeeB = x}
@@ -183,11 +184,11 @@ instance (Crypto c, MAClass 'Mary c, ProtVerAtMost (MaryEra c) 6) => EraPParams 
 
   emptyPParams = def
   emptyPParamsUpdate = def
-  
+
   type UpgradePParams (MaryEra c) = ()
   type DowngradePParams (MaryEra c) = ()
-  upgradePParamsHKD _ ShelleyPParams{..} = ShelleyPParams {..}
-  downgradePParamsHKD _ ShelleyPParams{..} = ShelleyPParams {..}
+  upgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
+  downgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
 
   hkdMinFeeAL = lens _minfeeA $ \pp x -> pp {_minfeeA = x}
   hkdMinFeeBL = lens _minfeeB $ \pp x -> pp {_minfeeB = x}

@@ -34,7 +34,7 @@ trippingF f x =
   case f x of
     Right (remaining, y)
       | BSL.null remaining ->
-          x === y
+        x === y
     Right (remaining, y) ->
       counterexample
         ( "Unconsumed trailing bytes:\n"

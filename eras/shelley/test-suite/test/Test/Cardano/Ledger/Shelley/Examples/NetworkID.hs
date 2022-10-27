@@ -7,6 +7,7 @@ module Test.Cardano.Ledger.Shelley.Examples.NetworkID
 where
 
 import Cardano.Ledger.BaseTypes (ProtVer (..))
+import Cardano.Ledger.PParams
 import Cardano.Ledger.Shelley (ShelleyEra)
 import Cardano.Ledger.Shelley.API
   ( DCert (..),
@@ -26,7 +27,6 @@ import qualified Test.Cardano.Ledger.Shelley.Examples.Cast as Cast
 import Test.Cardano.Ledger.Shelley.Utils (applySTSTest, runShelleyBase)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertBool, testCase)
-import Cardano.Ledger.PParams
 
 type ShelleyTest = ShelleyEra C_Crypto
 

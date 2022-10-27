@@ -1,7 +1,7 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE FlexibleContexts #-}
 
 module Test.Cardano.Ledger.Shelley.Serialisation.Tripping.JSON
   ( tests,
@@ -22,11 +22,11 @@ import Hedgehog (Property)
 import qualified Hedgehog
 import Hedgehog.Internal.Property (PropertyName (..))
 import Test.Cardano.Ledger.Shelley.ConcreteCryptoTypes (C, C_Crypto)
+import Test.Cardano.Ledger.Shelley.Orphans ()
 import Test.Cardano.Ledger.Shelley.Serialisation.Generators.Genesis
+import Test.Cardano.Ledger.Shelley.Utils (ShelleyTest)
 import Test.Tasty
 import Test.Tasty.Hedgehog hiding (testProperty)
-import Test.Cardano.Ledger.Shelley.Utils (ShelleyTest)
-import Test.Cardano.Ledger.Shelley.Orphans ()
 
 -- | testProperty has been deprecated. We make our own version here.
 testProperty :: TestName -> Property -> TestTree

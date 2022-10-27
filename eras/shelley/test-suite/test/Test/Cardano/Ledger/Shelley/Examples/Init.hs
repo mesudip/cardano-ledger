@@ -22,7 +22,8 @@ import Cardano.Ledger.Coin (Coin (..))
 import Cardano.Ledger.Core
 import qualified Cardano.Ledger.Crypto as CC
 import Cardano.Ledger.Shelley.PParams
-  ( ShelleyPParamsHKD (..), ShelleyPParams
+  ( ShelleyPParams,
+    ShelleyPParamsHKD (..),
   )
 import Cardano.Ledger.Shelley.UTxO (UTxO (..), balance)
 import Cardano.Ledger.Slot
@@ -38,13 +39,13 @@ import Cardano.Protocol.TPraos.BHeader
     hashHeaderToNonce,
   )
 import Cardano.Slotting.Slot (WithOrigin (..))
+import Data.Default.Class (Default (..))
 import Test.Cardano.Ledger.Shelley.Examples.Federation (genDelegs)
 import Test.Cardano.Ledger.Shelley.Rules.Chain
   ( ChainState (..),
     initialShelleyState,
   )
 import Test.Cardano.Ledger.Shelley.Utils (ShelleyTest, maxLLSupply, mkHash, unsafeBoundRational)
-import Data.Default.Class (Default(..))
 
 -- === Initial Protocol Parameters
 --
@@ -64,19 +65,20 @@ import Data.Default.Class (Default(..))
 -- @
 -- ppEx :: ShelleyTest era => PParams era
 ppEx :: forall era. (ShelleyTest era) => PParams era
-ppEx = PParams $
-  def
-    { _maxBBSize = 50000,
-      _maxBHSize = 10000,
-      _maxTxSize = 10000,
-      _eMax = EpochNo 10000,
-      _keyDeposit = Coin 7,
-      _poolDeposit = Coin 250,
-      _d = unsafeBoundRational 0.5,
-      _tau = unsafeBoundRational 0.2,
-      _rho = unsafeBoundRational 0.0021,
-      _minUTxOValue = Coin 100
-    }
+ppEx =
+  PParams $
+    def
+      { _maxBBSize = 50000,
+        _maxBHSize = 10000,
+        _maxTxSize = 10000,
+        _eMax = EpochNo 10000,
+        _keyDeposit = Coin 7,
+        _poolDeposit = Coin 250,
+        _d = unsafeBoundRational 0.5,
+        _tau = unsafeBoundRational 0.2,
+        _rho = unsafeBoundRational 0.0021,
+        _minUTxOValue = Coin 100
+      }
 
 -- | === The hash of the last Bryon Header
 --

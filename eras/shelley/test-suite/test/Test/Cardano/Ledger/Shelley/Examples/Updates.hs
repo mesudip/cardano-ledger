@@ -57,6 +57,7 @@ import Cardano.Protocol.TPraos.OCert (KESPeriod (..))
 import qualified Data.Map.Strict as Map
 import qualified Data.Sequence.Strict as StrictSeq
 import qualified Data.Set as Set
+import Lens.Micro ((&), (.~))
 import Test.Cardano.Ledger.Shelley.ConcreteCryptoTypes (ExMock)
 import Test.Cardano.Ledger.Shelley.Examples (CHAINExample (..), testCHAINExample)
 import qualified Test.Cardano.Ledger.Shelley.Examples.Cast as Cast
@@ -86,7 +87,6 @@ import Test.Cardano.Ledger.Shelley.Rules.Chain (ChainState (..))
 import Test.Cardano.Ledger.Shelley.Utils (getBlockNonce)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase)
-import Lens.Micro ((&), (.~))
 
 aliceInitCoin :: Coin
 aliceInitCoin = Coin $ 10 * 1000 * 1000 * 1000 * 1000 * 1000
@@ -403,9 +403,9 @@ blockEx4 =
 
 ppExUpdated :: forall c. Cr.Crypto c => PParams (ShelleyEra c)
 ppExUpdated =
-    (ppEx @(ShelleyEra c))
-      & ppPoolDepositL .~ Coin 200
-      & ppExtraEntropyL .~ mkNonceFromNumber 123
+  (ppEx @(ShelleyEra c))
+    & ppPoolDepositL .~ Coin 200
+    & ppExtraEntropyL .~ mkNonceFromNumber 123
 
 expectedStEx4 :: forall c. (ExMock (EraCrypto (ShelleyEra c))) => ChainState (ShelleyEra c)
 expectedStEx4 =

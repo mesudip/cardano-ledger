@@ -82,8 +82,9 @@ import Test.Cardano.Ledger.Shelley.Rules.Chain
   )
 import qualified Test.Cardano.Ledger.Shelley.Rules.Chain as STS (ChainState (ChainState))
 import Test.Cardano.Ledger.Shelley.Utils
-  ( maxLLSupply,
-    mkHash, ShelleyTest
+  ( ShelleyTest,
+    maxLLSupply,
+    mkHash,
   )
 import Test.QuickCheck (Gen)
 

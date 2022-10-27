@@ -49,8 +49,8 @@ import Control.State.Transition
 import Data.Sequence (Seq)
 import qualified Data.Sequence.Strict as StrictSeq
 import GHC.Generics (Generic)
-import NoThunks.Class (NoThunks (..))
 import Lens.Micro ((^.))
+import NoThunks.Class (NoThunks (..))
 
 data ShelleyBbodyState era
   = BbodyState (LedgerState era) (BlocksMade (EraCrypto era))

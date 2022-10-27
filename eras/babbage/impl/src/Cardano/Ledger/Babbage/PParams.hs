@@ -144,15 +144,17 @@ type BabbagePParamsUpdate era = BabbagePParamsHKD StrictMaybe era
 
 instance CC.Crypto c => EraPParams (BabbageEra c) where
   type PParamsHKD f (BabbageEra c) = BabbagePParamsHKD f (BabbageEra c)
-  type UpgradeArgs (BabbageEra era) = -- TODO custom record type
-     (HKD f Coin,
-      HKD f CostModels,
-      HKD f Prices,
-      HKD f ExUnits,
-      HKD f ExUnits,
-      HKD f Natural,
-      HKD f Natural,
-      HKD f Natural
+  type
+    UpgradeArgs (BabbageEra era) -- TODO custom record type
+    =
+      ( HKD f Coin,
+        HKD f CostModels,
+        HKD f Prices,
+        HKD f ExUnits,
+        HKD f ExUnits,
+        HKD f Natural,
+        HKD f Natural,
+        HKD f Natural
       )
   type DowngradeArgs (BabbageEra era) = (HKD f Coin, HKD f UnitInterval, HKD f Nonce)
 
@@ -177,6 +179,7 @@ instance CC.Crypto c => EraPParams (BabbageEra c) where
   hkdTauL = lens _tau (\pp x -> pp {_tau = x})
   hkdProtocolVersionL = lens _protocolVersion (\pp x -> pp {_protocolVersion = x})
   hkdMinPoolCostL = lens _minPoolCost (\pp x -> pp {_minPoolCost = x})
+
   -- Starting from Babbage, d is fixed at 1.0
   ppDG = to (const minBound)
 

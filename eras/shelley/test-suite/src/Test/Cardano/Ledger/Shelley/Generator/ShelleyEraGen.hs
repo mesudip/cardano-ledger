@@ -2,10 +2,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Test.Cardano.Ledger.Shelley.Generator.ShelleyEraGen (genCoin) where
 
@@ -17,13 +17,13 @@ import Cardano.Ledger.BaseTypes (StrictMaybe (..))
 import Cardano.Ledger.Core
 import Cardano.Ledger.Crypto (DSIGN, KES)
 import qualified Cardano.Ledger.Crypto as CC (Crypto)
+import Cardano.Ledger.Pretty ()
 import Cardano.Ledger.Shelley (ShelleyEra)
 import Cardano.Ledger.Shelley.API
   ( Coin (..),
     DCert,
     Update,
   )
-import Cardano.Ledger.Pretty ()
 import Cardano.Ledger.Shelley.Scripts (MultiSig (..))
 import Cardano.Ledger.Shelley.Tx (TxIn (..))
 import Cardano.Ledger.Shelley.TxBody
@@ -38,6 +38,7 @@ import Cardano.Protocol.TPraos.API (PraosCrypto)
 import Control.Monad (replicateM)
 import Data.Sequence.Strict (StrictSeq ((:|>)))
 import Data.Set (Set)
+import Lens.Micro.Extras (view)
 import Test.Cardano.Ledger.Shelley.ConcreteCryptoTypes (Mock)
 import Test.Cardano.Ledger.Shelley.Generator.Constants (Constants (..))
 import Test.Cardano.Ledger.Shelley.Generator.Core
@@ -55,7 +56,6 @@ import Test.Cardano.Ledger.Shelley.Generator.Trace.Chain ()
 import Test.Cardano.Ledger.Shelley.Generator.Update (genPParams, genShelleyPParamsUpdate)
 import Test.Cardano.Ledger.Shelley.Utils (ShelleyTest)
 import Test.QuickCheck (Gen)
-import Lens.Micro.Extras (view)
 
 {------------------------------------------------------------------------------
   ShelleyEra instances for EraGen and ScriptClass

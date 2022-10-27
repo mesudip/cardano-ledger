@@ -17,6 +17,7 @@ where
 import Cardano.Ledger.Alonzo (reapplyAlonzoTx)
 import Cardano.Ledger.Alonzo.Genesis (AlonzoGenesis)
 import Cardano.Ledger.Alonzo.TxInfo (ExtendedUTxO (..))
+import Cardano.Ledger.Babbage.Genesis (augmentPPWithGenesis)
 import Cardano.Ledger.Babbage.Rules ()
 import Cardano.Ledger.Babbage.Tx (babbageTxScripts, getDatumBabbage)
 import Cardano.Ledger.Babbage.TxInfo (babbageTxInfo)
@@ -29,6 +30,7 @@ import Cardano.Ledger.Conway.UTxO ()
 import Cardano.Ledger.Crypto (Crypto, StandardCrypto)
 import Cardano.Ledger.Hashes (EraIndependentTxBody)
 import Cardano.Ledger.Keys (DSignable, Hash)
+import Cardano.Ledger.PParams (PParams (..))
 import Cardano.Ledger.Serialization (sizedValue)
 import qualified Cardano.Ledger.Shelley.API as API
 import Cardano.Ledger.Shelley.UTxO (UTxO (..))
@@ -37,8 +39,6 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe.Strict
 import qualified Data.Set as Set
 import Lens.Micro
-import Cardano.Ledger.PParams (PParams(..))
-import Cardano.Ledger.Babbage.Genesis (augmentPPWithGenesis)
 
 type Conway = ConwayEra StandardCrypto
 

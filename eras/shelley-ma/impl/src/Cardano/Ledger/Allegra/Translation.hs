@@ -16,9 +16,9 @@ import Cardano.Binary
     fromCBOR,
     serialize,
   )
+import Cardano.Ledger.Core
 import Cardano.Ledger.Crypto (Crypto)
 import Cardano.Ledger.Era hiding (EraCrypto)
-import Cardano.Ledger.Core
 import Cardano.Ledger.Shelley (ShelleyEra)
 import Cardano.Ledger.Shelley.API
   ( EpochState (..),
@@ -33,10 +33,10 @@ import Cardano.Ledger.Shelley.API
     UTxOState (..),
     Update,
   )
+import Cardano.Ledger.Shelley.Core (Update (..))
 import qualified Cardano.Ledger.Shelley.LedgerState as LS
   ( returnRedeemAddrsToReserves,
   )
-import Cardano.Ledger.Shelley.Core (Update (..))
 import Cardano.Ledger.Shelley.TxWits (ShelleyTxWits (..), decodeWits)
 import Cardano.Ledger.ShelleyMA ()
 import Cardano.Ledger.ShelleyMA.Era (AllegraEra)
@@ -66,7 +66,6 @@ import qualified Data.Map.Strict as Map
 -- this point, since it has been persisted to disk.
 shelleyToAllegraAVVMsToDelete :: NewEpochState (ShelleyEra c) -> UTxO (ShelleyEra c)
 shelleyToAllegraAVVMsToDelete = stashedAVVMAddresses
-
 
 -- | Currently no context is needed to translate from Shelley to Allegra.
 
@@ -122,9 +121,9 @@ instance Crypto c => TranslateEra (AllegraEra c) ShelleyGenesis where
 -- Auxiliary instances and functions
 --------------------------------------------------------------------------------
 
-instance Crypto c => TranslateEra (AllegraEra c) PParams where
+instance Crypto c => TranslateEra (AllegraEra c) PParams
 
-instance Crypto c => TranslateEra (AllegraEra c) PParamsUpdate where
+instance Crypto c => TranslateEra (AllegraEra c) PParamsUpdate
 
 instance Crypto c => TranslateEra (AllegraEra c) ProposedPPUpdates where
   translateEra ctxt (ProposedPPUpdates ppup) =

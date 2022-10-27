@@ -1,9 +1,9 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
-{-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
 
 module Cardano.Ledger.ShelleyMA.TxOut (scaledMinDeposit) where
 
@@ -16,10 +16,10 @@ import Cardano.Ledger.Shelley.TxBody
     valueEitherShelleyTxOutL,
   )
 import Cardano.Ledger.ShelleyMA.Era
-  ( MAClass,
+  ( AllegraEra,
+    MAClass,
+    MaryEra,
     MaryOrAllegra (..),
-    AllegraEra,
-    MaryEra
   )
 import Cardano.Ledger.Val
   ( Val (isAdaOnly, size),
@@ -28,7 +28,7 @@ import Lens.Micro
 
 instance
   ( MAClass 'Allegra c,
-    ProtVerAtMost (AllegraEra c) 6  -- TODO Is it possible to use transitivity to get rid of this constraint?
+    ProtVerAtMost (AllegraEra c) 6 -- TODO Is it possible to use transitivity to get rid of this constraint?
     -- ProtVerAtMost (AllegraEra c) 4
   ) =>
   EraTxOut (AllegraEra c)
@@ -50,7 +50,7 @@ instance
 
 instance
   ( MAClass 'Mary c,
-    ProtVerAtMost (MaryEra c) 6,  -- TODO Is it possible to use transitivity to get rid of this constraint?
+    ProtVerAtMost (MaryEra c) 6, -- TODO Is it possible to use transitivity to get rid of this constraint?
     ProtVerAtMost (MaryEra c) 4
   ) =>
   EraTxOut (MaryEra c)

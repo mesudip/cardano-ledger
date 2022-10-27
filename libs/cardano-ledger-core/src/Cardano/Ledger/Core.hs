@@ -86,18 +86,18 @@ import Cardano.Ledger.BaseTypes (ProtVer)
 import Cardano.Ledger.Coin (Coin)
 import Cardano.Ledger.CompactAddress (CompactAddr, compactAddr, decompactAddr, isBootstrapCompactAddr)
 import Cardano.Ledger.Compactible (Compactible (..))
+import Cardano.Ledger.Core.Era (Era (..))
+import Cardano.Ledger.Core.PParams
+import Cardano.Ledger.Core.Translation
 import Cardano.Ledger.Credential
 import qualified Cardano.Ledger.Crypto as CC
-import Cardano.Ledger.Core.Era (Era (..))
 import Cardano.Ledger.Hashes
 import Cardano.Ledger.Keys (KeyRole (Staking, Witness))
 import Cardano.Ledger.Keys.Bootstrap (BootstrapWitness)
 import Cardano.Ledger.Keys.WitVKey (WitVKey)
 import Cardano.Ledger.Language (Language)
-import Cardano.Ledger.Rewards (Reward (..), RewardType (..))
-import Cardano.Ledger.Core.PParams
-import Cardano.Ledger.Core.Translation
 import Cardano.Ledger.ProtVer
+import Cardano.Ledger.Rewards (Reward (..), RewardType (..))
 import Cardano.Ledger.SafeHash (HashAnnotated (..), SafeToHash (..))
 import Cardano.Ledger.Serialization (Sized (sizedValue), ToCBORGroup (..), mkSized)
 import Cardano.Ledger.TxIn (TxIn (..))

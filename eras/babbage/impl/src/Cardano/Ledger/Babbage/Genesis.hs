@@ -9,10 +9,10 @@ module Cardano.Ledger.Babbage.Genesis
 where
 
 import Cardano.Ledger.Alonzo.Genesis (AlonzoGenesis (..))
-import Cardano.Ledger.Babbage.PParams.Class (BabbageEraPParams (..), ppCoinsPerUTxOByteL)
 import Cardano.Ledger.Babbage.PParams (BabbagePParams, extendPP)
-import Cardano.Ledger.Shelley.PParams (ShelleyPParams)
+import Cardano.Ledger.Babbage.PParams.Class (BabbageEraPParams (..), ppCoinsPerUTxOByteL)
 import Cardano.Ledger.Core
+import Cardano.Ledger.Shelley.PParams (ShelleyPParams)
 import Data.Functor.Identity (Identity)
 import Lens.Micro
 
@@ -21,7 +21,8 @@ augmentPPWithGenesis ::
   PParams era1 ->
   AlonzoGenesis ->
   PParams era2
-augmentPPWithGenesis bpp
+augmentPPWithGenesis
+  bpp
   -- BabbagePParams
   --   { _minfeeA,
   --     _minfeeB,
@@ -42,16 +43,16 @@ augmentPPWithGenesis bpp
     { coinsPerUTxOWord,
       costmdls, -- = _costmdls,
       prices, -- = _prices,
-      maxTxExUnits,--  = _maxTxExUnits,
+      maxTxExUnits, --  = _maxTxExUnits,
       maxBlockExUnits, -- = _maxBlockExUnits,
       maxValSize, -- = _maxValSize,
       collateralPercentage, -- = _collateralPercentage,
       maxCollateralInputs -- = _maxCollateralInputs
     } =
     emptyPParams
-     & ppMinFeeAL .~ (bpp ^. ppMinFeeAL)
-     & ppMinFeeBL .~ (bpp ^. ppMinFeeBL)
-     & ppMaxBBSizeL .~ (bpp ^. ppMaxBBSizeL)
+      & ppMinFeeAL .~ (bpp ^. ppMinFeeAL)
+      & ppMinFeeBL .~ (bpp ^. ppMinFeeBL)
+      & ppMaxBBSizeL .~ (bpp ^. ppMaxBBSizeL)
       -- _maxTxSize,
       -- _maxBHSize,
       -- _keyDeposit,
@@ -63,7 +64,7 @@ augmentPPWithGenesis bpp
       -- _tau,
       -- _protocolVersion,
       -- _minPoolCost
-     & ppCoinsPerUTxOByteL .~ coinsPerUTxOWord
+      & ppCoinsPerUTxOByteL .~ coinsPerUTxOWord
 
 -- | Given the missing pieces turn a Shelley.PParams' into an Params'
 extendPPWithGenesis ::

@@ -42,6 +42,7 @@ import Cardano.Ledger.BaseTypes
     activeSlotVal,
   )
 import Cardano.Ledger.Coin (Coin (..), coinToRational)
+import Cardano.Ledger.Core (Era (..), EraPParams, PParams, ppA0L, ppNOptL)
 import qualified Cardano.Ledger.Crypto as CC (Crypto)
 import Cardano.Ledger.Keys (KeyHash, KeyRole (..))
 import Cardano.Ledger.Serialization
@@ -71,11 +72,10 @@ import qualified Data.Set as Set
 import Data.Sharing
 import qualified Data.VMap as VMap
 import GHC.Generics (Generic)
-import Lens.Micro (_1, (^.))
+import Lens.Micro ((^.), _1)
 import NoThunks.Class (NoThunks (..))
 import Numeric.Natural (Natural)
 import Quiet
-import Cardano.Ledger.Core (Era (..), EraPParams, PParams, ppNOptL, ppA0L)
 
 newtype LogWeight = LogWeight {unLogWeight :: Float}
   deriving (Eq, Generic, Ord, Num, NFData, NoThunks, ToCBOR, FromCBOR)

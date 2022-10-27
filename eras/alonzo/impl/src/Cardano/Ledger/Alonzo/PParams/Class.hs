@@ -1,20 +1,21 @@
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ConstrainedClassMethods #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.Ledger.Alonzo.PParams.Class where
-import Cardano.Ledger.PParams
-import Lens.Micro (Lens')
-import Cardano.Ledger.HKD (HKD)
-import Cardano.Ledger.Coin (Coin(..))
-import Cardano.Ledger.Alonzo.Scripts (CostModels(..), Prices (..), ExUnits (..))
-import Numeric.Natural (Natural)
-import Control.Monad.Identity (Identity)
+
+import Cardano.Ledger.Alonzo.Scripts (CostModels (..), ExUnits (..), Prices (..))
 import Cardano.Ledger.BaseTypes (StrictMaybe)
+import Cardano.Ledger.Coin (Coin (..))
 import Cardano.Ledger.Core (ProtVerAtMost)
+import Cardano.Ledger.HKD (HKD)
+import Cardano.Ledger.PParams
+import Control.Monad.Identity (Identity)
+import Lens.Micro (Lens')
+import Numeric.Natural (Natural)
 
 class EraPParams era => AlonzoEraPParams era where
   hkdCoinsPerUTxOWordL :: ProtVerAtMost era 6 => Lens' (PParamsHKD f era) (HKD f Coin)

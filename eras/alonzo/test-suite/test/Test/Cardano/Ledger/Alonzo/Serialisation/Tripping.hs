@@ -53,7 +53,7 @@ trippingM f g x = do
   pure $ case res of
     (Right (remaining, y), _)
       | BSL.null remaining ->
-          g x y
+        g x y
     (Right (remaining, _), _) ->
       counterexample
         ("Unconsumed trailing bytes:\n" <> BSL.unpack remaining)

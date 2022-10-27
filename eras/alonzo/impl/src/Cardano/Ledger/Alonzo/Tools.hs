@@ -11,6 +11,7 @@ where
 
 import Cardano.Ledger.Alonzo.Data (Data, Datum (..), binaryDataToData, getPlutusData)
 import Cardano.Ledger.Alonzo.Language (Language (..))
+import Cardano.Ledger.Alonzo.PParams.Class
 import Cardano.Ledger.Alonzo.PlutusScriptApi (knownToNotBe1Phase)
 import Cardano.Ledger.Alonzo.Scripts
   ( AlonzoScript (..),
@@ -51,10 +52,9 @@ import Data.Maybe (mapMaybe)
 import qualified Data.Set as Set
 import Data.Text (Text)
 import Lens.Micro
+import Lens.Micro.Extras (view)
 import qualified PlutusLedgerApi.V1 as PV1
 import qualified PlutusLedgerApi.V2 as PV2
-import Lens.Micro.Extras (view)
-import Cardano.Ledger.Alonzo.PParams.Class
 
 -- | Script failures that can be returned by 'evaluateTransactionExecutionUnits'.
 data TransactionScriptFailure c
@@ -103,7 +103,9 @@ evaluateTransactionExecutionUnits ::
     ExtendedUTxO era,
     EraUTxO era,
     ScriptsNeeded era ~ AlonzoScriptsNeeded era,
-    Script era ~ AlonzoScript era, AlonzoEraPParams era) =>
+    Script era ~ AlonzoScript era,
+    AlonzoEraPParams era
+  ) =>
   PParams era ->
   -- | The transaction.
   Tx era ->

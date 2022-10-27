@@ -83,15 +83,15 @@ where
 
 import Cardano.Ledger.Era (EraCrypto)
 import Cardano.Ledger.Keys (KeyHash, KeyRole (Witness))
+import Cardano.Ledger.Shelley.Core.PParams
+  ( PPUPState (..),
+    pvCanFollow,
+  )
 import Cardano.Ledger.Shelley.LedgerState.DPState
 import Cardano.Ledger.Shelley.LedgerState.IncrementalStake
 import Cardano.Ledger.Shelley.LedgerState.NewEpochState
 import Cardano.Ledger.Shelley.LedgerState.PulsingReward
 import Cardano.Ledger.Shelley.LedgerState.Types
-import Cardano.Ledger.Shelley.Core.PParams
-  ( PPUPState (..),
-    pvCanFollow,
-  )
 import Cardano.Ledger.Shelley.RewardUpdate
 import Cardano.Ledger.Shelley.Rules.Utxow (propWits)
 import Cardano.Ledger.Shelley.Tx (minfee, witsFromTxWitnesses)

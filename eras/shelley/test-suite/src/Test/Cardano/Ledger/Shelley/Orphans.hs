@@ -11,13 +11,13 @@ import Cardano.Ledger.Coin (Coin (..))
 import Cardano.Ledger.Crypto (DSIGN)
 import Cardano.Ledger.Keys
 import Cardano.Ledger.PParams
-import Data.Functor.Identity (Identity)
-import Data.TreeDiff.Class (ToExpr (..))
-import Cardano.Ledger.Shelley.Utils (Split (..))
-import Test.QuickCheck (Arbitrary (..))
-import Data.Maybe.Strict (StrictMaybe)
-import Generic.Random (genericArbitraryU)
 import Cardano.Ledger.Pretty (PrettyA)
+import Cardano.Ledger.Shelley.Utils (Split (..))
+import Data.Functor.Identity (Identity)
+import Data.Maybe.Strict (StrictMaybe)
+import Data.TreeDiff.Class (ToExpr (..))
+import Generic.Random (genericArbitraryU)
+import Test.QuickCheck (Arbitrary (..))
 
 -- We need this here for the tests, but should not be in the actual library because
 -- a Num instance for this type does not make sense in the general case.

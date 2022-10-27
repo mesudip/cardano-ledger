@@ -202,8 +202,9 @@ genesis = genesisState genDelegs0 utxo0
         ]
 
 initPParams :: ShelleyTest era => PParams era
-initPParams = emptyPParams 
-  & ppMaxTxSizeL .~ 1000
+initPParams =
+  emptyPParams
+    & ppMaxTxSizeL .~ 1000
 
 -- | Create an initial UTxO state where Alice has 'aliceInitCoin' and Bob
 -- 'bobInitCoin' to spend. Then create and apply a transaction which, if

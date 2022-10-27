@@ -49,6 +49,7 @@ import Cardano.Ledger.Keys
     KeyRole (..),
     coerceKeyRole,
   )
+import Cardano.Ledger.PParams
 import Cardano.Ledger.PoolDistr (PoolDistr (..))
 import qualified Cardano.Ledger.Pretty as PP
 import Cardano.Ledger.Serialization (ToCBORGroup)
@@ -121,10 +122,9 @@ import qualified Data.Map.Strict as Map
 import Data.Void (Void)
 import Data.Word (Word64)
 import GHC.Generics (Generic)
+import Lens.Micro ((^.))
 import NoThunks.Class (NoThunks (..))
 import Test.Cardano.Ledger.Shelley.Utils (ShelleyTest)
-import Lens.Micro ((^.))
-import Cardano.Ledger.PParams
 
 type instance Core.EraRule "TICKN" (ShelleyEra c) = TICKN
 

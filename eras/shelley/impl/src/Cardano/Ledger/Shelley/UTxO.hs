@@ -67,6 +67,7 @@ import Cardano.Ledger.Keys
     verifySignedDSIGN,
   )
 import Cardano.Ledger.SafeHash (SafeHash, extractHash)
+import Cardano.Ledger.Shelley.Core.PParams (Update)
 import Cardano.Ledger.Shelley.Delegation.Certificates
   ( DCert (..),
     isDeRegKey,
@@ -74,7 +75,6 @@ import Cardano.Ledger.Shelley.Delegation.Certificates
     requiresVKeyWitness,
   )
 import Cardano.Ledger.Shelley.Era (ShelleyEra)
-import Cardano.Ledger.Shelley.Core.PParams (Update)
 import Cardano.Ledger.Shelley.TxBody
   ( PoolCert (..),
     PoolParams (..),
@@ -393,9 +393,9 @@ getConsumedCoin pp (UTxO u) txBody =
 
 -- | Compute the key deregistration refunds in a transaction
 keyRefunds ::
-  (
-    ShelleyEraTxBody era
-  ) =>PParams era ->
+  ( ShelleyEraTxBody era
+  ) =>
+  PParams era ->
   TxBody era ->
   Coin
 keyRefunds pp tx = length deregistrations <×> pp ^. ppKeyDepositL

@@ -1,9 +1,9 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE GADTs #-}
 
 module Test.Cardano.Ledger.Shelley.Serialisation.Generators.Genesis where
 
@@ -50,7 +50,7 @@ import Hedgehog.Internal.Gen ()
 import Hedgehog.Range (Range)
 import qualified Hedgehog.Range as Range
 import Numeric.Natural
-import Test.Cardano.Ledger.Shelley.Utils (mkHash, unsafeBoundRational, ShelleyTest)
+import Test.Cardano.Ledger.Shelley.Utils (ShelleyTest, mkHash, unsafeBoundRational)
 
 genShelleyGenesis :: ShelleyTest era => Gen (ShelleyGenesis era)
 genShelleyGenesis =
@@ -165,25 +165,26 @@ genWords n
   | otherwise = pure []
 
 genPParams :: ShelleyTest era => Gen (Core.PParams era)
-genPParams = fmap Core.PParams $
-  (ShelleyPParams @Identity)
-    <$> genNatural (Range.linear 0 1000)
-    <*> genNatural (Range.linear 0 3)
-    <*> fmap fromIntegral (Gen.word $ Range.linear 100 1000000)
-    <*> fmap fromIntegral (Gen.word $ Range.linear 100 1000000)
-    <*> fmap fromIntegral (Gen.word $ Range.linear 100 1000000)
-    <*> genCoin
-    <*> genCoin
-    <*> genEpochNo
-    <*> genNatural (Range.linear 0 10)
-    <*> genNonNegativeInterval
-    <*> genUnitInterval
-    <*> genUnitInterval
-    <*> genUnitInterval
-    <*> genNonce
-    <*> genProtVer
-    <*> genMinUTxOValue
-    <*> pure mempty -- TODO handle a min pool cost > 0
+genPParams =
+  fmap Core.PParams $
+    (ShelleyPParams @Identity)
+      <$> genNatural (Range.linear 0 1000)
+      <*> genNatural (Range.linear 0 3)
+      <*> fmap fromIntegral (Gen.word $ Range.linear 100 1000000)
+      <*> fmap fromIntegral (Gen.word $ Range.linear 100 1000000)
+      <*> fmap fromIntegral (Gen.word $ Range.linear 100 1000000)
+      <*> genCoin
+      <*> genCoin
+      <*> genEpochNo
+      <*> genNatural (Range.linear 0 10)
+      <*> genNonNegativeInterval
+      <*> genUnitInterval
+      <*> genUnitInterval
+      <*> genUnitInterval
+      <*> genNonce
+      <*> genProtVer
+      <*> genMinUTxOValue
+      <*> pure mempty -- TODO handle a min pool cost > 0
 
 genNatural :: Range Natural -> Gen Natural
 genNatural = Gen.integral

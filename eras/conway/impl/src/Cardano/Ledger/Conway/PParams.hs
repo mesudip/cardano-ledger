@@ -25,12 +25,12 @@ where
 
 import Cardano.Ledger.Alonzo.PParams.Class (AlonzoEraPParams (..))
 import Cardano.Ledger.Babbage.PParams
+import Cardano.Ledger.Babbage.PParams.Class (BabbageEraPParams (..))
 import Cardano.Ledger.Conway.Era (ConwayEra)
 import Cardano.Ledger.Core
 import qualified Cardano.Ledger.Crypto as CC
 import Data.Default (Default (..))
 import Lens.Micro (lens, to)
-import Cardano.Ledger.Babbage.PParams.Class (BabbageEraPParams (..))
 
 instance CC.Crypto c => EraPParams (ConwayEra c) where
   type PParamsHKD f (ConwayEra c) = BabbagePParamsHKD f (ConwayEra c)
@@ -59,16 +59,15 @@ instance CC.Crypto c => EraPParams (ConwayEra c) where
   hkdMinUTxOValueL = notSupportedInThisEraL
 
 instance CC.Crypto c => AlonzoEraPParams (ConwayEra c) where
-  hkdCostmdlsL = lens _costmdls (\pp x -> pp { _costmdls = x })
-  hkdPricesL = lens _prices (\pp x -> pp { _prices = x })
-  hkdMaxTxExUnitsL = lens _maxTxExUnits (\pp x -> pp { _maxTxExUnits = x })
-  hkdMaxBlockExUnitsL = lens _maxBlockExUnits (\pp x -> pp { _maxBlockExUnits = x })
-  hkdMaxValSizeL = lens _maxValSize (\pp x -> pp { _maxValSize = x })
-  hkdCollateralPercentageL = lens _collateralPercentage (\pp x -> pp { _collateralPercentage = x })
-  hkdMaxCollateralInputsL = lens _maxCollateralInputs (\pp x -> pp { _maxCollateralInputs = x })
+  hkdCostmdlsL = lens _costmdls (\pp x -> pp {_costmdls = x})
+  hkdPricesL = lens _prices (\pp x -> pp {_prices = x})
+  hkdMaxTxExUnitsL = lens _maxTxExUnits (\pp x -> pp {_maxTxExUnits = x})
+  hkdMaxBlockExUnitsL = lens _maxBlockExUnits (\pp x -> pp {_maxBlockExUnits = x})
+  hkdMaxValSizeL = lens _maxValSize (\pp x -> pp {_maxValSize = x})
+  hkdCollateralPercentageL = lens _collateralPercentage (\pp x -> pp {_collateralPercentage = x})
+  hkdMaxCollateralInputsL = lens _maxCollateralInputs (\pp x -> pp {_maxCollateralInputs = x})
 
   hkdCoinsPerUTxOWordL = notSupportedInThisEraL
 
 instance CC.Crypto c => BabbageEraPParams (ConwayEra c) where
-  hkdCoinsPerUTxOByteL = lens _coinsPerUTxOByte (\pp x -> pp { _coinsPerUTxOByte = x })
-
+  hkdCoinsPerUTxOByteL = lens _coinsPerUTxOByte (\pp x -> pp {_coinsPerUTxOByte = x})

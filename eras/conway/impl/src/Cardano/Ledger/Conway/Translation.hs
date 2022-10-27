@@ -31,6 +31,7 @@ import Cardano.Ledger.Era
     TranslationContext,
     translateEra',
   )
+import Cardano.Ledger.PParams (mapPParams, mapPParamsUpdate)
 import Cardano.Ledger.Serialization (translateViaCBORAnn)
 import Cardano.Ledger.Shelley.API
   ( DPState (..),
@@ -44,7 +45,6 @@ import qualified Cardano.Ledger.Shelley.API as API
 import Cardano.Ledger.Shelley.PParams (ShelleyPParamsHKD)
 import Cardano.Ledger.ShelleyMA.Timelocks (translateTimelock)
 import Data.Coerce
-import Cardano.Ledger.PParams (mapPParams, mapPParamsUpdate)
 
 --------------------------------------------------------------------------------
 -- Translation from Babbage to Conway

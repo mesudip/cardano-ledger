@@ -18,6 +18,7 @@ import Cardano.Ledger.Alonzo.Tx (AlonzoEraTx)
 import Cardano.Ledger.Babbage.Era (BabbageLEDGER)
 import Cardano.Ledger.Babbage.Rules.Utxow (BabbageUTXOW, BabbageUtxowPredFailure)
 import Cardano.Ledger.BaseTypes (ShelleyBase)
+import Cardano.Ledger.Core (Era (..), EraRule, EraTx (..))
 import Cardano.Ledger.Shelley.EpochBoundary (obligation)
 import Cardano.Ledger.Shelley.LedgerState
   ( DPState (..),
@@ -50,7 +51,6 @@ import Control.State.Transition
     TRC (..),
   )
 import Data.Sequence (Seq)
-import Cardano.Ledger.Core (EraTx(..), EraRule, Era (..))
 
 -- ==================================================
 

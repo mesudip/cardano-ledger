@@ -40,7 +40,7 @@ import Cardano.Ledger.Coin
     rationalToCoinViaFloor,
   )
 import Cardano.Ledger.Compactible (fromCompact)
-import Cardano.Ledger.Core (EraCrypto, PParams (..), Reward (..), RewardType (..), EraPParams (..), ppA0L, ppNOptL)
+import Cardano.Ledger.Core (EraCrypto, EraPParams (..), PParams (..), Reward (..), RewardType (..), ppA0L, ppNOptL)
 import Cardano.Ledger.Credential (Credential (..))
 import qualified Cardano.Ledger.Crypto as CC (Crypto)
 import Cardano.Ledger.Keys (KeyHash, KeyRole (..))

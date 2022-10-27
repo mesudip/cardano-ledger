@@ -36,6 +36,7 @@ import Cardano.Ledger.Credential (Credential)
 import qualified Cardano.Ledger.Crypto as CC
 import Cardano.Ledger.Keys (KeyRole (..))
 import Cardano.Ledger.Serialization (decodeRecordNamed)
+import Cardano.Ledger.Shelley.Core.PParams ()
 import Cardano.Ledger.Shelley.Era (ShelleyEra)
 import Cardano.Ledger.Val (DecodeNonNegative (..))
 import Control.DeepSeq (NFData (rnf))
@@ -47,7 +48,6 @@ import Data.Word (Word8)
 import GHC.Stack (HasCallStack)
 import Lens.Micro
 import NoThunks.Class (InspectHeapNamed (..), NoThunks (..))
-import Cardano.Ledger.Shelley.Core.PParams ()
 
 data ShelleyTxOut era = TxOutCompact
   { txOutCompactAddr :: {-# UNPACK #-} !(CompactAddr (EraCrypto era)),

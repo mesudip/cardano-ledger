@@ -54,8 +54,8 @@ import Data.Set (Set)
 import Data.Typeable (Typeable)
 import qualified Data.UMap as UM
 import GHC.Generics (Generic)
-import NoThunks.Class (NoThunks (..))
 import Lens.Micro ((^.))
+import NoThunks.Class (NoThunks (..))
 
 data ShelleyPoolreapState era = PoolreapState
   { prUTxOSt :: UTxOState era,

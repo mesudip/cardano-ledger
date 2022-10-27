@@ -19,6 +19,7 @@ import Cardano.Ledger.BaseTypes (UnitInterval)
 import qualified Cardano.Ledger.Core as Core
 import Cardano.Ledger.Crypto (VRF)
 import Cardano.Ledger.Era (EraCrypto)
+import Cardano.Ledger.PParams
 import Cardano.Ledger.Shelley.API
 import Cardano.Ledger.Slot (SlotNo (..))
 import Cardano.Protocol.TPraos.API
@@ -44,6 +45,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe (catMaybes, fromMaybe)
 import Data.Sequence (Seq)
 import qualified Data.Set as Set
+import Lens.Micro ((^.))
 import Test.Cardano.Ledger.Shelley.ConcreteCryptoTypes
   ( Mock,
   )
@@ -59,16 +61,15 @@ import Test.Cardano.Ledger.Shelley.Generator.EraGen (EraGen (..), MinLEDGER_STS)
 import Test.Cardano.Ledger.Shelley.Generator.Trace.Ledger ()
 import Test.Cardano.Ledger.Shelley.Rules.Chain (ChainState (..))
 import Test.Cardano.Ledger.Shelley.Utils
-  ( epochFromSlotNo,
+  ( ShelleyTest,
+    epochFromSlotNo,
     maxKESIterations,
     runShelleyBase,
     slotFromEpoch,
-    testGlobals, ShelleyTest
+    testGlobals,
   )
 import Test.QuickCheck (Gen)
 import qualified Test.QuickCheck as QC (choose)
-import Lens.Micro ((^.))
-import Cardano.Ledger.PParams
 
 -- ======================================================
 

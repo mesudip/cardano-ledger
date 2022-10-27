@@ -29,6 +29,7 @@ module Cardano.Ledger.Shelley.Core.PParams
     pvCanFollow,
 
     -- * Deprecated
+
     -- PParams,
     PParams',
     -- PParamsUpdate,
@@ -54,11 +55,11 @@ import Cardano.Ledger.BaseTypes
   )
 import qualified Cardano.Ledger.BaseTypes as BT
 import Cardano.Ledger.Coin (Coin (..))
+import Cardano.Ledger.Core hiding (PParams, PParamsUpdate)
 import qualified Cardano.Ledger.Core as Core
 import qualified Cardano.Ledger.Crypto as CC
 import Cardano.Ledger.HKD (HKD, HKDFunctor (..))
 import Cardano.Ledger.Keys (GenDelegs, KeyHash, KeyRole (..))
-import Cardano.Ledger.Core hiding (PParams, PParamsUpdate)
 import Cardano.Ledger.Serialization
   ( FromCBORGroup (..),
     ToCBORGroup (..),
@@ -86,11 +87,11 @@ import Data.List (nub)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
+import Data.Void (Void)
 import GHC.Generics (Generic)
 import Lens.Micro (lens)
 import NoThunks.Class (NoThunks (..))
 import Numeric.Natural (Natural)
-import Data.Void (Void)
 
 -- ====================================================================
 
@@ -179,7 +180,7 @@ instance CC.Crypto c => Core.EraPParams (ShelleyEra c) where
 
   emptyPParams = def
   emptyPParamsUpdate = def
-  
+
   type UpgradePParams (ShelleyEra c) = Void
   type DowngradePParams (ShelleyEra c) = Void
   upgradePParamsHKD = error "IMPOSSIBLE! There cannot be PParams that can be upgraded to Shelley"
@@ -366,16 +367,16 @@ instance Era era => ToCBOR (ShelleyPParamsHKD StrictMaybe era) where
     let l =
           mapMaybe
             strictMaybeToMaybe
-            [ encodeMapElement 0  toCBOR =<< _minfeeA ppup,
-              encodeMapElement 1  toCBOR =<< _minfeeB ppup,
-              encodeMapElement 2  toCBOR =<< _maxBBSize ppup,
-              encodeMapElement 3  toCBOR =<< _maxTxSize ppup,
-              encodeMapElement 4  toCBOR =<< _maxBHSize ppup,
-              encodeMapElement 5  toCBOR =<< _keyDeposit ppup,
-              encodeMapElement 6  toCBOR =<< _poolDeposit ppup,
-              encodeMapElement 7  toCBOR =<< _eMax ppup,
-              encodeMapElement 8  toCBOR =<< _nOpt ppup,
-              encodeMapElement 9  toCBOR =<< _a0 ppup,
+            [ encodeMapElement 0 toCBOR =<< _minfeeA ppup,
+              encodeMapElement 1 toCBOR =<< _minfeeB ppup,
+              encodeMapElement 2 toCBOR =<< _maxBBSize ppup,
+              encodeMapElement 3 toCBOR =<< _maxTxSize ppup,
+              encodeMapElement 4 toCBOR =<< _maxBHSize ppup,
+              encodeMapElement 5 toCBOR =<< _keyDeposit ppup,
+              encodeMapElement 6 toCBOR =<< _poolDeposit ppup,
+              encodeMapElement 7 toCBOR =<< _eMax ppup,
+              encodeMapElement 8 toCBOR =<< _nOpt ppup,
+              encodeMapElement 9 toCBOR =<< _a0 ppup,
               encodeMapElement 10 toCBOR =<< _rho ppup,
               encodeMapElement 11 toCBOR =<< _tau ppup,
               encodeMapElement 12 toCBOR =<< _d ppup,
@@ -416,16 +417,16 @@ instance Era era => FromCBOR (ShelleyPParamsHKD StrictMaybe era) where
     mapParts <-
       decodeMapContents $
         decodeWord >>= \case
-          0  -> fromCBOR >>= \x -> pure (0 , \up -> up {_minfeeA = SJust x})
-          1  -> fromCBOR >>= \x -> pure (1 , \up -> up {_minfeeB = SJust x})
-          2  -> fromCBOR >>= \x -> pure (2 , \up -> up {_maxBBSize = SJust x})
-          3  -> fromCBOR >>= \x -> pure (3 , \up -> up {_maxTxSize = SJust x})
-          4  -> fromCBOR >>= \x -> pure (4 , \up -> up {_maxBHSize = SJust x})
-          5  -> fromCBOR >>= \x -> pure (5 , \up -> up {_keyDeposit = SJust x})
-          6  -> fromCBOR >>= \x -> pure (6 , \up -> up {_poolDeposit = SJust x})
-          7  -> fromCBOR >>= \x -> pure (7 , \up -> up {_eMax = SJust x})
-          8  -> fromCBOR >>= \x -> pure (8 , \up -> up {_nOpt = SJust x})
-          9  -> fromCBOR >>= \x -> pure (9 , \up -> up {_a0 = SJust x})
+          0 -> fromCBOR >>= \x -> pure (0, \up -> up {_minfeeA = SJust x})
+          1 -> fromCBOR >>= \x -> pure (1, \up -> up {_minfeeB = SJust x})
+          2 -> fromCBOR >>= \x -> pure (2, \up -> up {_maxBBSize = SJust x})
+          3 -> fromCBOR >>= \x -> pure (3, \up -> up {_maxTxSize = SJust x})
+          4 -> fromCBOR >>= \x -> pure (4, \up -> up {_maxBHSize = SJust x})
+          5 -> fromCBOR >>= \x -> pure (5, \up -> up {_keyDeposit = SJust x})
+          6 -> fromCBOR >>= \x -> pure (6, \up -> up {_poolDeposit = SJust x})
+          7 -> fromCBOR >>= \x -> pure (7, \up -> up {_eMax = SJust x})
+          8 -> fromCBOR >>= \x -> pure (8, \up -> up {_nOpt = SJust x})
+          9 -> fromCBOR >>= \x -> pure (9, \up -> up {_a0 = SJust x})
           10 -> fromCBOR >>= \x -> pure (10, \up -> up {_rho = SJust x})
           11 -> fromCBOR >>= \x -> pure (11, \up -> up {_tau = SJust x})
           12 -> fromCBOR >>= \x -> pure (12, \up -> up {_d = SJust x})
@@ -470,7 +471,6 @@ emptyPPPUpdates = ProposedPPUpdates Map.empty
 
 updatePParams :: Core.EraPParams era => Core.PParams era -> Core.PParamsUpdate era -> Core.PParams era
 updatePParams = applyPPUpdates
-
 {-# DEPRECATED updatePParams "Use applyPPUpdates instead" #-}
 
 data PPUPState era = PPUPState

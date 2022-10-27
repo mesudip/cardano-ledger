@@ -115,14 +115,14 @@ instance STS CHAIN where
                   _dSEnvK = k
                 }
         ds <- trans @DELEG $ IRC dsEnv
-        pure $!
-          ( s0,
-            [],
-            genesisHash,
-            utxoSt0,
-            ds,
-            upiState0
-          )
+        pure
+          $! ( s0,
+               [],
+               genesisHash,
+               utxoSt0,
+               ds,
+               upiState0
+             )
     ]
 
   transitionRules =
@@ -280,7 +280,7 @@ sigGenChain
           -- defined.
           toNumberOfGenesisKeys n
             | fromIntegral (maxBound :: Word8) < n =
-                error $ "sigGenChain: too many genesis keys: " ++ show n
+              error $ "sigGenChain: too many genesis keys: " ++ show n
             | otherwise = fromIntegral n
 
       aBlockVersion <-
@@ -328,8 +328,8 @@ sigGenChain
           NoGenUpdate ->
             pure (Nothing, [])
 
-      pure $!
-        mkBlock
+      pure
+        $! mkBlock
           h
           nextSlot
           vkI

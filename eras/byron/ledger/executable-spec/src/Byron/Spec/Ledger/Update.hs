@@ -679,10 +679,10 @@ instance STS UPVOTE where
         vts' <- trans @ADDVOTE $ TRC ((rups, dms), vts, vote)
         let pid = vote ^. vPropId
         size ([pid] ◁ vts') < t || pid ∈ dom cps ?! S_HigherThanThdAndNotAlreadyConfirmed
-        pure $!
-          ( cps,
-            vts'
-          ),
+        pure
+          $! ( cps,
+               vts'
+             ),
       do
         TRC
           ( (sn, t, rups, dms),
@@ -694,10 +694,10 @@ instance STS UPVOTE where
         let pid = vote ^. vPropId
         t <= size ([pid] ◁ vts') ?! S_CfmThdNotReached
         pid ∉ dom cps ?! S_AlreadyConfirmed
-        pure $!
-          ( cps ⨃ [(pid, sn)],
-            vts'
-          )
+        pure
+          $! ( cps ⨃ [(pid, sn)],
+               vts'
+             )
     ]
 
 instance Embed ADDVOTE UPVOTE where
@@ -1010,17 +1010,17 @@ instance STS UPIREG where
           judgmentContext
         (rpus', raus') <- trans @UPREG $ TRC ((pv, pps, avs, dms), (rpus, raus), up)
         let pws' = pws ⨃ [(up ^. upId, sn)]
-        pure $!
-          ( (pv, pps),
-            fads,
-            avs,
-            rpus',
-            raus',
-            cps,
-            vts,
-            bvs,
-            pws'
-          )
+        pure
+          $! ( (pv, pps),
+               fads,
+               avs,
+               rpus',
+               raus',
+               cps,
+               vts,
+               bvs,
+               pws'
+             )
     ]
 
 instance Embed UPREG UPIREG where
@@ -1418,17 +1418,17 @@ instance STS UPIVOTE where
                 ),
                 v
               )
-        pure $!
-          ( (pv, pps),
-            fads,
-            avs,
-            rpus,
-            raus,
-            cps',
-            vts',
-            bvs,
-            pws
-          )
+        pure
+          $! ( (pv, pps),
+               fads,
+               avs,
+               rpus,
+               raus,
+               cps',
+               vts',
+               bvs,
+               pws
+             )
     ]
 
 instance Embed UPVOTE UPIVOTE where
@@ -1506,17 +1506,17 @@ instance STS UPIVOTES where
               [ (an, (av, sn, m))
                 | (an, av, m) <- toList cfmRaus
               ]
-        pure $!
-          ( (pv, pps),
-            fads,
-            avs ⨃ avsNew,
-            rpus,
-            (dom cps) ⋪ raus,
-            cps,
-            vts,
-            bvs,
-            pws
-          )
+        pure
+          $! ( (pv, pps),
+               fads,
+               avs ⨃ avsNew,
+               rpus,
+               (dom cps) ⋪ raus,
+               cps,
+               vts,
+               bvs,
+               pws
+             )
     ]
 
 instance Embed APPLYVOTES UPIVOTES where
@@ -1748,8 +1748,8 @@ instance STS UPIEC where
         (pv', pps') <-
           trans @PVBUMP $
             TRC ((GP.epochFirstSlot k e_n, fads, k), (pv, pps), ())
-        return $!
-          if pv == pv'
+        return
+          $! if pv == pv'
             then us
             else
               ( (pv', pps') :: (ProtVer, PParams),

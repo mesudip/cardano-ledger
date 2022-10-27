@@ -127,6 +127,8 @@ import Cardano.Ledger.Alonzo.TxBody as AlonzoTxBodyReExports
   )
 import Cardano.Ledger.Babbage.Core (BabbageEraTxBody (..))
 import Cardano.Ledger.Babbage.Era (BabbageEra)
+import Cardano.Ledger.Babbage.PParams ()
+import Cardano.Ledger.Babbage.PParams.Class (BabbageEraPParams)
 import Cardano.Ledger.Babbage.Scripts ()
 import Cardano.Ledger.Babbage.TxOut
 import Cardano.Ledger.BaseTypes
@@ -174,8 +176,6 @@ import GHC.Generics (Generic)
 import Lens.Micro
 import NoThunks.Class (NoThunks)
 import Prelude hiding (lookup)
-import Cardano.Ledger.Babbage.PParams ()
-import Cardano.Ledger.Babbage.PParams.Class (BabbageEraPParams)
 
 -- ======================================
 

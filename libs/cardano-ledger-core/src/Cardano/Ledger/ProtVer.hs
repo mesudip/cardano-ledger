@@ -1,12 +1,12 @@
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
-module Cardano.Ledger.ProtVer 
+module Cardano.Ledger.ProtVer
   ( AtMostEra,
     AtLeastEra,
     ExactEra,
@@ -16,14 +16,15 @@ module Cardano.Ledger.ProtVer
     atLeastEra,
     atMostEra,
     notSupportedInThisEra,
-    notSupportedInThisEraL
-  ) where
+    notSupportedInThisEraL,
+  )
+where
 
+import Cardano.Ledger.Core.Era (Era (..))
 import Data.Kind (Constraint, Type)
 import GHC.Stack (HasCallStack)
 import GHC.TypeLits
 import Lens.Micro
-import Cardano.Ledger.Core.Era (Era(..))
 
 -----------------------------
 -- Protocol version bounds --

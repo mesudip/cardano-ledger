@@ -25,7 +25,7 @@ module Cardano.Ledger.ShelleyMA
   )
 where
 
-import Cardano.Ledger.Core as Core (EraSegWits (..), ProtVerAtMost, EraPParams, EraTxOut, TxOut)
+import Cardano.Ledger.Core as Core (EraPParams, EraSegWits (..), EraTxOut, ProtVerAtMost, TxOut)
 import Cardano.Ledger.Shelley.BlockChain (ShelleyTxSeq (..))
 import qualified Cardano.Ledger.Shelley.BlockChain as Shelley
   ( bbHash,

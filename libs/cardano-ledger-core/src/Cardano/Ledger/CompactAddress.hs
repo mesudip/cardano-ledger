@@ -321,10 +321,10 @@ decodeAddrStateT buf = do
       then AddrBootstrap <$> decodeBootstrapAddress buf
       else do
         -- Ensure there are no unexpected bytes in the header
-        unless (header .&. headerNonShelleyBits == 0)
-          $ failDecoding
+        unless (header .&. headerNonShelleyBits == 0) $
+          failDecoding
             "Shelley Address"
-          $ "Invalid header. Unused bits are not suppose to be set: " <> show header
+            $ "Invalid header. Unused bits are not suppose to be set: " <> show header
         -- Advance one byte for the consumed header
         modify' (+ 1)
         payment <- decodePaymentCredential header buf
@@ -379,13 +379,13 @@ decodeStakeReference ::
   StateT Int m (StakeReference c)
 decodeStakeReference header buf
   | headerIsBaseAddress header =
-      if headerIsStakingScript header
-        then StakeRefBase . ScriptHashObj <$> decodeScriptHash buf
-        else StakeRefBase . KeyHashObj <$> decodeKeyHash buf
+    if headerIsStakingScript header
+      then StakeRefBase . ScriptHashObj <$> decodeScriptHash buf
+      else StakeRefBase . KeyHashObj <$> decodeKeyHash buf
   | otherwise =
-      if headerIsEnterpriseAddr header
-        then pure StakeRefNull
-        else StakeRefPtr <$> decodePtr buf
+    if headerIsEnterpriseAddr header
+      then pure StakeRefNull
+      else StakeRefPtr <$> decodePtr buf
 {-# INLINE decodeStakeReference #-}
 
 decodeKeyHash ::
@@ -413,11 +413,11 @@ decodeHash buf = do
     Just h -> h <$ modify' (+ hashLen)
     Nothing
       | offset >= 0 ->
-          failDecoding "Hash" $
-            "Not enough bytes supplied: "
-              ++ show (bufLength buf - offset)
-              ++ ". Expected: "
-              ++ show hashLen
+        failDecoding "Hash" $
+          "Not enough bytes supplied: "
+            ++ show (bufLength buf - offset)
+            ++ ". Expected: "
+            ++ show hashLen
     Nothing -> fail "Impossible: Negative offset"
   where
     hashLen :: Int

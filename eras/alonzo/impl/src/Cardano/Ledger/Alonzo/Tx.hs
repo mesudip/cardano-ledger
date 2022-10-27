@@ -92,7 +92,7 @@ import Cardano.Ledger.Alonzo.PParams
     encodeLangViews,
     getLanguageView,
   )
-import Cardano.Ledger.Alonzo.PParams.Class (ppPricesL, AlonzoEraPParams)
+import Cardano.Ledger.Alonzo.PParams.Class (AlonzoEraPParams, ppPricesL)
 import Cardano.Ledger.Alonzo.Scripts
   ( CostModel,
     ExUnits (..),
@@ -346,7 +346,9 @@ alonzoMinFeeTx pp tx =
 
 minfee ::
   ( EraTx era,
-    AlonzoEraTxWits era, AlonzoEraPParams era) =>
+    AlonzoEraTxWits era,
+    AlonzoEraPParams era
+  ) =>
   PParams era ->
   Core.Tx era ->
   Coin

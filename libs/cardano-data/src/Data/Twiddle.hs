@@ -115,7 +115,7 @@ class TwiddleL a where
   twiddleL :: a -> Gen [Term]
 
 instance TwiddleL (V1 p) where
-  twiddleL v1 = case v1 of {}
+  twiddleL v1 = case v1 of
 
 instance TwiddleL (U1 p) where
   twiddleL U1 = pure []

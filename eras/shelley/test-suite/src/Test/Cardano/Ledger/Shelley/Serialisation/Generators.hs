@@ -12,8 +12,10 @@ module Test.Cardano.Ledger.Shelley.Serialisation.Generators () where
 
 import Cardano.Binary (ToCBOR)
 import Cardano.Ledger.Core
-import Cardano.Ledger.Shelley.API (ShelleyTxBody (ShelleyTxBody), ShelleyPParamsHKD)
+import Cardano.Ledger.Shelley.API (ShelleyPParamsHKD, ShelleyTxBody (ShelleyTxBody))
 import qualified Cardano.Ledger.Shelley.Rules as STS
+import Control.Monad.Identity (Identity)
+import Data.Maybe.Strict (StrictMaybe)
 import Generic.Random (genericArbitraryU)
 import Test.Cardano.Ledger.Shelley.ConcreteCryptoTypes (Mock)
 import Test.Cardano.Ledger.Shelley.Serialisation.EraIndepGenerators ()
@@ -22,8 +24,6 @@ import Test.QuickCheck
     arbitrary,
     shrink,
   )
-import Control.Monad.Identity (Identity)
-import Data.Maybe.Strict (StrictMaybe)
 
 {-------------------------------------------------------------------------------
   ShelleyEra Generators

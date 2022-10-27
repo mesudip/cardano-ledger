@@ -42,6 +42,7 @@ import Cardano.Ledger.Coin
     rationalToCoinViaFloor,
   )
 import Cardano.Ledger.Compactible
+import Cardano.Ledger.Core (Era (..), EraPParams (..), PParams (..), ppA0L, ppKeyDepositL, ppNOptL, ppPoolDepositL)
 import Cardano.Ledger.Credential (Credential)
 import qualified Cardano.Ledger.Crypto as CC (Crypto)
 import Cardano.Ledger.Keys (KeyHash, KeyRole (..))
@@ -58,10 +59,9 @@ import Data.Sharing
 import Data.Typeable
 import Data.VMap as VMap
 import GHC.Generics (Generic)
-import Lens.Micro (_1, _2, (^.))
+import Lens.Micro ((^.), _1, _2)
 import NoThunks.Class (NoThunks (..))
 import Numeric.Natural (Natural)
-import Cardano.Ledger.Core (Era (..), PParams (..), EraPParams (..), ppKeyDepositL, ppPoolDepositL, ppA0L, ppNOptL)
 
 -- | Type of stake as map from hash key to coins associated.
 newtype Stake c = Stake
@@ -107,8 +107,8 @@ sumStakePerPool delegs (Stake stake) = VMap.foldlWithKey accum Map.empty stake
 -- | Calculate total possible refunds.
 obligation ::
   forall era t.
-  ( Foldable (t (Credential 'Staking (EraCrypto era)))
-  , EraPParams era
+  ( Foldable (t (Credential 'Staking (EraCrypto era))),
+    EraPParams era
   ) =>
   PParams era ->
   t (Credential 'Staking (EraCrypto era)) Coin ->

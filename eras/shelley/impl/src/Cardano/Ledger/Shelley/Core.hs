@@ -19,9 +19,9 @@ import Cardano.Ledger.Coin (Coin (..))
 import Cardano.Ledger.Core
 import Cardano.Ledger.Crypto (Crypto)
 import Cardano.Ledger.Serialization (mapFromCBOR, mapToCBOR)
+import Cardano.Ledger.Shelley.Core.PParams
 import Cardano.Ledger.Shelley.Delegation.Certificates (DCert)
 import Cardano.Ledger.Shelley.Era (ShelleyEra)
-import Cardano.Ledger.Shelley.Core.PParams
 import Cardano.Ledger.Slot (SlotNo (..))
 import Control.DeepSeq (NFData)
 import Data.Map.Strict (Map)

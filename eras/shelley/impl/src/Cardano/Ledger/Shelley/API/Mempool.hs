@@ -39,11 +39,12 @@ import Cardano.Ledger.BaseTypes (Globals, ShelleyBase)
 import Cardano.Ledger.Core
   ( Era,
     EraIndependentTxBody,
+    EraPParams,
     EraRule,
     EraTx (Tx),
     PreviousEra,
     TranslateEra (..),
-    TranslationContext, EraPParams
+    TranslationContext,
   )
 import Cardano.Ledger.Keys
 import Cardano.Ledger.Shelley (ShelleyEra)

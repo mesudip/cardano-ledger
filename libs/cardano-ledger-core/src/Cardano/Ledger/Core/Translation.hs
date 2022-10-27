@@ -10,11 +10,11 @@ module Cardano.Ledger.Core.Translation
     TranslateEra,
     translateEra,
     translateEraMaybe,
-    translateEra'
+    translateEra',
   )
 where
 
-import Cardano.Ledger.Core.Era (Era(..))
+import Cardano.Ledger.Core.Era (Era (..))
 import Control.Monad.Except (Except, runExcept)
 import Data.Coerce (Coercible, coerce)
 import Data.Kind (Type)

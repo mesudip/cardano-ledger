@@ -327,10 +327,10 @@ mkUpiEnv block env st = (blockSlot, _dIStateDelegationMap delegSt, k, ngk)
     numberOfDelegators = Set.size allowedDelegators
     ngk
       | fromIntegral (maxBound :: Word8) < numberOfDelegators =
-          panic $
-            "ts_prop_invalidDelegationSignalsAreRejected: "
-              <> "too many genesis keys: "
-              <> show numberOfDelegators
+        panic $
+          "ts_prop_invalidDelegationSignalsAreRejected: "
+            <> "too many genesis keys: "
+            <> show numberOfDelegators
       | otherwise = fromIntegral numberOfDelegators
 
 -- | Extract the update state from the given chain state.
@@ -509,17 +509,17 @@ invalidSizesAreRejected
         where
           genAlteredUpdateState ((pv, pps), fads, avs, rpus, raus, cps, vts, bvs, pws) = do
             newMaxSize <- Gen.integral (Range.constant 0 maxSize)
-            pure $!
-              ( (pv, pps `setAbstractParamTo` newMaxSize),
-                fads,
-                avs,
-                rpus,
-                raus,
-                cps,
-                vts,
-                bvs,
-                pws
-              )
+            pure
+              $! ( (pv, pps `setAbstractParamTo` newMaxSize),
+                   fads,
+                   avs,
+                   rpus,
+                   raus,
+                   cps,
+                   vts,
+                   bvs,
+                   pws
+                 )
 
       genConcreteAlteredState ::
         ChainValidationState -> Natural -> Gen ChainValidationState

@@ -1,9 +1,9 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE FlexibleContexts #-}
 
 -- |
 -- Module      : Test.Cardano.Ledger.Shelley.Examples.Federation
@@ -21,6 +21,7 @@ module Test.Cardano.Ledger.Shelley.Examples.Federation
 where
 
 import Cardano.Ledger.BaseTypes (Globals (..))
+import Cardano.Ledger.Core (EraPParams (..), PParams (..))
 import qualified Cardano.Ledger.Crypto as CC (Crypto)
 import Cardano.Ledger.Era (EraCrypto)
 import Cardano.Ledger.Keys
@@ -46,12 +47,11 @@ import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Word (Word64)
 import GHC.Stack (HasCallStack)
+import Lens.Micro ((^.))
 import Test.Cardano.Ledger.Shelley.Generator.Core
   ( AllIssuerKeys (..),
   )
 import Test.Cardano.Ledger.Shelley.Utils
-import Cardano.Ledger.Core (PParams(..), EraPParams (..))
-import Lens.Micro ((^.))
 
 -- | Number of Core Node
 numCoreNodes :: Word64

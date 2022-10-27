@@ -25,8 +25,8 @@ import Cardano.Ledger.Core
     Value,
   )
 import Cardano.Ledger.Crypto (StandardCrypto)
-import Cardano.Ledger.Shelley.Era (ShelleyEra)
 import Cardano.Ledger.Shelley.Core.PParams (ShelleyPParamsHKD)
+import Cardano.Ledger.Shelley.Era (ShelleyEra)
 import Cardano.Ledger.Shelley.Rules ()
 import Cardano.Ledger.Shelley.Tx
   ( ShelleyTx,

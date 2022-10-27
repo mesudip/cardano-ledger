@@ -47,6 +47,7 @@ import Cardano.Ledger.Babbage.TxBody
   )
 import Cardano.Ledger.Babbage.TxInfo (babbageTxInfo)
 import Cardano.Ledger.Babbage.UTxO ()
+import Cardano.Ledger.Core (PParams (..))
 import Cardano.Ledger.Crypto (Crypto, StandardCrypto)
 import Cardano.Ledger.Hashes (EraIndependentTxBody)
 import Cardano.Ledger.Keys (DSignable, Hash)
@@ -58,7 +59,6 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe.Strict
 import qualified Data.Set as Set
 import Lens.Micro
-import Cardano.Ledger.Core (PParams (..))
 
 type Babbage = BabbageEra StandardCrypto
 

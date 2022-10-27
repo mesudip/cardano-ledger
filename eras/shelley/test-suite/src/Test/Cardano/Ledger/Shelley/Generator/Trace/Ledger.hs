@@ -59,8 +59,9 @@ import Test.Cardano.Ledger.Shelley.Generator.Presets (genesisDelegs0)
 import Test.Cardano.Ledger.Shelley.Generator.Trace.DCert (CERTS)
 import Test.Cardano.Ledger.Shelley.Generator.Utxo (genTx)
 import Test.Cardano.Ledger.Shelley.Utils
-  ( applySTSTest,
-    runShelleyBase, ShelleyTest
+  ( ShelleyTest,
+    applySTSTest,
+    runShelleyBase,
   )
 import Test.QuickCheck (Gen)
 

@@ -142,9 +142,10 @@ import qualified Test.Cardano.Ledger.Shelley.Rules.TestPool as TestPool
 import qualified Test.Cardano.Ledger.Shelley.Rules.TestPoolreap as TestPoolreap
 import Test.Cardano.Ledger.Shelley.Utils
   ( ChainProperty,
+    ShelleyTest,
     epochFromSlotNo,
     runShelleyBase,
-    testGlobals, ShelleyTest
+    testGlobals,
   )
 import Test.Cardano.Ledger.TerseTools (tersemapdiffs)
 import Test.QuickCheck

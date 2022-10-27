@@ -69,8 +69,8 @@ import Data.Coders (decodeRecordSum)
 import Data.Typeable (Typeable)
 import Data.Word (Word64, Word8)
 import GHC.Generics (Generic)
-import NoThunks.Class (NoThunks (..))
 import Lens.Micro ((^.))
+import NoThunks.Class (NoThunks (..))
 
 data PoolEnv era
   = PoolEnv SlotNo (PParams era)
@@ -177,7 +177,8 @@ instance
 poolDelegationTransition ::
   forall era.
   ( Era era,
-    EraPParams era) =>
+    EraPParams era
+  ) =>
   TransitionRule (ShelleyPOOL era)
 poolDelegationTransition = do
   TRC (PoolEnv slot pp, ps, c) <- judgmentContext

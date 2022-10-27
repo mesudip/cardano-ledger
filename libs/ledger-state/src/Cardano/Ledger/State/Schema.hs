@@ -18,18 +18,17 @@ import Cardano.Ledger.BaseTypes (TxIx (..))
 import Cardano.Ledger.Coin
 import qualified Cardano.Ledger.Credential as Credential
 import qualified Cardano.Ledger.Keys as Keys
+import Cardano.Ledger.PParams
 import qualified Cardano.Ledger.Shelley.LedgerState as Shelley
 import qualified Cardano.Ledger.Shelley.PoolRank as Shelley
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 import Cardano.Ledger.State.Orphans (Enc, SnapShotType (..))
 import Cardano.Ledger.State.UTxO
-import Cardano.Ledger.PParams
 import qualified Cardano.Ledger.TxIn as TxIn
+import Data.Functor.Identity (Identity)
 import qualified Data.Map.Strict as Map
 import Database.Persist.Sqlite
 import Database.Persist.TH
-import Data.Functor.Identity (Identity)
-
 
 type FGenDelegs = (Enc (Map.Map (Shelley.FutureGenDeleg C) (Keys.GenDelegPair C)))
 

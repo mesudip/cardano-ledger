@@ -12,6 +12,7 @@ import Cardano.Ledger.Keys
   ( KeyRole (..),
     hashKey,
   )
+import Cardano.Ledger.PParams
 import Cardano.Ledger.Shelley (ShelleyEra)
 import Cardano.Ledger.Shelley.API
   ( AccountState (..),
@@ -38,7 +39,6 @@ import Test.Cardano.Ledger.Shelley.ConcreteCryptoTypes (C_Crypto)
 import Test.Cardano.Ledger.Shelley.Utils (RawSeed (..), applySTSTest, mkKeyPair, runShelleyBase)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, testCase, (@?=))
-import Cardano.Ledger.PParams
 
 type ShelleyTest = ShelleyEra C_Crypto
 

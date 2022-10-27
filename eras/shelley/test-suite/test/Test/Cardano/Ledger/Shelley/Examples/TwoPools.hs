@@ -45,11 +45,13 @@ import Cardano.Ledger.Credential (Credential, Ptr (..))
 import qualified Cardano.Ledger.Crypto as CryptoClass
 import Cardano.Ledger.Era (EraCrypto (..))
 import Cardano.Ledger.Keys (KeyRole (..), asWitness, coerceKeyRole)
+import Cardano.Ledger.PParams
 import Cardano.Ledger.PoolDistr
   ( IndividualPoolStake (..),
     PoolDistr (..),
   )
 import Cardano.Ledger.SafeHash (hashAnnotated)
+import Cardano.Ledger.Shelley (ShelleyEra, ShelleyPParams)
 import qualified Cardano.Ledger.Shelley.EpochBoundary as EB
 import Cardano.Ledger.Shelley.LedgerState
   ( PulsingRewUpdate (..),
@@ -108,6 +110,7 @@ import qualified Data.Sequence.Strict as StrictSeq
 import Data.Set (Set)
 import qualified Data.Set as Set
 import GHC.Stack (HasCallStack)
+import Lens.Micro ((&), (.~), (^.))
 import Test.Cardano.Ledger.Shelley.ConcreteCryptoTypes (C, C_Crypto, ExMock)
 import Test.Cardano.Ledger.Shelley.Examples (CHAINExample (..), testCHAINExample)
 import qualified Test.Cardano.Ledger.Shelley.Examples.Cast as Cast
@@ -139,13 +142,11 @@ import Test.Cardano.Ledger.Shelley.Utils
     getBlockNonce,
     maxLLSupply,
     runShelleyBase,
-    testGlobals, unsafeBoundRational
+    testGlobals,
+    unsafeBoundRational,
   )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, testCase, (@?=))
-import Cardano.Ledger.PParams
-import Lens.Micro ((^.), (&), (.~))
-import Cardano.Ledger.Shelley (ShelleyEra, ShelleyPParams)
 
 -- | Type local to this module expressing the various constraints assumed
 -- amongst all tests in this module.

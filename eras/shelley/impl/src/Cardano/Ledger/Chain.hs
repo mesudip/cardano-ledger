@@ -21,13 +21,13 @@ where
 
 import Cardano.Ledger.BHeaderView (BHeaderView (..))
 import Cardano.Ledger.BaseTypes (ProtVer (..))
+import Cardano.Ledger.Core
 import Control.Monad (unless)
 import Control.Monad.Except (MonadError, throwError)
 import GHC.Generics (Generic)
+import Lens.Micro ((^.))
 import NoThunks.Class (NoThunks (..))
 import Numeric.Natural (Natural)
-import Lens.Micro ((^.))
-import Cardano.Ledger.Core
 
 data ChainChecksPParams = ChainChecksPParams
   { ccMaxBHSize :: Natural,

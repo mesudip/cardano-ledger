@@ -460,8 +460,8 @@ instance STS ADELEG where
           Nothing -> pure () -- If vks hasn't delegated, then we proceed and
           -- update the @ADELEG@ state.
           Just sp -> sp < s ?! S_BeforeExistingDelegation
-        return $!
-          DState
+        return
+          $! DState
             { _dStateDelegationMap = dms ⨃ [(vks, vkd)],
               _dStateLastDelegation = dws ⨃ [(vks, s)]
             },
@@ -574,8 +574,8 @@ instance STS DELEG where
         IRC env <- judgmentContext
         initADelegsState <- trans @ADELEGS $ IRC (env ^. allowedDelegators)
         initSDelegsState <- trans @SDELEGS $ IRC env
-        pure $!
-          DIState
+        pure
+          $! DIState
             { _dIStateDelegationMap = initADelegsState ^. delegationMap,
               _dIStateLastDelegation = initADelegsState ^. lastDelegation,
               _dIStateScheduledDelegations = initSDelegsState ^. scheduledDelegations,
