@@ -27,7 +27,6 @@ import Cardano.Ledger.Crypto (Crypto, StandardCrypto)
 import Cardano.Ledger.Hashes (EraIndependentTxBody)
 import Cardano.Ledger.Keys (DSignable)
 import Cardano.Ledger.Shelley.API hiding ({- PParams,-} Tx, TxBody, TxOut)
-import Cardano.Ledger.Shelley.PParams (ShelleyPParamsUpdate)
 import Cardano.Ledger.ShelleyMA
 import Cardano.Ledger.ShelleyMA.Era (AllegraEra)
 import Cardano.Ledger.ShelleyMA.Rules ()
@@ -69,6 +68,6 @@ type TxWits era = ShelleyTxWits (EraCrypto era)
 
 {-# DEPRECATED TxWits "Use `Timelock` instead" #-}
 
-type PParamsDelta era = ShelleyPParamsUpdate era
+type PParamsDelta era = ShelleyPParamsHKD StrictMaybe era
 
 {-# DEPRECATED PParamsDelta "Use `ShelleyPParamsUpdate` instead" #-}

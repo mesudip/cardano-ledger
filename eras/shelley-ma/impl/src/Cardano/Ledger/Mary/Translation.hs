@@ -5,6 +5,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.Ledger.Mary.Translation where
 
@@ -14,7 +16,6 @@ import Cardano.Binary
     fromCBOR,
     serialize,
   )
-import Cardano.Ledger.Allegra (AllegraEra)
 import Cardano.Ledger.Compactible (Compactible (..))
 import Cardano.Ledger.Crypto (Crypto)
 import Cardano.Ledger.Era hiding (EraCrypto)
@@ -37,14 +38,15 @@ import Cardano.Ledger.Shelley.TxWits (ShelleyTxWits (..), decodeWits)
 import Cardano.Ledger.ShelleyMA.AuxiliaryData
   ( AllegraTxAuxData (..),
   )
-import Cardano.Ledger.ShelleyMA.Era (MaryEra)
+import Cardano.Ledger.ShelleyMA.Era (MaryEra, AllegraEra)
 import Cardano.Ledger.ShelleyMA.Timelocks (Timelock, translateTimelock)
 import qualified Cardano.Ledger.Val as Val
 import Control.Monad.Except (throwError)
 import Data.Coerce (coerce)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe)
-import Cardano.Ledger.PParams (PParams(..), PParamsUpdate (..))
+import Cardano.Ledger.Core (PParams(..), PParamsUpdate (..), EraTx)
+import Data.Void (Void)
 
 --------------------------------------------------------------------------------
 -- Translation from Allegra to Mary
@@ -61,7 +63,6 @@ import Cardano.Ledger.PParams (PParams(..), PParamsUpdate (..))
 -- being total. Do not change it!
 --------------------------------------------------------------------------------
 
-type instance PreviousEra (MaryEra c) = AllegraEra c
 
 -- | Currently no context is needed to translate from Allegra to Mary.
 --
@@ -82,7 +83,7 @@ instance Crypto c => TranslateEra (MaryEra c) NewEpochState where
           stashedAVVMAddresses = ()
         }
 
-instance Crypto c => TranslateEra (MaryEra c) ShelleyTx where
+instance (Crypto c, EraTx (MaryEra c)) => TranslateEra (MaryEra c) ShelleyTx where
   type TranslationError (MaryEra c) ShelleyTx = DecoderError
   translateEra _ctx tx =
     case decodeAnnotator "tx" fromCBOR (serialize tx) of
@@ -167,7 +168,7 @@ instance Crypto c => TranslateEra (MaryEra c) ShelleyTxOut where
   translateEra () (TxOutCompact addr cfval) =
     pure $ TxOutCompact (coerce addr) (translateCompactValue cfval)
 
-instance Crypto c => TranslateEra (MaryEra c) UTxO where
+instance (Crypto c) => TranslateEra (MaryEra c) UTxO where
   translateEra ctxt utxo =
     return $ UTxO (translateEra' ctxt <$> unUTxO utxo)
 

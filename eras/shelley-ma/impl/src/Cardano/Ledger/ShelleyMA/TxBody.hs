@@ -57,7 +57,7 @@ import Cardano.Ledger.Mary.Value (MultiAsset)
 import Cardano.Ledger.MemoBytes (Mem, MemoBytes (..), MemoHashIndex, memoBytes)
 import Cardano.Ledger.SafeHash (HashAnnotated (..), SafeToHash)
 import Cardano.Ledger.Serialization (encodeFoldable)
-import Cardano.Ledger.Shelley.PParams (Update)
+import Cardano.Ledger.Shelley.Core (Update)
 import Cardano.Ledger.Shelley.TxBody
   ( DCert (..),
     ShelleyEraTxBody (..),
@@ -320,7 +320,10 @@ lensTxBodyRaw getter setter =
 instance
   ( MAClass ma c,
     ProtVerAtMost (ShelleyMAEra ma c) 6,
-    ProtVerAtMost (ShelleyMAEra ma c) 4
+    ProtVerAtMost (ShelleyMAEra ma c) 4,
+    EraPParams (ShelleyMAEra ma c),
+    EraTxOut (ShelleyMAEra ma c),
+    TxOut (ShelleyMAEra ma c) ~ ShelleyTxOut (ShelleyMAEra ma c)
   ) =>
   EraTxBody (ShelleyMAEra ma c)
   where
@@ -353,7 +356,10 @@ instance
 instance
   ( MAClass ma c,
     ProtVerAtMost (ShelleyMAEra ma c) 4,
-    ProtVerAtMost (ShelleyMAEra ma c) 6
+    ProtVerAtMost (ShelleyMAEra ma c) 6,
+    EraPParams (ShelleyMAEra ma c),
+    EraTxOut (ShelleyMAEra ma c),
+    TxOut (ShelleyMAEra ma c) ~ ShelleyTxOut (ShelleyMAEra ma c)
   ) =>
   ShelleyEraTxBody (ShelleyMAEra ma c)
   where
@@ -378,7 +384,10 @@ instance
 instance
   ( MAClass ma c,
     ProtVerAtMost (ShelleyMAEra ma c) 4,
-    ProtVerAtMost (ShelleyMAEra ma c) 6
+    ProtVerAtMost (ShelleyMAEra ma c) 6,
+    EraPParams (ShelleyMAEra ma c),
+    EraTxOut (ShelleyMAEra ma c),
+    TxOut (ShelleyMAEra ma c) ~ ShelleyTxOut (ShelleyMAEra ma c)
   ) =>
   ShelleyMAEraTxBody (ShelleyMAEra ma c)
   where

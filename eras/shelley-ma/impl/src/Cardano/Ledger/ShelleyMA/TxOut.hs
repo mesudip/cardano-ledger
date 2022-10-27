@@ -2,13 +2,14 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Cardano.Ledger.ShelleyMA.TxOut (scaledMinDeposit) where
 
 import Cardano.Ledger.Coin (Coin (..))
 import Cardano.Ledger.Core hiding (TxBody)
 import Cardano.Ledger.ProtVer ()
-import Cardano.Ledger.Crypto (StandardCrypto)
 import Cardano.Ledger.Shelley.TxBody
   ( ShelleyTxOut (..),
     addrEitherShelleyTxOutL,
@@ -17,7 +18,8 @@ import Cardano.Ledger.Shelley.TxBody
 import Cardano.Ledger.ShelleyMA.Era
   ( MAClass,
     MaryOrAllegra (..),
-    ShelleyMAEra,
+    AllegraEra,
+    MaryEra
   )
 import Cardano.Ledger.Val
   ( Val (isAdaOnly, size),
@@ -25,16 +27,38 @@ import Cardano.Ledger.Val
 import Lens.Micro
 
 instance
-  ( MAClass ma c,
-    ProtVerAtMost (ShelleyMAEra ma c) 6,  -- TODO Is it possible to use transitivity to get rid of this constraint?
-    ProtVerAtMost (ShelleyMAEra ma c) 4
+  ( MAClass 'Allegra c,
+    ProtVerAtMost (AllegraEra c) 6  -- TODO Is it possible to use transitivity to get rid of this constraint?
+    -- ProtVerAtMost (AllegraEra c) 4
   ) =>
-  EraTxOut (ShelleyMAEra ma c)
+  EraTxOut (AllegraEra c)
   where
-  {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Mary StandardCrypto) #-}
-  {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Allegra StandardCrypto) #-}
+  -- {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Mary StandardCrypto) #-}
+  -- {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Allegra StandardCrypto) #-}
 
-  type TxOut (ShelleyMAEra ma c) = ShelleyTxOut (ShelleyMAEra ma c)
+  type TxOut (AllegraEra c) = ShelleyTxOut (AllegraEra c)
+
+  mkBasicTxOut = ShelleyTxOut
+
+  addrEitherTxOutL = addrEitherShelleyTxOutL
+  {-# INLINE addrEitherTxOutL #-}
+
+  valueEitherTxOutL = valueEitherShelleyTxOutL
+  {-# INLINE valueEitherTxOutL #-}
+
+  getMinCoinTxOut pp txOut = scaledMinDeposit (txOut ^. valueTxOutL) (pp ^. ppMinUTxOValueL)
+
+instance
+  ( MAClass 'Mary c,
+    ProtVerAtMost (MaryEra c) 6,  -- TODO Is it possible to use transitivity to get rid of this constraint?
+    ProtVerAtMost (MaryEra c) 4
+  ) =>
+  EraTxOut (MaryEra c)
+  where
+  -- {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Mary StandardCrypto) #-}
+  -- {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Allegra StandardCrypto) #-}
+
+  type TxOut (MaryEra c) = ShelleyTxOut (MaryEra c)
 
   mkBasicTxOut = ShelleyTxOut
 

@@ -18,7 +18,7 @@ import Cardano.Binary
   )
 import Cardano.Ledger.Crypto (Crypto)
 import Cardano.Ledger.Era hiding (EraCrypto)
-import Cardano.Ledger.PParams
+import Cardano.Ledger.Core
 import Cardano.Ledger.Shelley (ShelleyEra)
 import Cardano.Ledger.Shelley.API
   ( EpochState (..),
@@ -36,7 +36,7 @@ import Cardano.Ledger.Shelley.API
 import qualified Cardano.Ledger.Shelley.LedgerState as LS
   ( returnRedeemAddrsToReserves,
   )
-import Cardano.Ledger.Shelley.PParams (Update (..))
+import Cardano.Ledger.Shelley.Core (Update (..))
 import Cardano.Ledger.Shelley.TxWits (ShelleyTxWits (..), decodeWits)
 import Cardano.Ledger.ShelleyMA ()
 import Cardano.Ledger.ShelleyMA.Era (AllegraEra)
@@ -67,7 +67,6 @@ import qualified Data.Map.Strict as Map
 shelleyToAllegraAVVMsToDelete :: NewEpochState (ShelleyEra c) -> UTxO (ShelleyEra c)
 shelleyToAllegraAVVMsToDelete = stashedAVVMAddresses
 
-type instance PreviousEra (AllegraEra c) = ShelleyEra c
 
 -- | Currently no context is needed to translate from Shelley to Allegra.
 

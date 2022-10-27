@@ -13,7 +13,7 @@ module Cardano.Ledger.ShelleyMA.Tx
   )
 where
 
-import Cardano.Ledger.Core (EraTx (..), EraTxWits (..), PhasedScript (..), ProtVerAtMost)
+import Cardano.Ledger.Core (EraTx (..), EraTxWits (..), PhasedScript (..), ProtVerAtMost, EraPParams, EraTxOut (..))
 import Cardano.Ledger.Crypto (StandardCrypto)
 import Cardano.Ledger.Keys.WitVKey (witVKeyHash)
 import Cardano.Ledger.Shelley.Tx
@@ -23,7 +23,7 @@ import Cardano.Ledger.Shelley.Tx
     mkBasicShelleyTx,
     shelleyMinFeeTx,
     sizeShelleyTxF,
-    witsShelleyTxL,
+    witsShelleyTxL, ShelleyTxOut
   )
 import Cardano.Ledger.ShelleyMA.AuxiliaryData ()
 import Cardano.Ledger.ShelleyMA.Era (MAClass, MaryOrAllegra (..), ShelleyMAEra)
@@ -38,7 +38,10 @@ import Lens.Micro ((^.))
 instance
   ( MAClass ma c,
     ProtVerAtMost (ShelleyMAEra ma c) 4,
-    ProtVerAtMost (ShelleyMAEra ma c) 6
+    ProtVerAtMost (ShelleyMAEra ma c) 6,
+    EraPParams (ShelleyMAEra ma c),
+    EraTxOut (ShelleyMAEra ma c),
+    TxOut (ShelleyMAEra ma c) ~ ShelleyTxOut (ShelleyMAEra ma c)
   ) =>
   EraTx (ShelleyMAEra ma c)
   where

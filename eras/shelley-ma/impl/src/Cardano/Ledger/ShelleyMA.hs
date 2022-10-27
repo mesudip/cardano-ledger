@@ -17,22 +17,22 @@ module Cardano.Ledger.ShelleyMA
 
     -- * Deprecated
     Tx,
-    TxOut,
+    ShelleyTx.TxOut,
     TxBody,
     -- PParams,
     AuxiliaryData,
-    ShelleyPParams,
+    ShelleyPParamsHKD,
   )
 where
 
-import Cardano.Ledger.Core (EraSegWits (..), ProtVerAtMost)
+import Cardano.Ledger.Core as Core (EraSegWits (..), ProtVerAtMost, EraPParams, EraTxOut, TxOut)
 import Cardano.Ledger.Shelley.BlockChain (ShelleyTxSeq (..))
 import qualified Cardano.Ledger.Shelley.BlockChain as Shelley
   ( bbHash,
     txSeqTxns,
   )
-import Cardano.Ledger.Shelley.PParams (ShelleyPParams)
-import Cardano.Ledger.Shelley.Tx
+import Cardano.Ledger.Shelley.Core (ShelleyPParamsHKD)
+import Cardano.Ledger.Shelley.Tx as ShelleyTx
   ( ShelleyTx,
     ShelleyTxOut,
     Tx,
@@ -52,7 +52,10 @@ import Cardano.Ledger.ShelleyMA.TxBody (MATxBody, TxBody)
 instance
   ( MAClass ma c,
     ProtVerAtMost (ShelleyMAEra ma c) 4,
-    ProtVerAtMost (ShelleyMAEra ma c) 6
+    ProtVerAtMost (ShelleyMAEra ma c) 6,
+    EraPParams (ShelleyMAEra ma c),
+    EraTxOut (ShelleyMAEra ma c),
+    Core.TxOut (ShelleyMAEra ma c) ~ ShelleyTxOut (ShelleyMAEra ma c)
   ) =>
   EraSegWits (ShelleyMAEra ma c)
   where
