@@ -67,6 +67,10 @@ module Cardano.Ledger.Core.PParams -- Rename to: Cardano.Ledger.Core.PParams
     PParamsDelta,
     mapPParams,
     mapPParamsUpdate,
+    upgradePParams,
+    downgradePParams,
+    upgradePParamsUpdate,
+    downgradePParamsUpdate
   )
 where
 
@@ -222,28 +226,13 @@ class
 
   emptyPParams :: PParams era
   emptyPParamsUpdate :: PParamsUpdate era
-
+  
+  -- | 
   type UpgradePParams era :: Type
   type DowngradePParams era :: Type
 
   upgradePParamsHKD :: (EraPParams era) => UpgradePParams era -> PParamsHKD f (PreviousEra era) -> PParamsHKD f era
   downgradePParamsHKD :: (EraPParams era) => DowngradePParams era -> PParamsHKD f era -> PParamsHKD f (PreviousEra era)
-
-  upgradePParams :: EraPParams era => UpgradePParams era -> PParams (PreviousEra era) -> PParams era
-  default upgradePParams :: UpgradePParams era -> PParams (PreviousEra era) -> PParams era
-  upgradePParams args (PParams pphkd) = PParams (upgradePParamsHKD @_ @Identity args pphkd)
-
-  downgradePParams :: EraPParams era => DowngradePParams era -> PParams era -> PParams (PreviousEra era)
-  default downgradePParams :: DowngradePParams era -> PParams era -> PParams (PreviousEra era)
-  downgradePParams args (PParams pphkd) = PParams (downgradePParamsHKD @_ @Identity args pphkd)
-
-  upgradePParamsUpdate :: EraPParams era => UpgradePParams era -> PParamsUpdate (PreviousEra era) -> PParamsUpdate era
-  default upgradePParamsUpdate :: UpgradePParams era -> PParamsUpdate (PreviousEra era) -> PParamsUpdate era
-  upgradePParamsUpdate args (PParamsUpdate pphkd) = PParamsUpdate (upgradePParamsHKD @_ @StrictMaybe args pphkd)
-
-  downgradePParamsUpdate :: EraPParams era => DowngradePParams era -> PParamsUpdate era -> PParamsUpdate (PreviousEra era)
-  default downgradePParamsUpdate :: DowngradePParams era -> PParamsUpdate era -> PParamsUpdate (PreviousEra era)
-  downgradePParamsUpdate args (PParamsUpdate pphkd) = PParamsUpdate (downgradePParamsHKD @_ @StrictMaybe args pphkd)
 
   -- HKD Versions of lenses
 
@@ -458,3 +447,15 @@ mapPParams f (PParams pp) = PParams $ f pp
 
 mapPParamsUpdate :: (PParamsHKD StrictMaybe era1 -> PParamsHKD StrictMaybe era2) -> PParamsUpdate era1 -> PParamsUpdate era2
 mapPParamsUpdate f (PParamsUpdate pp) = PParamsUpdate $ f pp
+
+upgradePParams :: EraPParams era => UpgradePParams era -> PParams (PreviousEra era) -> PParams era
+upgradePParams args (PParams pphkd) = PParams (upgradePParamsHKD @_ @Identity args pphkd)
+
+downgradePParams :: EraPParams era => DowngradePParams era -> PParams era -> PParams (PreviousEra era)
+downgradePParams args (PParams pphkd) = PParams (downgradePParamsHKD @_ @Identity args pphkd)
+
+upgradePParamsUpdate :: EraPParams era => UpgradePParams era -> PParamsUpdate (PreviousEra era) -> PParamsUpdate era
+upgradePParamsUpdate args (PParamsUpdate pphkd) = PParamsUpdate (upgradePParamsHKD @_ @StrictMaybe args pphkd)
+
+downgradePParamsUpdate :: EraPParams era => DowngradePParams era -> PParamsUpdate era -> PParamsUpdate (PreviousEra era)
+downgradePParamsUpdate args (PParamsUpdate pphkd) = PParamsUpdate (downgradePParamsHKD @_ @StrictMaybe args pphkd)

@@ -15,7 +15,7 @@
 
 -- | This module contains just the type of protocol parameters.
 module Cardano.Ledger.Shelley.Core.PParams
-  ( ShelleyPParams,
+  ( -- ShelleyPParams,
     emptyPParams,
     ShelleyPParamsHKD (..),
     PPUPState (..),
@@ -24,7 +24,7 @@ module Cardano.Ledger.Shelley.Core.PParams
     PPUpdateEnv (..),
     ProposedPPUpdates (..),
     emptyPPPUpdates,
-    ShelleyPParamsUpdate,
+    -- ShelleyPParamsUpdate,
     Update (..),
     pvCanFollow,
 
@@ -170,9 +170,9 @@ data ShelleyPParamsHKD f era = ShelleyPParams
 
 instance NFData (ShelleyPParamsHKD Identity era)
 
-type ShelleyPParams era = ShelleyPParamsHKD Identity era
+-- type ShelleyPParams era = ShelleyPParamsHKD Identity era
 
-type ShelleyPParamsUpdate era = ShelleyPParamsHKD StrictMaybe era
+-- type ShelleyPParamsUpdate era = ShelleyPParamsHKD StrictMaybe era
 
 instance CC.Crypto c => Core.EraPParams (ShelleyEra c) where
   type PParamsHKD f (ShelleyEra c) = ShelleyPParamsHKD f (ShelleyEra c)

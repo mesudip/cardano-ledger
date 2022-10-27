@@ -102,7 +102,6 @@ import Cardano.Ledger.Shelley.Core.PParams as X
   ( -- PParams,
     PParams',
     ProposedPPUpdates (..),
-    ShelleyPParams,
     ShelleyPParamsHKD (..),
     Update (..),
   )
