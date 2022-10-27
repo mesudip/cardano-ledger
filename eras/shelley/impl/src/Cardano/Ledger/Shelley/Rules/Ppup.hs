@@ -36,7 +36,7 @@ import Cardano.Ledger.BaseTypes
 import Cardano.Ledger.Core
 import Cardano.Ledger.Keys (GenDelegs (GenDelegs), KeyHash, KeyRole (Genesis))
 import Cardano.Ledger.Shelley.Era (ShelleyPPUP)
-import Cardano.Ledger.Shelley.PParams
+import Cardano.Ledger.Shelley.Core.PParams
   ( PPUPState (..),
     ProposedPPUpdates (ProposedPPUpdates),
     Update (..),

@@ -54,7 +54,6 @@ library
     Cardano.Ledger.Shelley.Orphans
     Cardano.Ledger.Shelley.PoolRank
     Cardano.Ledger.Shelley.PoolParams
-    Cardano.Ledger.Shelley.PParams
     Cardano.Ledger.Shelley.Rewards
     Cardano.Ledger.Shelley.RewardProvenance
     Cardano.Ledger.Shelley.RewardUpdate
@@ -69,6 +68,7 @@ library
     Cardano.Ledger.Shelley.UTxO
     Cardano.Ledger.Shelley.Utils
   other-modules:
+    Cardano.Ledger.Shelley.Core.PParams
     Cardano.Ledger.Shelley.Era
     Cardano.Ledger.Shelley.LedgerState.Types
     Cardano.Ledger.Shelley.LedgerState.DPState

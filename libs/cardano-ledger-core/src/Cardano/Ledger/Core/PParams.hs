@@ -204,10 +204,6 @@ class
   -- | Protocol parameters where the fields are represented with a HKD
   type PParamsHKD (f :: Type -> Type) era = (r :: Type) | r -> era
 
-  type UpgradeArgs era :: Type
-
-  type DowngradeArgs era :: Type
-
   -- | Applies a protocol parameters update
   applyPPUpdates ::
     PParams era ->
@@ -227,24 +223,26 @@ class
   emptyPParams :: PParams era
   emptyPParamsUpdate :: PParamsUpdate era
 
-  upgradePParamsHKD :: (EraPParams era) => UpgradeArgs era -> PParamsHKD f (PreviousEra era) -> PParamsHKD f era
+  type UpgradePParams era :: Type
+  type DowngradePParams era :: Type
 
-  downgradePParamsHKD :: (EraPParams era) => DowngradeArgs era -> PParamsHKD f era -> PParamsHKD f (PreviousEra era)
+  upgradePParamsHKD :: (EraPParams era) => UpgradePParams era -> PParamsHKD f (PreviousEra era) -> PParamsHKD f era
+  downgradePParamsHKD :: (EraPParams era) => DowngradePParams era -> PParamsHKD f era -> PParamsHKD f (PreviousEra era)
 
-  upgradePParams :: EraPParams era => UpgradeArgs era -> PParams (PreviousEra era) -> PParams era
-  default upgradePParams :: UpgradeArgs era -> PParams (PreviousEra era) -> PParams era
+  upgradePParams :: EraPParams era => UpgradePParams era -> PParams (PreviousEra era) -> PParams era
+  default upgradePParams :: UpgradePParams era -> PParams (PreviousEra era) -> PParams era
   upgradePParams args (PParams pphkd) = PParams (upgradePParamsHKD @_ @Identity args pphkd)
 
-  downgradePParams :: EraPParams era => DowngradeArgs era -> PParams era -> PParams (PreviousEra era)
-  default downgradePParams :: DowngradeArgs era -> PParams era -> PParams (PreviousEra era)
+  downgradePParams :: EraPParams era => DowngradePParams era -> PParams era -> PParams (PreviousEra era)
+  default downgradePParams :: DowngradePParams era -> PParams era -> PParams (PreviousEra era)
   downgradePParams args (PParams pphkd) = PParams (downgradePParamsHKD @_ @Identity args pphkd)
 
-  upgradePParamsUpdate :: EraPParams era => UpgradeArgs era -> PParamsUpdate (PreviousEra era) -> PParamsUpdate era
-  default upgradePParamsUpdate :: UpgradeArgs era -> PParamsUpdate (PreviousEra era) -> PParamsUpdate era
+  upgradePParamsUpdate :: EraPParams era => UpgradePParams era -> PParamsUpdate (PreviousEra era) -> PParamsUpdate era
+  default upgradePParamsUpdate :: UpgradePParams era -> PParamsUpdate (PreviousEra era) -> PParamsUpdate era
   upgradePParamsUpdate args (PParamsUpdate pphkd) = PParamsUpdate (upgradePParamsHKD @_ @StrictMaybe args pphkd)
 
-  downgradePParamsUpdate :: EraPParams era => DowngradeArgs era -> PParamsUpdate era -> PParamsUpdate (PreviousEra era)
-  default downgradePParamsUpdate :: DowngradeArgs era -> PParamsUpdate era -> PParamsUpdate (PreviousEra era)
+  downgradePParamsUpdate :: EraPParams era => DowngradePParams era -> PParamsUpdate era -> PParamsUpdate (PreviousEra era)
+  default downgradePParamsUpdate :: DowngradePParams era -> PParamsUpdate era -> PParamsUpdate (PreviousEra era)
   downgradePParamsUpdate args (PParamsUpdate pphkd) = PParamsUpdate (downgradePParamsHKD @_ @StrictMaybe args pphkd)
 
   -- HKD Versions of lenses

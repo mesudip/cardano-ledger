@@ -97,7 +97,7 @@ import Cardano.Ledger.Shelley.Delegation.Certificates
     PoolCert (..),
   )
 import Cardano.Ledger.Shelley.Era (ShelleyEra)
-import Cardano.Ledger.Shelley.PParams (Update)
+import Cardano.Ledger.Shelley.Core.PParams (Update)
 import Cardano.Ledger.Shelley.PoolParams
 import Cardano.Ledger.Shelley.TxOut (ShelleyTxOut (..), TxOut, addrEitherShelleyTxOutL, valueEitherShelleyTxOutL)
 import Cardano.Ledger.Slot (SlotNo (..))

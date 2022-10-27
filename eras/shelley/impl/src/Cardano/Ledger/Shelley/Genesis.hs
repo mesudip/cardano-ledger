@@ -46,7 +46,7 @@ import Cardano.Ledger.Serialization
     utcTimeFromCBOR,
     utcTimeToCBOR,
   )
-import Cardano.Ledger.Shelley.PParams ()
+import Cardano.Ledger.Shelley.Core.PParams ()
 import Cardano.Ledger.Shelley.StabilityWindow
 import Cardano.Ledger.Shelley.TxBody (PoolParams (..))
 import Cardano.Ledger.Shelley.UTxO (UTxO (UTxO))

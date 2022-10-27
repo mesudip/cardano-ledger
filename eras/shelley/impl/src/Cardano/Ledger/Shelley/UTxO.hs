@@ -74,7 +74,7 @@ import Cardano.Ledger.Shelley.Delegation.Certificates
     requiresVKeyWitness,
   )
 import Cardano.Ledger.Shelley.Era (ShelleyEra)
-import Cardano.Ledger.Shelley.PParams (Update)
+import Cardano.Ledger.Shelley.Core.PParams (Update)
 import Cardano.Ledger.Shelley.TxBody
   ( PoolCert (..),
     PoolParams (..),

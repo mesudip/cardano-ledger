@@ -47,7 +47,7 @@ import Data.Word (Word8)
 import GHC.Stack (HasCallStack)
 import Lens.Micro
 import NoThunks.Class (InspectHeapNamed (..), NoThunks (..))
-import Cardano.Ledger.Shelley.PParams ()
+import Cardano.Ledger.Shelley.Core.PParams ()
 
 data ShelleyTxOut era = TxOutCompact
   { txOutCompactAddr :: {-# UNPACK #-} !(CompactAddr (EraCrypto era)),

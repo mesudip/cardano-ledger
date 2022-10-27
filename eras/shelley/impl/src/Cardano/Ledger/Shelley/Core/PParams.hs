@@ -14,7 +14,7 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 -- | This module contains just the type of protocol parameters.
-module Cardano.Ledger.Shelley.PParams
+module Cardano.Ledger.Shelley.Core.PParams
   ( ShelleyPParams,
     emptyPParams,
     ShelleyPParamsHKD (..),
@@ -54,12 +54,11 @@ import Cardano.Ledger.BaseTypes
   )
 import qualified Cardano.Ledger.BaseTypes as BT
 import Cardano.Ledger.Coin (Coin (..))
-import Cardano.Ledger.Core (Era (EraCrypto))
 import qualified Cardano.Ledger.Core as Core
 import qualified Cardano.Ledger.Crypto as CC
 import Cardano.Ledger.HKD (HKD, HKDFunctor (..))
 import Cardano.Ledger.Keys (GenDelegs, KeyHash, KeyRole (..))
-import Cardano.Ledger.PParams hiding (PParams, PParamsUpdate)
+import Cardano.Ledger.Core hiding (PParams, PParamsUpdate)
 import Cardano.Ledger.Serialization
   ( FromCBORGroup (..),
     ToCBORGroup (..),
@@ -91,6 +90,7 @@ import GHC.Generics (Generic)
 import Lens.Micro (lens)
 import NoThunks.Class (NoThunks (..))
 import Numeric.Natural (Natural)
+import Data.Void (Void)
 
 -- ====================================================================
 
@@ -179,6 +179,11 @@ instance CC.Crypto c => Core.EraPParams (ShelleyEra c) where
 
   emptyPParams = def
   emptyPParamsUpdate = def
+  
+  type UpgradePParams (ShelleyEra c) = Void
+  type DowngradePParams (ShelleyEra c) = Void
+  upgradePParamsHKD = error "IMPOSSIBLE! There cannot be PParams that can be upgraded to Shelley"
+  downgradePParamsHKD = error "IMPOSSIBLE! There cannot be PParams that can be downgraded from Shelley"
 
   hkdMinFeeAL = lens _minfeeA $ \pp x -> pp {_minfeeA = x}
   hkdMinFeeBL = lens _minfeeB $ \pp x -> pp {_minfeeB = x}

@@ -62,7 +62,7 @@ import Cardano.Ledger.Shelley.LedgerState.IncrementalStake
 import Cardano.Ledger.Shelley.LedgerState.Types
   ( UTxOState (..),
   )
-import Cardano.Ledger.Shelley.PParams
+import Cardano.Ledger.Shelley.Core.PParams
   ( PPUPState (..),
     Update,
   )

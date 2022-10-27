@@ -33,7 +33,7 @@ import Cardano.Ledger.Shelley.LedgerState
     _deposited,
     _irwd,
   )
-import Cardano.Ledger.Shelley.PParams
+import Cardano.Ledger.Shelley.Core.PParams
   ( ProposedPPUpdates (..),
     emptyPPPUpdates
   )

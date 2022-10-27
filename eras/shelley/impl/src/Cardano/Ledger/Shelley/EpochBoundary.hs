@@ -10,7 +10,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -62,8 +61,7 @@ import GHC.Generics (Generic)
 import Lens.Micro (_1, _2, (^.))
 import NoThunks.Class (NoThunks (..))
 import Numeric.Natural (Natural)
-import Cardano.Ledger.Core (Era (..))
-import Cardano.Ledger.PParams
+import Cardano.Ledger.Core (Era (..), PParams (..), EraPParams (..), ppKeyDepositL, ppPoolDepositL, ppA0L, ppNOptL)
 
 -- | Type of stake as map from hash key to coins associated.
 newtype Stake c = Stake

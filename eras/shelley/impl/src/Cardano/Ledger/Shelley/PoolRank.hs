@@ -7,7 +7,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Cardano.Ledger.Shelley.PoolRank
@@ -76,8 +75,7 @@ import Lens.Micro (_1, (^.))
 import NoThunks.Class (NoThunks (..))
 import Numeric.Natural (Natural)
 import Quiet
-import Cardano.Ledger.Core (Era (..))
-import Cardano.Ledger.PParams
+import Cardano.Ledger.Core (Era (..), EraPParams, PParams, ppNOptL, ppA0L)
 
 newtype LogWeight = LogWeight {unLogWeight :: Float}
   deriving (Eq, Generic, Ord, Num, NFData, NoThunks, ToCBOR, FromCBOR)

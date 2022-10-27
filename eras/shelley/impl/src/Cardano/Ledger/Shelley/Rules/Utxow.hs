@@ -84,7 +84,7 @@ import Cardano.Ledger.Shelley.Delegation.Certificates
 import Cardano.Ledger.Shelley.Era (ShelleyUTXOW)
 import qualified Cardano.Ledger.Shelley.HardForks as HardForks
 import Cardano.Ledger.Shelley.LedgerState.Types (UTxOState (..))
-import Cardano.Ledger.Shelley.PParams (ProposedPPUpdates (ProposedPPUpdates), Update (Update))
+import Cardano.Ledger.Shelley.Core.PParams (ProposedPPUpdates (ProposedPPUpdates), Update (Update))
 import Cardano.Ledger.Shelley.Rules.Utxo
   ( ShelleyUTXO,
     ShelleyUtxoPredFailure,

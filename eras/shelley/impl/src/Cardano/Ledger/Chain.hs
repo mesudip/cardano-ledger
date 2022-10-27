@@ -27,7 +27,7 @@ import GHC.Generics (Generic)
 import NoThunks.Class (NoThunks (..))
 import Numeric.Natural (Natural)
 import Lens.Micro ((^.))
-import Cardano.Ledger.PParams
+import Cardano.Ledger.Core
 
 data ChainChecksPParams = ChainChecksPParams
   { ccMaxBHSize :: Natural,
