@@ -3,7 +3,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Cardano.Ledger.Era.Class -- TODO: Rename this to Cardano.Ledger.Core.Era
+module Cardano.Ledger.Core.Era 
   ( Era (..)
   ) where
 

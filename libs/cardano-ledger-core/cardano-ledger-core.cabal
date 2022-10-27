@@ -70,7 +70,7 @@ library
     Cardano.Ledger.UnifiedMap
     Cardano.Ledger.Val
 
-other-modules:
+  other-modules:
     Cardano.Ledger.Core.Era
     Cardano.Ledger.Core.PParams
     Cardano.Ledger.Core.Translation

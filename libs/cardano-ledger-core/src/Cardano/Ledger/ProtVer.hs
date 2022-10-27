@@ -23,7 +23,7 @@ import Data.Kind (Constraint, Type)
 import GHC.Stack (HasCallStack)
 import GHC.TypeLits
 import Lens.Micro
-import Cardano.Ledger.Era.Class (Era(..))
+import Cardano.Ledger.Core.Era (Era(..))
 
 -----------------------------
 -- Protocol version bounds --

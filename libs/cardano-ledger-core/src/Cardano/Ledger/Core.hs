@@ -39,11 +39,6 @@ module Cardano.Ledger.Core
     -- * Era STS
     EraRule,
     Era (..),
-    PreviousEra,
-    TranslationContext,
-    TranslateEra (..),
-    translateEra',
-    translateEraMaybe,
     -- $segWit
     EraSegWits (..),
 
@@ -73,8 +68,9 @@ module Cardano.Ledger.Core
 
     -- * Re-exports
     module Cardano.Ledger.Hashes,
-    module Cardano.Ledger.PParams,
-    module Cardano.Ledger.Era.Class,
+    module Cardano.Ledger.Core.Era,
+    module Cardano.Ledger.Core.PParams,
+    module Cardano.Ledger.Core.Translation,
 
     -- * Deprecations
     hashAuxiliaryData,
@@ -92,24 +88,23 @@ import Cardano.Ledger.CompactAddress (CompactAddr, compactAddr, decompactAddr, i
 import Cardano.Ledger.Compactible (Compactible (..))
 import Cardano.Ledger.Credential
 import qualified Cardano.Ledger.Crypto as CC
-import Cardano.Ledger.Era.Class (Era (..))
+import Cardano.Ledger.Core.Era (Era (..))
 import Cardano.Ledger.Hashes
 import Cardano.Ledger.Keys (KeyRole (Staking, Witness))
 import Cardano.Ledger.Keys.Bootstrap (BootstrapWitness)
 import Cardano.Ledger.Keys.WitVKey (WitVKey)
 import Cardano.Ledger.Language (Language)
 import Cardano.Ledger.Rewards (Reward (..), RewardType (..))
-import Cardano.Ledger.PParams
+import Cardano.Ledger.Core.PParams
+import Cardano.Ledger.Core.Translation
 import Cardano.Ledger.ProtVer
 import Cardano.Ledger.SafeHash (HashAnnotated (..), SafeToHash (..))
 import Cardano.Ledger.Serialization (Sized (sizedValue), ToCBORGroup (..), mkSized)
 import Cardano.Ledger.TxIn (TxIn (..))
 import Cardano.Ledger.Val (DecodeNonNegative, Val (..))
 import Control.DeepSeq (NFData)
-import Control.Monad.Except (Except, runExcept)
 import qualified Data.ByteString as BS
 import Data.ByteString.Short (ShortByteString)
-import Data.Coerce (Coercible, coerce)
 import Data.Kind (Type)
 import Data.Map (Map, mapMaybe)
 import Data.Maybe (fromMaybe)
@@ -117,7 +112,6 @@ import Data.Maybe.Strict (StrictMaybe)
 import Data.Sequence.Strict (StrictSeq)
 import Data.Set (Set)
 import Data.Sharing (FromSharedCBOR (Share), Interns)
-import Data.Void (Void, absurd)
 import Data.Word (Word64)
 import GHC.TypeLits
 import Lens.Micro
@@ -482,100 +476,6 @@ class
 
   -- | The number of segregated components
   numSegComponents :: Word64
-
-
--- TODO: Move to Cardano.Ledger.Core.Translation
---------------------------------------------------------------------------------
--- Era translation
---------------------------------------------------------------------------------
-
--- | Map an era to its predecessor.
---
--- For example:
---
--- > type instance PreviousEra (AllegraEra c) = ShelleyEra c
-type family PreviousEra era = (r :: Type) | r -> era
-
--- | Per-era context used for 'TranslateEra'.
---
--- This context will be passed to the translation instances of /all/ types of
--- that particular era. In practice, most instances won't need the context, but
--- this approach makes the translation composable (as opposed to having a
--- separate context per type).
-type family TranslationContext era :: Type
-
--- | Translation of types between eras, e.g., from Shelley to Allegra.
---
--- When @era@ is just a phantom type parameter, an empty standalone deriving can be used:
---
--- > newtype Foo era = Foo Int
--- >
--- > instance TranslateEra (Allegra c) Foo
---
--- Note that one could use @DerivingAnyClass@ (@deriving (TranslateEra (Allegra
--- c))@), but this would introduce an undesired coupling between the
--- era-parametric type and (a) particular era(s). The intention is to have a
--- module with orphan instances per era.
---
--- In most cases, the @era@ parameter won't be phantom, and a manual instance
--- will have to be written:
---
--- > newtype Bar era = Bar (TxBody era)
--- >
--- > instance CC.Crypto c => TranslateEra (Allegra c) Bar where
--- >     translateEra ctxt = Bar <$> translateEra ctxt
--- >
--- > -- With the following instance being in scope:
--- > instance CC.Crypto c => TranslatEra (Allegra c) TxBody
---
--- Note: we use 'PreviousEra' instead of @NextEra@ as an era definitely knows
--- its predecessor, but not necessarily its successor. Moreover, one could argue
--- that it makes more sense to define the translation from era A to era B where
--- era B is defined, than where era A is defined.
-class (Era era, Era (PreviousEra era)) => TranslateEra era f where
-  -- | Most translations should be infallible (default instance), but we leave
-  -- the door open for partial translations.
-  --
-  -- For a partial translation, override the default type to be '()' or a
-  -- concrete error type.
-  type TranslationError era f :: Type
-
-  type TranslationError era f = Void
-
-  -- | Translate a type @f@ parameterised by the era from an era to the era
-  -- after it.
-  --
-  -- The translation is a given the translation context of @era@.
-  --
-  -- A default instance is provided for when the two types are 'Coercible'.
-  translateEra :: TranslationContext era -> f (PreviousEra era) -> Except (TranslationError era f) (f era)
-  default translateEra ::
-    Coercible (f (PreviousEra era)) (f era) =>
-    TranslationContext era ->
-    f (PreviousEra era) ->
-    Except (TranslationError era f) (f era)
-  translateEra _ = return . coerce
-
--- | Variant of 'translateEra' for when 'TranslationError' is 'Void' and the
--- translation thus cannot fail.
-translateEra' ::
-  (TranslateEra era f, TranslationError era f ~ Void) =>
-  TranslationContext era ->
-  f (PreviousEra era) ->
-  f era
-translateEra' ctxt = either absurd id . runExcept . translateEra ctxt
-
--- | Variant of 'translateEra' for when 'TranslationError' is '()', converting
--- the result to a 'Maybe'.
-translateEraMaybe ::
-  (TranslateEra era f, TranslationError era f ~ ()) =>
-  TranslationContext era ->
-  f (PreviousEra era) ->
-  Maybe (f era)
-translateEraMaybe ctxt =
-  either (const Nothing) Just . runExcept . translateEra ctxt
-
-------- UP TO HERE --------------
 
 -- ====================================================
 -- Reflecting the phase of scripts into types

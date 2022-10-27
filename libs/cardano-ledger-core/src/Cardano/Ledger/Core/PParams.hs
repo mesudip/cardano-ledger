@@ -16,7 +16,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Cardano.Ledger.PParams -- Rename to: Cardano.Ledger.Core.PParams
+module Cardano.Ledger.Core.PParams -- Rename to: Cardano.Ledger.Core.PParams
   ( EraPParams (..),
     PParams (..),
     PParamsUpdate (..),
@@ -73,8 +73,9 @@ where
 import Cardano.Binary (FromCBOR, ToCBOR)
 import Cardano.Ledger.BaseTypes (NonNegativeInterval, Nonce (..), StrictMaybe (..), UnitInterval)
 import qualified Cardano.Ledger.BaseTypes as BT
+import Cardano.Ledger.Core.Translation
 import Cardano.Ledger.Coin (Coin (..))
-import Cardano.Ledger.Era.Class (Era (..))
+import Cardano.Ledger.Core.Era (Era (..))
 import Cardano.Ledger.HKD (HKD)
 import Cardano.Ledger.ProtVer (ProtVerAtMost)
 import Cardano.Ledger.Slot (EpochNo (..))
@@ -184,6 +185,7 @@ instance Updatable (K1 t x a) (K1 t (StrictMaybe x) u) where
 class
   ( Era era,
     Eq (PParamsHKD Identity era),
+    Ord (PParamsHKD Identity era),
     Show (PParamsHKD Identity era),
     NFData (PParamsHKD Identity era),
     ToCBOR (PParamsHKD Identity era),
@@ -225,9 +227,25 @@ class
   emptyPParams :: PParams era
   emptyPParamsUpdate :: PParamsUpdate era
 
-  upgradePParamsHKD :: UpgradeArgs era -> PParamsHKD f (PreviousEra era) -> PParamsHKD f era
+  upgradePParamsHKD :: (EraPParams era) => UpgradeArgs era -> PParamsHKD f (PreviousEra era) -> PParamsHKD f era
 
-  downgradePParamsHKD :: DowngradeArgs era -> PParamsHKD f era -> PParamsHKD f (PreviousEra era)
+  downgradePParamsHKD :: (EraPParams era) => DowngradeArgs era -> PParamsHKD f era -> PParamsHKD f (PreviousEra era)
+
+  upgradePParams :: EraPParams era => UpgradeArgs era -> PParams (PreviousEra era) -> PParams era
+  default upgradePParams :: UpgradeArgs era -> PParams (PreviousEra era) -> PParams era
+  upgradePParams args (PParams pphkd) = PParams (upgradePParamsHKD @_ @Identity args pphkd)
+
+  downgradePParams :: EraPParams era => DowngradeArgs era -> PParams era -> PParams (PreviousEra era)
+  default downgradePParams :: DowngradeArgs era -> PParams era -> PParams (PreviousEra era)
+  downgradePParams args (PParams pphkd) = PParams (downgradePParamsHKD @_ @Identity args pphkd)
+
+  upgradePParamsUpdate :: EraPParams era => UpgradeArgs era -> PParamsUpdate (PreviousEra era) -> PParamsUpdate era
+  default upgradePParamsUpdate :: UpgradeArgs era -> PParamsUpdate (PreviousEra era) -> PParamsUpdate era
+  upgradePParamsUpdate args (PParamsUpdate pphkd) = PParamsUpdate (upgradePParamsHKD @_ @StrictMaybe args pphkd)
+
+  downgradePParamsUpdate :: EraPParams era => DowngradeArgs era -> PParamsUpdate era -> PParamsUpdate (PreviousEra era)
+  default downgradePParamsUpdate :: DowngradeArgs era -> PParamsUpdate era -> PParamsUpdate (PreviousEra era)
+  downgradePParamsUpdate args (PParamsUpdate pphkd) = PParamsUpdate (downgradePParamsHKD @_ @StrictMaybe args pphkd)
 
   -- HKD Versions of lenses
 
@@ -442,15 +460,3 @@ mapPParams f (PParams pp) = PParams $ f pp
 
 mapPParamsUpdate :: (PParamsHKD StrictMaybe era1 -> PParamsHKD StrictMaybe era2) -> PParamsUpdate era1 -> PParamsUpdate era2
 mapPParamsUpdate f (PParamsUpdate pp) = PParamsUpdate $ f pp
-
-
-upgradePParams :: EraPParams era => UpgradeArgs era -> PParams (Previous era) -> PParams era
-upgradePParams args (PParams pphkd) = PParams (upgradePParamsHKD args pphkd)
-
-downgradePParams = downgradePParamsHKD
-
-
-upgradePParamsUpdate = upgradePParamsHKD
-upgradePParamsUpdate args (PParamsUpdate pphkd) = PParamsUpdate (upgradePParamsHKD args pphkd)
-
-downgradePParamsUpdate = downgradePParamsHKD
