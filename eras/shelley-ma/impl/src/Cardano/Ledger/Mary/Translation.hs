@@ -4,9 +4,9 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Cardano.Ledger.Mary.Translation where
 
@@ -17,7 +17,7 @@ import Cardano.Binary
     serialize,
   )
 import Cardano.Ledger.Compactible (Compactible (..))
-import Cardano.Ledger.Core (EraTx, PParams (..), PParamsUpdate (..))
+import Cardano.Ledger.Core (EraTx, PParams (..), PParamsUpdate (..), EraTxOut (..))
 import Cardano.Ledger.Crypto (Crypto)
 import Cardano.Ledger.Era hiding (EraCrypto)
 import Cardano.Ledger.Mary.Value (MaryValue (..))

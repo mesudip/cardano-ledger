@@ -18,7 +18,6 @@ import Cardano.Binary
   )
 import Cardano.Ledger.Core
 import Cardano.Ledger.Crypto (Crypto)
-import Cardano.Ledger.Era hiding (EraCrypto)
 import Cardano.Ledger.Shelley (ShelleyEra)
 import Cardano.Ledger.Shelley.API
   ( EpochState (..),
