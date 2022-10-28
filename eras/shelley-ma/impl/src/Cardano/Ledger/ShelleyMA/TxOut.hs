@@ -19,7 +19,7 @@ import Cardano.Ledger.ShelleyMA.Era
   ( AllegraEra,
     MAClass,
     MaryEra,
-    MaryOrAllegra (..),
+    MaryOrAllegra (..), ShelleyMAEra
   )
 import Cardano.Ledger.Val
   ( Val (isAdaOnly, size),
@@ -27,38 +27,16 @@ import Cardano.Ledger.Val
 import Lens.Micro
 
 instance
-  ( MAClass 'Allegra c,
-    ProtVerAtMost (AllegraEra c) 6 -- TODO Is it possible to use transitivity to get rid of this constraint?
-    -- ProtVerAtMost (AllegraEra c) 4
+  ( MAClass ma c,
+    ProtVerAtMost (ShelleyMAEra ma c) 6 -- TODO Is it possible to use transitivity to get rid of this constraint?
+    ProtVerAtMost (ShelleyMAEra ma c) 4
   ) =>
   EraTxOut (AllegraEra c)
   where
-  -- {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Mary StandardCrypto) #-}
-  -- {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Allegra StandardCrypto) #-}
+  {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Mary StandardCrypto) #-}
+  {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Allegra StandardCrypto) #-}
 
-  type TxOut (AllegraEra c) = ShelleyTxOut (AllegraEra c)
-
-  mkBasicTxOut = ShelleyTxOut
-
-  addrEitherTxOutL = addrEitherShelleyTxOutL
-  {-# INLINE addrEitherTxOutL #-}
-
-  valueEitherTxOutL = valueEitherShelleyTxOutL
-  {-# INLINE valueEitherTxOutL #-}
-
-  getMinCoinTxOut pp txOut = scaledMinDeposit (txOut ^. valueTxOutL) (pp ^. ppMinUTxOValueL)
-
-instance
-  ( MAClass 'Mary c,
-    ProtVerAtMost (MaryEra c) 6, -- TODO Is it possible to use transitivity to get rid of this constraint?
-    ProtVerAtMost (MaryEra c) 4
-  ) =>
-  EraTxOut (MaryEra c)
-  where
-  -- {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Mary StandardCrypto) #-}
-  -- {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Allegra StandardCrypto) #-}
-
-  type TxOut (MaryEra c) = ShelleyTxOut (MaryEra c)
+  type TxOut (ShelleyMAEra ma c) = ShelleyTxOut (ShelleyMAEra ma c)
 
   mkBasicTxOut = ShelleyTxOut
 
@@ -69,6 +47,28 @@ instance
   {-# INLINE valueEitherTxOutL #-}
 
   getMinCoinTxOut pp txOut = scaledMinDeposit (txOut ^. valueTxOutL) (pp ^. ppMinUTxOValueL)
+
+-- instance
+--   ( MAClass 'Mary c,
+--     ProtVerAtMost (MaryEra c) 6, -- TODO Is it possible to use transitivity to get rid of this constraint?
+--     ProtVerAtMost (MaryEra c) 4
+--   ) =>
+--   EraTxOut (MaryEra c)
+--   where
+--   -- {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Mary StandardCrypto) #-}
+--   -- {-# SPECIALIZE instance EraTxOut (ShelleyMAEra 'Allegra StandardCrypto) #-}
+
+--   type TxOut (MaryEra c) = ShelleyTxOut (MaryEra c)
+
+--   mkBasicTxOut = ShelleyTxOut
+
+--   addrEitherTxOutL = addrEitherShelleyTxOutL
+--   {-# INLINE addrEitherTxOutL #-}
+
+--   valueEitherTxOutL = valueEitherShelleyTxOutL
+--   {-# INLINE valueEitherTxOutL #-}
+
+--   getMinCoinTxOut pp txOut = scaledMinDeposit (txOut ^. valueTxOutL) (pp ^. ppMinUTxOValueL)
 
 -- | The `scaledMinDeposit` calculation uses the minUTxOValue protocol parameter
 -- (passed to it as Coin mv) as a specification of "the cost of making a

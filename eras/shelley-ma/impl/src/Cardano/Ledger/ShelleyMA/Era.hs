@@ -119,18 +119,45 @@ type family MAProtVer (ma :: MaryOrAllegra) :: Nat where
 
 type instance Value (ShelleyMAEra ma c) = MAValue ma c
 
--- instance (Crypto c, MAClass ma c, ProtVerAtMost (ShelleyMAEra ma c) 6) => EraPParams (ShelleyMAEra ma c) where
---   {-# SPECIALIZE instance EraPParams (ShelleyMAEra 'Mary StandardCrypto) #-}
---   {-# SPECIALIZE instance EraPParams (ShelleyMAEra 'Allegra StandardCrypto) #-}
---   type PParamsHKD f (ShelleyMAEra ma c) = ShelleyPParamsHKD f (ShelleyMAEra ma c)
+instance (Crypto c, MAClass ma c, ProtVerAtMost (ShelleyMAEra ma c) 6) => EraPParams (ShelleyMAEra ma c) where
+  type PParamsHKD f (ShelleyMAEra ma c) = ShelleyPParamsHKD f (ShelleyMAEra ma c)
+
+  emptyPParams = def
+  emptyPParamsUpdate = def
+
+  type UpgradePParams (ShelleyMAEra ma c) = ()
+  type DowngradePParams (ShelleyMAEra ma c) = ()
+  upgradePParamsHKD _ ShelleyPParams{..} = ShelleyPParams {..}
+  downgradePParamsHKD _ ShelleyPParams{..} = ShelleyPParams {..}
+
+  hkdMinFeeAL = lens _minfeeA $ \pp x -> pp {_minfeeA = x}
+  hkdMinFeeBL = lens _minfeeB $ \pp x -> pp {_minfeeB = x}
+  hkdMaxBBSizeL = lens _maxBBSize $ \pp x -> pp {_maxBBSize = x}
+  hkdMaxTxSizeL = lens _maxTxSize $ \pp x -> pp {_maxTxSize = x}
+  hkdMaxBHSizeL = lens _maxBHSize $ \pp x -> pp {_maxBHSize = x}
+  hkdKeyDepositL = lens _keyDeposit $ \pp x -> pp {_keyDeposit = x}
+  hkdPoolDepositL = lens _poolDeposit $ \pp x -> pp {_poolDeposit = x}
+  hkdEMaxL = lens _eMax $ \pp x -> pp {_eMax = x}
+  hkdNOptL = lens _nOpt $ \pp x -> pp {_nOpt = x}
+  hkdA0L = lens _a0 $ \pp x -> pp {_a0 = x}
+  hkdRhoL = lens _rho $ \pp x -> pp {_rho = x}
+  hkdTauL = lens _tau $ \pp x -> pp {_tau = x}
+  hkdDL = lens _d $ \pp x -> pp {_d = x}
+  hkdExtraEntropyL = lens _extraEntropy $ \pp x -> pp {_extraEntropy = x}
+  hkdProtocolVersionL = lens _protocolVersion $ \pp x -> pp {_protocolVersion = x}
+  hkdMinUTxOValueL = lens _minUTxOValue $ \pp x -> pp {_minUTxOValue = x}
+  hkdMinPoolCostL = lens _minPoolCost $ \pp x -> pp {_minPoolCost = x}
+
+-- instance (Crypto c, MAClass 'Allegra c, ProtVerAtMost (AllegraEra c) 6) => EraPParams (AllegraEra c) where
+--   type PParamsHKD f (AllegraEra c) = ShelleyPParamsHKD f (AllegraEra c)
 
 --   emptyPParams = def
 --   emptyPParamsUpdate = def
 
---   type UpgradePParams (ShelleyMAEra ma c) = ()
---   type DowngradePParams (ShelleyMAEra ma c) = ()
---   upgradePParamsHKD _ ShelleyPParams{..} = ShelleyPParams {..}
---   downgradePParamsHKD _ ShelleyPParams{..} = ShelleyPParams {..}
+--   type UpgradePParams (AllegraEra c) = ()
+--   type DowngradePParams (AllegraEra c) = ()
+--   upgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
+--   downgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
 
 --   hkdMinFeeAL = lens _minfeeA $ \pp x -> pp {_minfeeA = x}
 --   hkdMinFeeBL = lens _minfeeB $ \pp x -> pp {_minfeeB = x}
@@ -150,63 +177,34 @@ type instance Value (ShelleyMAEra ma c) = MAValue ma c
 --   hkdMinUTxOValueL = lens _minUTxOValue $ \pp x -> pp {_minUTxOValue = x}
 --   hkdMinPoolCostL = lens _minPoolCost $ \pp x -> pp {_minPoolCost = x}
 
-instance (Crypto c, MAClass 'Allegra c, ProtVerAtMost (AllegraEra c) 6) => EraPParams (AllegraEra c) where
-  type PParamsHKD f (AllegraEra c) = ShelleyPParamsHKD f (AllegraEra c)
+-- instance (Crypto c, MAClass 'Mary c, ProtVerAtMost (MaryEra c) 6) => EraPParams (MaryEra c) where
+--   type PParamsHKD f (MaryEra c) = ShelleyPParamsHKD f (MaryEra c)
 
-  emptyPParams = def
-  emptyPParamsUpdate = def
+--   emptyPParams = def
+--   emptyPParamsUpdate = def
 
-  type UpgradePParams (AllegraEra c) = ()
-  type DowngradePParams (AllegraEra c) = ()
-  upgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
-  downgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
+--   type UpgradePParams (MaryEra c) = ()
+--   type DowngradePParams (MaryEra c) = ()
+--   upgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
+--   downgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
 
-  hkdMinFeeAL = lens _minfeeA $ \pp x -> pp {_minfeeA = x}
-  hkdMinFeeBL = lens _minfeeB $ \pp x -> pp {_minfeeB = x}
-  hkdMaxBBSizeL = lens _maxBBSize $ \pp x -> pp {_maxBBSize = x}
-  hkdMaxTxSizeL = lens _maxTxSize $ \pp x -> pp {_maxTxSize = x}
-  hkdMaxBHSizeL = lens _maxBHSize $ \pp x -> pp {_maxBHSize = x}
-  hkdKeyDepositL = lens _keyDeposit $ \pp x -> pp {_keyDeposit = x}
-  hkdPoolDepositL = lens _poolDeposit $ \pp x -> pp {_poolDeposit = x}
-  hkdEMaxL = lens _eMax $ \pp x -> pp {_eMax = x}
-  hkdNOptL = lens _nOpt $ \pp x -> pp {_nOpt = x}
-  hkdA0L = lens _a0 $ \pp x -> pp {_a0 = x}
-  hkdRhoL = lens _rho $ \pp x -> pp {_rho = x}
-  hkdTauL = lens _tau $ \pp x -> pp {_tau = x}
-  hkdDL = lens _d $ \pp x -> pp {_d = x}
-  hkdExtraEntropyL = lens _extraEntropy $ \pp x -> pp {_extraEntropy = x}
-  hkdProtocolVersionL = lens _protocolVersion $ \pp x -> pp {_protocolVersion = x}
-  hkdMinUTxOValueL = lens _minUTxOValue $ \pp x -> pp {_minUTxOValue = x}
-  hkdMinPoolCostL = lens _minPoolCost $ \pp x -> pp {_minPoolCost = x}
-
-instance (Crypto c, MAClass 'Mary c, ProtVerAtMost (MaryEra c) 6) => EraPParams (MaryEra c) where
-  type PParamsHKD f (MaryEra c) = ShelleyPParamsHKD f (MaryEra c)
-
-  emptyPParams = def
-  emptyPParamsUpdate = def
-
-  type UpgradePParams (MaryEra c) = ()
-  type DowngradePParams (MaryEra c) = ()
-  upgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
-  downgradePParamsHKD _ ShelleyPParams {..} = ShelleyPParams {..}
-
-  hkdMinFeeAL = lens _minfeeA $ \pp x -> pp {_minfeeA = x}
-  hkdMinFeeBL = lens _minfeeB $ \pp x -> pp {_minfeeB = x}
-  hkdMaxBBSizeL = lens _maxBBSize $ \pp x -> pp {_maxBBSize = x}
-  hkdMaxTxSizeL = lens _maxTxSize $ \pp x -> pp {_maxTxSize = x}
-  hkdMaxBHSizeL = lens _maxBHSize $ \pp x -> pp {_maxBHSize = x}
-  hkdKeyDepositL = lens _keyDeposit $ \pp x -> pp {_keyDeposit = x}
-  hkdPoolDepositL = lens _poolDeposit $ \pp x -> pp {_poolDeposit = x}
-  hkdEMaxL = lens _eMax $ \pp x -> pp {_eMax = x}
-  hkdNOptL = lens _nOpt $ \pp x -> pp {_nOpt = x}
-  hkdA0L = lens _a0 $ \pp x -> pp {_a0 = x}
-  hkdRhoL = lens _rho $ \pp x -> pp {_rho = x}
-  hkdTauL = lens _tau $ \pp x -> pp {_tau = x}
-  hkdDL = lens _d $ \pp x -> pp {_d = x}
-  hkdExtraEntropyL = lens _extraEntropy $ \pp x -> pp {_extraEntropy = x}
-  hkdProtocolVersionL = lens _protocolVersion $ \pp x -> pp {_protocolVersion = x}
-  hkdMinUTxOValueL = lens _minUTxOValue $ \pp x -> pp {_minUTxOValue = x}
-  hkdMinPoolCostL = lens _minPoolCost $ \pp x -> pp {_minPoolCost = x}
+--   hkdMinFeeAL = lens _minfeeA $ \pp x -> pp {_minfeeA = x}
+--   hkdMinFeeBL = lens _minfeeB $ \pp x -> pp {_minfeeB = x}
+--   hkdMaxBBSizeL = lens _maxBBSize $ \pp x -> pp {_maxBBSize = x}
+--   hkdMaxTxSizeL = lens _maxTxSize $ \pp x -> pp {_maxTxSize = x}
+--   hkdMaxBHSizeL = lens _maxBHSize $ \pp x -> pp {_maxBHSize = x}
+--   hkdKeyDepositL = lens _keyDeposit $ \pp x -> pp {_keyDeposit = x}
+--   hkdPoolDepositL = lens _poolDeposit $ \pp x -> pp {_poolDeposit = x}
+--   hkdEMaxL = lens _eMax $ \pp x -> pp {_eMax = x}
+--   hkdNOptL = lens _nOpt $ \pp x -> pp {_nOpt = x}
+--   hkdA0L = lens _a0 $ \pp x -> pp {_a0 = x}
+--   hkdRhoL = lens _rho $ \pp x -> pp {_rho = x}
+--   hkdTauL = lens _tau $ \pp x -> pp {_tau = x}
+--   hkdDL = lens _d $ \pp x -> pp {_d = x}
+--   hkdExtraEntropyL = lens _extraEntropy $ \pp x -> pp {_extraEntropy = x}
+--   hkdProtocolVersionL = lens _protocolVersion $ \pp x -> pp {_protocolVersion = x}
+--   hkdMinUTxOValueL = lens _minUTxOValue $ \pp x -> pp {_minUTxOValue = x}
+--   hkdMinPoolCostL = lens _minPoolCost $ \pp x -> pp {_minPoolCost = x}
 
 -- These rules are all inherited from Shelley
 
