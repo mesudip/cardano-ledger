@@ -12,7 +12,7 @@ import Cardano.Ledger.Crypto (DSIGN)
 import Cardano.Ledger.Keys
 import Cardano.Ledger.PParams
 import Cardano.Ledger.Pretty (PrettyA)
-import Cardano.Ledger.Shelley.Utils (Split (..))
+import Test.Cardano.Ledger.Shelley.Utils (Split (..))
 import Data.Functor.Identity (Identity)
 import Data.Maybe.Strict (StrictMaybe)
 import Data.TreeDiff.Class (ToExpr (..))

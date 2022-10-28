@@ -58,7 +58,7 @@ import Cardano.Ledger.Shelley.UTxO
     makeWitnessesVKey,
     sumAllValue,
   )
-import Cardano.Ledger.Shelley.Utils (Split (..))
+import Test.Cardano.Ledger.Shelley.Utils (Split (..))
 import Cardano.Ledger.Val (Val (..), sumVal, (<+>), (<->), (<×>))
 import Control.Monad (when)
 import Control.State.Transition

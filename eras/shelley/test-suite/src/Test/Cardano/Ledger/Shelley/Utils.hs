@@ -103,7 +103,6 @@ import Cardano.Ledger.Shelley.PParams
 import Cardano.Ledger.Shelley.Tx (ShelleyTx, ShelleyTxOut)
 import Cardano.Ledger.Shelley.TxBody (ShelleyEraTxBody)
 import Cardano.Ledger.Shelley.TxWits (ShelleyTxWits)
-import Cardano.Ledger.Shelley.Utils (Split)
 import Cardano.Ledger.Slot (EpochNo, EpochSize (..), SlotNo)
 import Cardano.Protocol.TPraos.API (GetLedgerView)
 import Cardano.Protocol.TPraos.BHeader (BHBody (..), BHeader, bhbody)
@@ -164,6 +163,9 @@ type ShelleyTest era =
     PParamsHKD Identity era ~ ShelleyPParamsHKD Identity era,
     PParamsHKD StrictMaybe era ~ ShelleyPParamsHKD StrictMaybe era
   )
+
+class Split v where
+  vsplit :: v -> Integer -> ([v], Coin)
 
 type GenesisKeyPair c = KeyPair 'Genesis c
 
