@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingStrategies #-}
@@ -21,10 +22,11 @@ module Cardano.Ledger.Shelley.Rules.Ledger
     ShelleyLedgerEvent (..),
     Event,
     PredicateFailure,
+    epochFromSlot,
   )
 where
 
-import Cardano.Ledger.BaseTypes (ShelleyBase, TxIx, invalidKey)
+import Cardano.Ledger.BaseTypes (Globals, ShelleyBase, TxIx, epochInfoPure, invalidKey)
 import Cardano.Ledger.Binary
   ( FromCBOR (..),
     ToCBOR (..),
@@ -33,7 +35,6 @@ import Cardano.Ledger.Binary
   )
 import Cardano.Ledger.Coin (Coin (..))
 import Cardano.Ledger.Core
-import Cardano.Ledger.EpochBoundary (obligation)
 import Cardano.Ledger.Keys (DSignable, Hash)
 import Cardano.Ledger.Shelley.Era (ShelleyLEDGER)
 import Cardano.Ledger.Shelley.LedgerState
@@ -43,7 +44,7 @@ import Cardano.Ledger.Shelley.LedgerState
     LedgerState (..),
     PState (..),
     UTxOState (..),
-    rewards,
+    -- obligationDPState,
   )
 import Cardano.Ledger.Shelley.Rules.Delegs
   ( DelegsEnv (..),
@@ -53,12 +54,14 @@ import Cardano.Ledger.Shelley.Rules.Delegs
   )
 import Cardano.Ledger.Shelley.Rules.Utxo (UtxoEnv (..))
 import Cardano.Ledger.Shelley.Rules.Utxow (ShelleyUTXOW, ShelleyUtxowPredFailure)
-import Cardano.Ledger.Shelley.TxBody (DCert, ShelleyEraTxBody (..))
-import Cardano.Ledger.Slot (SlotNo)
+import Cardano.Ledger.Shelley.TxBody (DCert (..), ShelleyEraTxBody (..))
+import Cardano.Ledger.Slot (EpochNo, SlotNo, epochInfoEpoch)
 import Control.DeepSeq (NFData (..))
+import Control.Monad.Reader (Reader)
+import Control.Monad.Trans.Reader (asks)
 import Control.State.Transition
-  ( Assertion (..),
-    AssertionViolation (..),
+  ( AssertionViolation (..),
+    -- Assertion(PostCondition),
     Embed (..),
     STS (..),
     TRC (..),
@@ -66,13 +69,17 @@ import Control.State.Transition
     judgmentContext,
     trans,
   )
+import Data.Foldable (fold)
+import qualified Data.Map.Strict as Map
 import Data.Sequence (Seq)
 import qualified Data.Sequence.Strict as StrictSeq
 import Data.Word (Word8)
 import GHC.Generics (Generic)
-import GHC.Records (HasField)
+import GHC.Records (HasField (..))
 import Lens.Micro
 import NoThunks.Class (NoThunks (..))
+
+-- import Debug.Trace(trace)
 
 -- ========================================================
 
@@ -147,6 +154,15 @@ instance
           pure (2, DelegsFailure a)
         k -> invalidKey k
 
+epochFromSlot :: SlotNo -> Reader Globals EpochNo
+epochFromSlot slot = do
+  ei <- asks epochInfoPure
+  epochInfoEpoch ei slot
+
+synopsis :: Maybe (Map.Map k Coin) -> String
+synopsis (Just m) = "Count = " ++ show (Map.size m) ++ ",  total = " ++ show (fold m)
+synopsis Nothing = "SYNOPSIS NOTHING"
+
 instance
   ( Show (PParams era),
     Show (Tx era),
@@ -178,25 +194,39 @@ instance
   initialRules = []
   transitionRules = [ledgerTransition]
 
-  renderAssertionViolation AssertionViolation {avSTS, avMsg, avCtx, avState} =
+  renderAssertionViolation AssertionViolation {avSTS, avMsg, avCtx = ctx@(TRC (LedgerEnv slot _ pp _, _, tx)), avState} =
     "AssertionViolation ("
       <> avSTS
       <> "): "
       <> avMsg
+      <> "\n CERTS\n"
+      <> seq (show ctx) (show ((tx ^. bodyTxL) ^. certsTxBodyL))
+      <> "\n (slot,PParams) "
+      <> show (slot, pp)
       <> "\n"
-      <> show avCtx
+      <> seq (show avState) "avState"
+      <> "\n Deposits "
+      <> show (utxosDeposited <$> (lsUTxOState <$> avState))
+      <> "\n dsDeposits\n"
+      <> synopsis (dsDeposits <$> (dpsDState <$> (lsDPState <$> avState)))
       <> "\n"
-      <> show avState
+      <> show (dsDeposits <$> (dpsDState <$> (lsDPState <$> avState)))
+      <> "\n psDeposits\n"
+      <> synopsis (psDeposits <$> (dpsPState <$> (lsDPState <$> avState)))
 
-  assertions =
-    [ PostCondition
-        "Deposit pot must equal obligation"
-        ( \(TRC (LedgerEnv {ledgerPp}, _, _))
-           (LedgerState utxoSt DPState {dpsDState, dpsPState}) ->
-              obligation ledgerPp (rewards dpsDState) (psStakePoolParams dpsPState) -- FIX ME
-                == utxosDeposited utxoSt
-        )
-    ]
+  assertions = []
+
+{-
+  [ PostCondition
+      "Deposit pot must equal obligation."
+      ( \ (TRC (_, LedgerState preutxoSt predpSt, _))
+         (LedgerState utxoSt dpSt) ->
+            if not (obligationDPState dpSt == utxosDeposited utxoSt)
+               then trace (" preOBL = "++ show(obligationDPState predpSt) ++"  prePOT = "++ show(utxosDeposited preutxoSt)
+                           ++"\n"++"postOBL = "++ show(obligationDPState dpSt) ++" postPOT = "++ show(utxosDeposited utxoSt)) False
+               else True
+      )
+  ] -}
 
 ledgerTransition ::
   forall era.
@@ -214,7 +244,6 @@ ledgerTransition ::
   TransitionRule (ShelleyLEDGER era)
 ledgerTransition = do
   TRC (LedgerEnv slot txIx pp account, LedgerState utxoSt dpstate, tx) <- judgmentContext
-
   dpstate' <-
     trans @(EraRule "DELEGS" era) $
       TRC
@@ -222,15 +251,13 @@ ledgerTransition = do
           dpstate,
           StrictSeq.fromStrict $ tx ^. bodyTxL . certsTxBodyL
         )
-
-  let DPState dstate pstate = dpstate
+  let DPState dstate _pstate = dpstate
       genDelegs = dsGenDelegs dstate
-      stpools = psStakePoolParams pstate
 
   utxoSt' <-
     trans @(EraRule "UTXOW" era) $
       TRC
-        ( UtxoEnv slot pp stpools genDelegs,
+        ( UtxoEnv slot pp dpstate genDelegs,
           utxoSt,
           tx
         )

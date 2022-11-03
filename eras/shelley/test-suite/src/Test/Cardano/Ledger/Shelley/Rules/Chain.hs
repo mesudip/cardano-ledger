@@ -21,6 +21,7 @@ module Test.Cardano.Ledger.Shelley.Rules.Chain
     initialShelleyState,
     totalAda,
     totalAdaPots,
+    compareAdaPots,
   )
 where
 
@@ -58,6 +59,7 @@ import qualified Cardano.Ledger.Pretty as PP
 import Cardano.Ledger.Shelley (ShelleyEra)
 import Cardano.Ledger.Shelley.AdaPots
   ( AdaPots (..),
+    compareAdaPots,
     totalAdaES,
     totalAdaPotsES,
   )
@@ -342,7 +344,7 @@ chainTransition =
         let NewEpochState e1 _ _ _ _ _ _ = nes
             NewEpochState e2 _ bcur es _ _pd _ = nes'
         let EpochState account _ ls _ pp' _ = es
-        let LedgerState _ (DPState (DState _ _ genDelegs _) (PState _ _ _)) = ls
+        let LedgerState _ (DPState DState {dsGenDelegs = genDelegs} PState {}) = ls
         let ph = lastAppliedHash lab
             etaPH = prevHashToNonce ph
 

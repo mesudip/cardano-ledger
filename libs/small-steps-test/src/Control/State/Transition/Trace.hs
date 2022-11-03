@@ -14,6 +14,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
+-- {-# OPTIONS_GHC -Wno-unused-imports #-}
+
 -- | Traces of transition systems and associated operators.
 --
 -- This module also includes a minimal domain-specific-language to specify
@@ -69,6 +71,8 @@ import Lens.Micro (Lens', lens, to, (^.), (^..))
 import Lens.Micro.TH (makeLenses)
 import NoThunks.Class (NoThunks (..))
 import Test.Tasty.HUnit (assertFailure, (@?=))
+import Test.Cardano.Ledger.Binary.TreeDiff(diffExpr,ToExpr)
+import Control.Monad(unless)
 
 -- Signal and resulting state.
 --
@@ -422,7 +426,7 @@ mSt .- sig = do
   m st
 mSt .-> stExpected = do
   stActual <- mSt
-  liftIO $ stActual @?= stExpected
+  liftIO $ nodifference "check trace" stExpected stActual
   return stActual
 
 checkTrace ::
@@ -576,3 +580,9 @@ splitTrace p (Trace env s0 sigstates) = map f xs
   where
     f (sigstates2, s) = Trace env s sigstates2
     xs = splitAtChange p sigstates s0 Empty []
+
+
+noDifference :: (ToExpr a, Eq a) => String -> a -> a -> Assertion
+noDifference message expected actual =
+  unless (actual == expected) (assertFailure msg)
+ where msg = (if null message then "" else message ++ "\n") ++ diffExpr expected actual

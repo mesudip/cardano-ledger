@@ -692,7 +692,8 @@ initialLedgerState gstate = LedgerState utxostate dpstate
         Map.empty
         genDelegsZero
         instantaneousRewardsZero
-    pstate = PState (gsInitialPoolParams gstate) Map.empty Map.empty
+        Map.empty
+    pstate = PState (gsInitialPoolParams gstate) Map.empty Map.empty Map.empty
     -- In a wellformed LedgerState the deposited equals the obligation
     deposited =
       obligation'

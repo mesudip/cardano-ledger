@@ -17,7 +17,10 @@ import Test.Cardano.Ledger.Shelley.ConcreteCryptoTypes (C, C_Crypto)
 import Test.Cardano.Ledger.Shelley.Orphans ()
 import Test.Cardano.Ledger.Shelley.Rules.Chain (CHAIN, ChainState, totalAda)
 import Test.Cardano.Ledger.Shelley.Utils (applySTSTest, maxLLSupply, runShelleyBase)
-import Test.Tasty.HUnit (Assertion, (@?=))
+import Test.Cardano.Ledger.Binary.TreeDiff(diffExpr)
+import Data.TreeDiff(ToExpr)
+import Control.Monad(unless)
+import Test.Tasty.HUnit (Assertion, (@?=),assertFailure)
 
 data CHAINExample h era = CHAINExample
   { -- | State to start testing with
@@ -33,7 +36,12 @@ data CHAINExample h era = CHAINExample
 testCHAINExample :: CHAINExample (BHeader C_Crypto) C -> Assertion
 testCHAINExample (CHAINExample initSt block (Right expectedSt)) = do
   (checkTrace @(CHAIN C) runShelleyBase () $ pure initSt .- block .-> expectedSt)
-    >> (totalAda expectedSt @?= maxLLSupply)
+    >> noDifference "" (totalAda expectedSt) maxLLSupply
 testCHAINExample (CHAINExample initSt block predicateFailure@(Left _)) = do
   let st = runShelleyBase $ applySTSTest @(CHAIN C) (TRC ((), initSt, block))
   st @?= predicateFailure
+
+noDifference :: (ToExpr a, Eq a) => String -> a -> a -> Assertion
+noDifference message expected actual =
+  unless (actual == expected) (assertFailure msg)
+ where msg = (if null message then "" else message ++ "\n") ++ diffExpr expected actual

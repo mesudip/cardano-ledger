@@ -29,6 +29,7 @@ module Test.Cardano.Ledger.Shelley.Rules.TestChain
     aggregateUtxoCoinByCredential,
     splitTrace,
     forEachEpochTrace,
+    main,
   )
 where
 
@@ -44,12 +45,16 @@ import Cardano.Ledger.Coin
 import Cardano.Ledger.Compactible (fromCompact, toCompact)
 import Cardano.Ledger.Core
 import Cardano.Ledger.Credential (Credential (..), StakeReference (StakeRefBase, StakeRefPtr))
-import Cardano.Ledger.EpochBoundary (SnapShot (..), Stake (..), obligation)
+import Cardano.Ledger.EpochBoundary (SnapShot (..), Stake (..))
 import Cardano.Ledger.Keys (KeyHash, KeyRole (StakePool, Staking, Witness))
+import Cardano.Ledger.SafeHash (hashAnnotated)
+-- import Cardano.Ledger.Shelley.Rules (ShelleyLEDGER)
+
+import Cardano.Ledger.Shelley (ShelleyEra)
 import Cardano.Ledger.Shelley.API (ApplyBlock, ShelleyDELEG)
+import Cardano.Ledger.Shelley.Debug
 import Cardano.Ledger.Shelley.LedgerState
-  ( DPState (..),
-    DState (..),
+  ( DState (..),
     EpochState (..),
     IncrementalStake (..),
     LedgerState (..),
@@ -66,11 +71,12 @@ import Cardano.Ledger.Shelley.LedgerState
     iRReserves,
     iRTreasury,
     incrementalStakeDistr,
-    keyRefunds,
     ptrsMap,
     rewards,
     rs,
   )
+import Cardano.Ledger.Shelley.LedgerState.DPState (DPState (..), keyTxRefunds, obligationDPState, totalTxDeposits)
+import Cardano.Ledger.Shelley.PParams (ShelleyPParamsHKD (..))
 import Cardano.Ledger.Shelley.Rewards (sumRewards)
 import Cardano.Ledger.Shelley.Rules
   ( DelegEnv (..),
@@ -80,7 +86,6 @@ import Cardano.Ledger.Shelley.Rules
     votedValue,
   )
 import Cardano.Ledger.Shelley.TxBody hiding (TxBody, TxOut)
-import Cardano.Ledger.Shelley.UTxO (totalDeposits)
 import Cardano.Ledger.TxIn (TxIn (..))
 import Cardano.Ledger.UTxO (UTxO (..), coinBalance, txins, txouts)
 import Cardano.Ledger.UnifiedMap (ViewMap)
@@ -91,7 +96,7 @@ import Cardano.Protocol.TPraos.BHeader
     bhbody,
     bheaderSlotNo,
   )
-import Cardano.Slotting.Slot (EpochNo)
+import Cardano.Slotting.Slot (EpochNo (..))
 import Control.Monad.Trans.Reader (ReaderT)
 import Control.SetAlgebra (dom, eval, (∩), (▷), (◁))
 import Control.State.Transition
@@ -121,6 +126,7 @@ import Data.Word (Word64)
 import GHC.Records (HasField (..))
 import Lens.Micro hiding (ix)
 import Lens.Micro.Extras (view)
+import Test.Cardano.Ledger.Shelley.ConcreteCryptoTypes (TestCrypto)
 import Test.Cardano.Ledger.Shelley.Generator.Block (tickChainState)
 import Test.Cardano.Ledger.Shelley.Generator.Core (GenEnv)
 import Test.Cardano.Ledger.Shelley.Generator.EraGen (EraGen (..))
@@ -129,7 +135,7 @@ import Test.Cardano.Ledger.Shelley.Generator.ScriptClass (scriptKeyCombinations)
 import Test.Cardano.Ledger.Shelley.Generator.ShelleyEraGen ()
 import Test.Cardano.Ledger.Shelley.Generator.Trace.Chain (mkGenesisChainState)
 import Test.Cardano.Ledger.Shelley.Orphans ()
-import Test.Cardano.Ledger.Shelley.Rules.Chain (CHAIN, ChainState (..), totalAda, totalAdaPots)
+import Test.Cardano.Ledger.Shelley.Rules.Chain (CHAIN, ChainState (..), compareAdaPots, totalAda, totalAdaPots)
 import qualified Test.Cardano.Ledger.Shelley.Rules.TestDeleg as TestDeleg
   ( checkInstantaneousRewards,
     keyDeRegistration,
@@ -160,7 +166,43 @@ import Test.QuickCheck
     (.||.),
     (===),
   )
+import Test.Tasty (TestTree, defaultMain, testGroup)
+import qualified Test.Tasty.QuickCheck as TQC
 
+test1 ::
+  forall era.
+  ( EraGen era,
+    State (EraRule "PPUP" era) ~ PPUPState era,
+    QC.HasTrace (CHAIN era) (GenEnv era)
+  ) =>
+  Property
+test1 =
+  forAllChainTrace @era longTraceLen $ \tr -> do
+    let ssts :: [SourceSignalTarget (CHAIN era)]
+        -- Signal(CHAIN era) = Block (BHeader (EraCrypto era)) era
+        ssts = sourceSignalTargets tr
+        -- noEpochBoundarySsts = filter sameEpoch ssts
+        justBoundarySsts = filter (not . sameEpoch) ssts
+
+    conjoin (map (checkPreservation @era) (zip justBoundarySsts [0 ..]))
+
+minimal ::
+  forall era.
+  ( EraGen era,
+    QC.HasTrace (CHAIN era) (GenEnv era),
+    State (EraRule "PPUP" era) ~ PPUPState era
+  ) =>
+  TestTree
+minimal =
+  testGroup
+    "Minimal Property Tests"
+    [ TQC.testProperty "total amount of Ada is preserved (Chain)" (test1 @era)
+    ]
+
+main :: IO ()
+main = defaultMain (minimal @(ShelleyEra TestCrypto))
+
+-- :main --quickcheck-replay=443873
 ------------------------------
 -- Constants for Properties --
 ------------------------------
@@ -289,12 +331,15 @@ adaPreservationChain ::
   Property
 adaPreservationChain =
   forAllChainTrace @era longTraceLen $ \tr -> do
-    let ssts = sourceSignalTargets tr
+    let ssts :: [SourceSignalTarget (CHAIN era)]
+        -- Signal(CHAIN era) = Block (BHeader (EraCrypto era)) era
+        ssts = sourceSignalTargets tr
         noEpochBoundarySsts = filter sameEpoch ssts
+        justBoundarySsts = filter (not . sameEpoch) ssts
 
     conjoin . concat $
       [ -- preservation properties
-        map (checkPreservation @era) ssts,
+        map (checkPreservation @era) (zip justBoundarySsts [0 ..]),
         map (potsSumIncreaseWdrlsPerTx @era @ledger) ssts,
         map (potsSumIncreaseByRewardsPerTx @era @ledger) ssts,
         map (preserveBalance @era @ledger) ssts,
@@ -311,6 +356,13 @@ adaPreservationChain =
         map feesNonDecreasing noEpochBoundarySsts
       ]
 
+infoRetire :: Map (KeyHash 'StakePool c) Coin -> KeyHash 'StakePool c -> String
+infoRetire deposits keyhash = showKeyHash keyhash ++ extra
+  where
+    extra = case Map.lookup keyhash deposits of
+      Nothing -> " (?)"
+      Just coin -> " (" ++ show coin ++ ")"
+
 -- ADA should be preserved for all state transitions in the generated trace
 checkPreservation ::
   forall era.
@@ -320,15 +372,13 @@ checkPreservation ::
     HasField "_poolDeposit" (PParams era) Coin,
     State (EraRule "PPUP" era) ~ PPUPState era
   ) =>
-  SourceSignalTarget (CHAIN era) ->
+  (SourceSignalTarget (CHAIN era), Int) ->
   Property
-checkPreservation SourceSignalTarget {source, target, signal} =
+checkPreservation (SourceSignalTarget {source, target, signal}, count) =
   counterexample
     ( mconcat
-        ( [ "\nPots before block\n",
-            show (totalAdaPots source),
-            "\n\nPots after block\n",
-            show (totalAdaPots target),
+        ( [ "\ncount = " ++ show count ++ "\n",
+            compareAdaPots "before" (totalAdaPots source) "after" (totalAdaPots target),
             "\n\nTotal lovelace before block\n",
             show sourceTotal,
             "\n\nTotal lovelace after block\n",
@@ -339,26 +389,30 @@ checkPreservation SourceSignalTarget {source, target, signal} =
             show (nesEL . chainNes $ target),
             "\n\nCurrent protocol parameters\n",
             show currPP,
-            "\n\nReward Accounts before update\n",
-            show (UM.unUnify oldRAs),
-            "\n\nReward Accounts after update\n",
-            show (UM.unUnify newRAs),
-            "\n\nMIR\n",
-            show mir,
-            "\n\nRegistered Reserves MIR total\n",
+            "\nReward Accounts before update\n",
+            showMap (trim 10 . showCred) show (UM.unUnify oldRAs),
+            "\nReward Accounts after update\n",
+            showMap (trim 10 . showCred) show (UM.unUnify newRAs),
+            "\nRetiring pools before update\n",
+            showMap (infoRetire oldPoolDeposit) show oldRetire,
+            "\nRetiring pools after update\n",
+            showMap (infoRetire newPoolDeposit) show newRetire,
+            "\nMIR\n",
+            showIR mir,
+            "\n\nRegistered Reserves MIR total ",
             show (fold regMirRes),
-            "\n\nUnregistered Reserves MIR total\n",
+            "\n\nUnregistered Reserves MIR total ",
             show (fold unRegMirRes),
-            "\n\nRegistered Treasury MIR total\n",
+            "\n\nRegistered Treasury MIR total ",
             show (fold regMirTre),
-            "\n\nUnregistered Treasury MIR total\n",
+            "\n\nUnregistered Treasury MIR total ",
             show (fold unRegMirTre),
             "\n\nPools Retiring This epoch\n",
-            show (Map.filter (\e -> e == (nesEL . chainNes $ source)) (psRetiring . dpsPState . lsDPState $ lsOld)),
-            "\n\ntxs\n"
+            showMap (infoRetire oldPoolDeposit) show (Map.filter (\e -> e == (nesEL . chainNes $ target)) oldRetire)
           ]
             ++ obligationMsgs
             ++ rewardUpdateMsgs
+            ++ ["\n\ntransactions"]
             ++ txs
         )
     )
@@ -373,20 +427,24 @@ checkPreservation SourceSignalTarget {source, target, signal} =
     ru' = nesRu . chainNes $ source
     lsOld = esLState . nesEs . chainNes $ source
     lsNew = esLState . nesEs . chainNes $ target
-    pools = psStakePoolParams . dpsPState . lsDPState $ lsOld
     oldRAs = rewards . dpsDState . lsDPState $ lsOld
     newRAs = rewards . dpsDState . lsDPState $ lsNew
+    oldDPState = lsDPState $ lsOld
+    oldRetire = psRetiring . dpsPState . lsDPState $ lsOld
+    newRetire = psRetiring . dpsPState . lsDPState $ lsNew
+    oldPoolDeposit = psDeposits . dpsPState . lsDPState $ lsOld
+    newPoolDeposit = psDeposits . dpsPState . lsDPState $ lsNew
 
     proposal = votedValue (proposals . utxosPpups . lsUTxOState $ lsOld) currPP 5
     obligationMsgs = case proposal of
       Nothing -> []
       Just proposal' ->
-        let Coin oblgCurr = obligation currPP oldRAs pools
-            Coin oblgNew = obligation proposal' oldRAs pools
-            obligationDiff = oblgCurr - oblgNew
+        let Coin oblgCurr = obligationDPState (lsDPState lsOld)
+            Coin oblgNew = obligationDPState (lsDPState lsOld)
+            obligationDiff = oblgCurr - oblgNew -- I Think this will aways be zero, because obligation no-longer depends on PParams
          in [ "\n\nProposed protocol parameter update\n",
               show proposal',
-              "\n\nObligation Diff\n",
+              "\n\nObligation Diff ",
               show obligationDiff
             ]
 
@@ -400,19 +458,19 @@ checkPreservation SourceSignalTarget {source, target, signal} =
       SJust ru'' ->
         let (ru, _rewevent) = runShelleyBase (completeRupd ru'')
             regRewards = Map.filterWithKey (\kh _ -> UM.member kh oldRAs) (rs ru)
-         in [ "\n\nSum of new rewards\n",
+         in [ "\n\nSum of new rewards ",
               show (sumRewards prevPP (rs ru)),
-              "\n\nNew rewards\n",
+              "\n\nNew rewards ",
               show (rs ru),
-              "\n\nSum of new registered rewards\n",
+              "\n\nSum of new registered rewards ",
               show (sumRewards prevPP regRewards),
-              "\n\nChange in Fees\n",
+              "\n\nChange in Fees ",
               show (deltaF ru),
-              "\n\nChange in Treasury\n",
+              "\n\nChange in Treasury ",
               show (deltaT ru),
-              "\n\nChange in Reserves\n",
+              "\n\nChange in Reserves ",
               show (deltaR ru),
-              "\n\nNet effect of reward update\n",
+              "\n\nNet effect of reward update ",
               show $
                 deltaT ru
                   <> deltaF ru
@@ -424,26 +482,20 @@ checkPreservation SourceSignalTarget {source, target, signal} =
     txs = map dispTx (zip txs' [0 :: Int ..])
 
     dispTx (tx, ix) =
-      "\nTransaction "
+      "\n\n******** Transaction "
         ++ show ix
+        ++ " "
+        ++ show (hashAnnotated (tx ^. bodyTxL))
         ++ "\nfee :"
         ++ show (tx ^. bodyTxL . feeTxBodyL)
-        ++ "\nwithdrawals: "
-        ++ show (tx ^. bodyTxL . wdrlsTxBodyL)
-        ++ "\ncerts: "
-        ++ show (map dispCert . toList $ tx ^. bodyTxL . certsTxBodyL)
-        ++ "\n"
-
-    dispCert (DCertDeleg (RegKey kh)) = "regkey " <> show kh
-    dispCert (DCertDeleg (DeRegKey kh)) = "deregkey " <> show kh
-    dispCert (DCertDeleg (Delegate (Delegation _ _))) = "deleg"
-    dispCert (DCertPool (RegPool p)) =
-      if ppId p `Map.member` pools
-        then "PoolReg" <> show (ppId p)
-        else "Pool Re-Reg"
-    dispCert (DCertPool (RetirePool _ _)) = "retire"
-    dispCert (DCertGenesis (GenesisDelegCert _ _ _)) = "gen"
-    dispCert (DCertMir _) = "mir"
+        ++ "\nwithdrawals:"
+        ++ showWithdrawal (tx ^. bodyTxL . wdrlsTxBodyL)
+        ++ "\ncerts:"
+        ++ showListy (("   " ++) . synopsisCert) (toList $ tx ^. bodyTxL . certsTxBodyL)
+        ++ "total deposits "
+        ++ show (totalTxDeposits currPP oldDPState (tx ^. bodyTxL))
+        ++ "\ntotal refunds "
+        ++ show (keyTxRefunds currPP oldDPState (tx ^. bodyTxL))
 
 -- If we are not at an Epoch Boundary (i.e. epoch source == epoch target)
 -- then the total rewards should change only by withdrawals
@@ -637,18 +689,16 @@ preserveBalance SourceSignalTarget {source = chainSt, signal = block} =
         (failedScripts .||. ediffEq created consumed_)
       where
         failedScripts = property $ hasFailedScripts tx
-        LedgerState (UTxOState {utxosUtxo = u}) dstate = ledgerSt
+        LedgerState (UTxOState {utxosUtxo = u}) dpstate = ledgerSt
         LedgerState (UTxOState {utxosUtxo = u'}) _ = ledgerSt'
         txb = tx ^. bodyTxL
-        certs = toList (txb ^. certsTxBodyL)
-        pools = psStakePoolParams . dpsPState $ dstate
         created =
           coinBalance u'
             <+> txb ^. feeTxBodyL
-            <+> totalDeposits pp_ (`Map.notMember` pools) certs
+            <+> totalTxDeposits pp_ dpstate txb
         consumed_ =
           coinBalance u
-            <+> keyRefunds pp_ txb
+            <+> keyTxRefunds pp_ dpstate txb
             <+> fold (unWdrl (txb ^. wdrlsTxBodyL))
 
 -- | Preserve balance restricted to TxIns and TxOuts of the Tx
@@ -674,22 +724,20 @@ preserveBalanceRestricted SourceSignalTarget {source = chainSt, signal = block} 
 
     createdIsConsumed
       SourceSignalTarget
-        { source = LedgerState (UTxOState {utxosUtxo = UTxO u}) dstate,
+        { source = LedgerState (UTxOState {utxosUtxo = UTxO u}) dpstate,
           signal = tx
         } =
         inps === outs
         where
           txb = tx ^. bodyTxL
-          pools = psStakePoolParams . dpsPState $ dstate
           inps =
             coinBalance @era (UTxO (Map.restrictKeys u (txb ^. inputsTxBodyL)))
-              <> keyRefunds pp_ txb
+              <> keyTxRefunds pp_ dpstate txb
               <> fold (unWdrl (txb ^. wdrlsTxBodyL))
           outs =
-            let certs = toList (txb ^. certsTxBodyL)
-             in coinBalance (txouts @era txb)
-                  <> txb ^. feeTxBodyL
-                  <> totalDeposits pp_ (`Map.notMember` pools) certs
+            coinBalance (txouts @era txb)
+              <> txb ^. feeTxBodyL
+              <> totalTxDeposits pp_ dpstate txb
 
 preserveOutputsTx ::
   forall era ledger.
@@ -943,7 +991,8 @@ poolRetirement ::
     EraSegWits era,
     ShelleyEraTxBody era,
     HasField "_eMax" (PParams era) EpochNo,
-    HasField "_minPoolCost" (PParams era) Coin
+    HasField "_minPoolCost" (PParams era) Coin,
+    HasField "_poolDeposit" (PParams era) Coin
   ) =>
   SourceSignalTarget (CHAIN era) ->
   Property
@@ -963,7 +1012,8 @@ poolRegistration ::
     EraSegWits era,
     ShelleyEraTxBody era,
     HasField "_eMax" (PParams era) EpochNo,
-    HasField "_minPoolCost" (PParams era) Coin
+    HasField "_minPoolCost" (PParams era) Coin,
+    HasField "_poolDeposit" (PParams era) Coin
   ) =>
   SourceSignalTarget (CHAIN era) ->
   Property
@@ -980,7 +1030,8 @@ poolStateIsInternallyConsistent ::
     EraSegWits era,
     ShelleyEraTxBody era,
     HasField "_eMax" (PParams era) EpochNo,
-    HasField "_minPoolCost" (PParams era) Coin
+    HasField "_minPoolCost" (PParams era) Coin,
+    HasField "_poolDeposit" (PParams era) Coin
   ) =>
   SourceSignalTarget (CHAIN era) ->
   Property
@@ -1080,7 +1131,8 @@ poolTraceFromBlock ::
     ShelleyEraTxBody era,
     EraSegWits era,
     HasField "_eMax" (PParams era) EpochNo,
-    HasField "_minPoolCost" (PParams era) Coin
+    HasField "_minPoolCost" (PParams era) Coin,
+    HasField "_poolDeposit" (PParams era) Coin
   ) =>
   ChainState era ->
   Block (BHeader (EraCrypto era)) era ->
@@ -1108,7 +1160,8 @@ delegTraceFromBlock ::
   forall era.
   ( ChainProperty era,
     ShelleyEraTxBody era,
-    EraSegWits era
+    EraSegWits era,
+    HasField "_keyDeposit" (PParams era) Coin
   ) =>
   ChainState era ->
   Block (BHeader (EraCrypto era)) era ->
@@ -1239,6 +1292,7 @@ forAllChainTrace n prop =
     p = Proxy
 
 sameEpoch ::
+  forall era.
   SourceSignalTarget (CHAIN era) ->
   Bool
 sameEpoch SourceSignalTarget {source, target} =
@@ -1341,7 +1395,7 @@ stakeDistr u ds ps =
     rewards' = rewards ds
     delegs = delegations ds
     ptrs' = ptrsMap ds
-    PState poolParams _ _ = ps
+    PState {psStakePoolParams = poolParams} = ps
     stakeRelation :: Map (Credential 'Staking (EraCrypto era)) Coin
     stakeRelation = aggregateUtxoCoinByCredential ptrs' u (UM.unUnify rewards')
     activeDelegs :: ViewMap (EraCrypto era) (Credential 'Staking (EraCrypto era)) (KeyHash 'StakePool (EraCrypto era))

@@ -420,7 +420,7 @@ genRetirePool ::
   PState (EraCrypto era) ->
   SlotNo ->
   Gen (Maybe (DCert (EraCrypto era), CertCred era))
-genRetirePool pp poolKeys pState slot =
+genRetirePool _pp poolKeys pState slot =
   if (null retireable)
     then pure Nothing
     else
@@ -443,8 +443,12 @@ genRetirePool pp poolKeys pState slot =
         (List.find (\x -> hk x == hk') poolKeys)
     EpochNo cepoch = epochFromSlotNo slot
     epochLow = cepoch + 1
-    EpochNo retirementBound = getField @"_eMax" pp
-    epochHigh = cepoch + retirementBound - 1
+    -- EpochNo retirementBound = getField @"_eMax" pp
+    -- epochHigh = cepoch + retirementBound - 1
+    -- if epochHigh is more than a few epochs above epochLow, then
+    -- because our traces are at most, maybe 6 or so traces long,
+    -- we will never reap any pools.
+    epochHigh = cepoch + 10
 
 -- | Generate an InstantaneousRewards Transfer certificate
 genInstantaneousRewardsAccounts ::

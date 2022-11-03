@@ -28,7 +28,6 @@ module Cardano.Ledger.EpochBoundary
     emptySnapShot,
     emptySnapShots,
     poolStake,
-    obligation,
     maxPool,
     maxPool',
   )
@@ -56,7 +55,7 @@ import Cardano.Ledger.Credential (Credential)
 import qualified Cardano.Ledger.Crypto as CC (Crypto)
 import Cardano.Ledger.Keys (KeyHash, KeyRole (..))
 import Cardano.Ledger.PoolParams (PoolParams)
-import Cardano.Ledger.Val ((<+>), (<×>))
+import Cardano.Ledger.Val ((<+>))
 import Control.DeepSeq (NFData)
 import Control.Monad.Trans (lift)
 import Data.Default.Class (Default, def)
@@ -111,21 +110,6 @@ sumStakePerPool delegs (Stake stake) = VMap.foldlWithKey accum Map.empty stake
       case VMap.lookup cred delegs of
         Nothing -> acc
         Just kh -> Map.insertWith (<+>) kh (fromCompact compactCoin) acc
-
--- | Calculate total possible refunds.
-obligation ::
-  forall c pp t.
-  ( HasField "_keyDeposit" pp Coin,
-    HasField "_poolDeposit" pp Coin,
-    Foldable (t (Credential 'Staking c))
-  ) =>
-  pp ->
-  t (Credential 'Staking c) Coin ->
-  Map (KeyHash 'StakePool c) (PoolParams c) ->
-  Coin
-obligation pp rewards stakePools =
-  (length rewards <×> getField @"_keyDeposit" pp)
-    <+> (length stakePools <×> getField @"_poolDeposit" pp)
 
 -- | Calculate maximal pool reward
 maxPool' ::

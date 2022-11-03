@@ -7,7 +7,7 @@
 module Cardano.Ledger.Allegra.UTxO () where
 
 import Cardano.Ledger.Crypto (Crypto)
-import Cardano.Ledger.Shelley.PParams (ShelleyPParamsHKD (..))
+import Cardano.Ledger.Shelley.LedgerState (DPState)
 import Cardano.Ledger.Shelley.UTxO
   ( ShelleyScriptsNeeded (..),
     getConsumedCoin,
@@ -21,6 +21,7 @@ import Cardano.Ledger.UTxO
 
 instance Crypto c => EraUTxO (ShelleyMAEra 'Allegra c) where
   type ScriptsNeeded (ShelleyMAEra 'Allegra c) = ShelleyScriptsNeeded (ShelleyMAEra 'Allegra c)
+  type DepositInfo (ShelleyMAEra 'Allegra c) = DPState c
 
   getConsumedValue = getConsumedCoin
 

@@ -69,10 +69,10 @@ import Cardano.Ledger.Rules.ValidationMode (Inject (..), lblStatic)
 import Cardano.Ledger.Shelley.LedgerState
   ( PPUPState (..),
     UTxOState (..),
-    keyRefunds,
     updateStakeDistribution,
   )
 import qualified Cardano.Ledger.Shelley.LedgerState as Shelley
+import Cardano.Ledger.Shelley.LedgerState.DPState (keyTxRefunds, totalTxDeposits)
 import Cardano.Ledger.Shelley.PParams (Update)
 import Cardano.Ledger.Shelley.Rules
   ( PpupEnv (..),
@@ -81,20 +81,17 @@ import Cardano.Ledger.Shelley.Rules
     UtxoEnv (..),
     updateUTxOState,
   )
-import Cardano.Ledger.Shelley.UTxO (totalDeposits)
 import Cardano.Ledger.UTxO (EraUTxO (..), UTxO (..), coinBalance)
-import Cardano.Ledger.Val as Val (Val ((<->)))
+import Cardano.Ledger.Val ((<->))
 import Cardano.Slotting.EpochInfo.Extend (unsafeLinearExtendEpochInfo)
 import Cardano.Slotting.Slot (SlotNo)
 import Control.Monad.Trans.Reader (ReaderT, asks)
 import Control.State.Transition.Extended
 import Data.ByteString as BS (ByteString)
 import qualified Data.ByteString.Base64 as B64
-import Data.Foldable (toList)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty (..), nonEmpty)
 import qualified Data.List.NonEmpty as NE
-import qualified Data.Map.Strict as Map
 import Data.MapExtras (extractKeys)
 import Data.Text (Text)
 import Debug.Trace (traceEvent)
@@ -118,9 +115,9 @@ instance
     Environment (EraRule "PPUP" era) ~ PpupEnv era,
     State (EraRule "PPUP" era) ~ PPUPState era,
     Signal (EraRule "PPUP" era) ~ Maybe (Update era),
-    HasField "_costmdls" (PParams era) CostModels,
     HasField "_keyDeposit" (PParams era) Coin,
     HasField "_poolDeposit" (PParams era) Coin,
+    HasField "_costmdls" (PParams era) CostModels,
     HasField "_protocolVersion" (PParams era) ProtVer,
     ToCBOR (PredicateFailure (EraRule "PPUP" era)) -- Serializing the PredicateFailure
   ) =>
@@ -161,9 +158,9 @@ utxosTransition ::
     State (EraRule "PPUP" era) ~ PPUPState era,
     Signal (EraRule "PPUP" era) ~ Maybe (Update era),
     Embed (EraRule "PPUP" era) (AlonzoUTXOS era),
-    HasField "_costmdls" (PParams era) CostModels,
     HasField "_keyDeposit" (PParams era) Coin,
     HasField "_poolDeposit" (PParams era) Coin,
+    HasField "_costmdls" (PParams era) CostModels,
     ToCBOR (PredicateFailure (EraRule "PPUP" era)) -- Serializing the PredicateFailure
   ) =>
   TransitionRule (AlonzoUTXOS era)
@@ -217,6 +214,8 @@ scriptsValidateTransition ::
   ( AlonzoEraTx era,
     ExtendedUTxO era,
     EraUTxO era,
+    HasField "_keyDeposit" (PParams era) Coin,
+    HasField "_poolDeposit" (PParams era) Coin,
     ScriptsNeeded era ~ AlonzoScriptsNeeded era,
     STS (AlonzoUTXOS era),
     Script era ~ AlonzoScript era,
@@ -224,20 +223,16 @@ scriptsValidateTransition ::
     State (EraRule "PPUP" era) ~ PPUPState era,
     Signal (EraRule "PPUP" era) ~ Maybe (Update era),
     Embed (EraRule "PPUP" era) (AlonzoUTXOS era),
-    HasField "_costmdls" (PParams era) CostModels,
-    HasField "_keyDeposit" (PParams era) Coin,
-    HasField "_poolDeposit" (PParams era) Coin
+    HasField "_costmdls" (PParams era) CostModels
   ) =>
   TransitionRule (AlonzoUTXOS era)
 scriptsValidateTransition = do
-  TRC (UtxoEnv slot pp poolParams genDelegs, u@(UTxOState utxo _ _ pup _), tx) <-
+  TRC (UtxoEnv slot pp dpstate genDelegs, u@(UTxOState utxo _ _ pup _), tx) <-
     judgmentContext
   let txBody = tx ^. bodyTxL
-      refunded = keyRefunds pp txBody
-      txcerts = toList $ txBody ^. certsTxBodyL
-      depositChange =
-        totalDeposits pp (`Map.notMember` poolParams) txcerts <-> refunded
       protVer = getField @"_protocolVersion" pp
+      refunded = keyTxRefunds pp dpstate txBody
+      depositChange = totalTxDeposits pp dpstate txBody <-> refunded
 
   () <- pure $! traceEvent validBegin ()
 

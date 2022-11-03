@@ -210,10 +210,10 @@ instantaneousRewardsZero :: InstantaneousRewards c
 instantaneousRewardsZero = InstantaneousRewards Map.empty Map.empty mempty mempty
 
 dStateZero :: DState c
-dStateZero = DState UMap.empty Map.empty genDelegsZero instantaneousRewardsZero
+dStateZero = DState UMap.empty Map.empty genDelegsZero instantaneousRewardsZero Map.empty
 
 pStateZero :: PState c
-pStateZero = PState Map.empty Map.empty Map.empty
+pStateZero = PState Map.empty Map.empty Map.empty Map.empty
 
 dPStateZero :: DPState c
 dPStateZero = DPState dStateZero pStateZero
@@ -320,9 +320,10 @@ instance EraCrypto era ~ c => Extract (DState c) era where
       Map.empty
       genDelegsZero
       instantaneousRewardsZero
+      Map.empty
 
 instance EraCrypto era ~ c => Extract (PState c) era where
-  extract x = PState (mPoolParams x) (mFPoolParams x) (mRetiring x)
+  extract x = PState (mPoolParams x) (mFPoolParams x) (mRetiring x) Map.empty
 
 instance EraCrypto era ~ c => Extract (DPState c) era where
   extract x = DPState (extract x) (extract x)

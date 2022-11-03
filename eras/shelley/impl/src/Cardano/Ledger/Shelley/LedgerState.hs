@@ -37,6 +37,7 @@ module Cardano.Ledger.Shelley.LedgerState
     pvCanFollow,
     reapRewards,
     availableAfterMIR,
+    obligationDPState,
 
     -- * Genesis State
     genesisState,
@@ -49,10 +50,15 @@ module Cardano.Ledger.Shelley.LedgerState
     minfee,
     produced,
     witsFromTxWitnesses,
-    propWits,
 
     -- * DelegationState
-    keyRefunds,
+    keyTxRefunds,
+    payKeyDeposit,
+    payPoolDeposit,
+    refundKeyDeposit,
+    refundPoolDeposit,
+    deltaTxDeposit,
+    totalTxDeposits,
 
     -- * Epoch boundary
     incrementalStakeDistr,
@@ -94,9 +100,8 @@ import Cardano.Ledger.Shelley.PParams
     pvCanFollow,
   )
 import Cardano.Ledger.Shelley.RewardUpdate
-import Cardano.Ledger.Shelley.Rules.Utxow (propWits)
 import Cardano.Ledger.Shelley.Tx (minfee, witsFromTxWitnesses)
-import Cardano.Ledger.Shelley.UTxO (keyRefunds, produced)
+import Cardano.Ledger.Shelley.UTxO (produced)
 import Data.Default.Class (def)
 import Data.Set (Set)
 import qualified Data.Set as Set

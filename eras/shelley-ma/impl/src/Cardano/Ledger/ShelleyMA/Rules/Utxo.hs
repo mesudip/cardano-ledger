@@ -49,12 +49,13 @@ import Cardano.Ledger.Rules.ValidationMode
   )
 import Cardano.Ledger.Shelley.LedgerState (PPUPState)
 import qualified Cardano.Ledger.Shelley.LedgerState as Shelley
+import Cardano.Ledger.Shelley.LedgerState.DPState (DPState, keyTxRefunds, totalTxDeposits)
 import Cardano.Ledger.Shelley.PParams (ShelleyPParams, ShelleyPParamsHKD (..), Update)
 import Cardano.Ledger.Shelley.Rules (PpupEnv (..), ShelleyPPUP, ShelleyPpupPredFailure)
 import qualified Cardano.Ledger.Shelley.Rules as Shelley
 import Cardano.Ledger.Shelley.Tx (ShelleyTx (..), ShelleyTxOut, TxIn)
-import Cardano.Ledger.Shelley.TxBody (RewardAcnt, ShelleyEraTxBody (..))
-import Cardano.Ledger.Shelley.UTxO (totalDeposits, txup)
+import Cardano.Ledger.Shelley.TxBody (RewardAcnt)
+import Cardano.Ledger.Shelley.UTxO (txup)
 import Cardano.Ledger.ShelleyMA.Era (ShelleyMAUTXO)
 import Cardano.Ledger.ShelleyMA.Timelocks
 import Cardano.Ledger.ShelleyMA.TxBody (MATxBody, ShelleyMAEraTxBody (..))
@@ -140,12 +141,14 @@ newtype ShelleyMAUtxoEvent era
   = UpdateEvent (Event (EraRule "PPUP" era))
 
 consumed ::
-  forall era.
+  forall era pp.
   ( ShelleyMAEraTxBody era,
     Value era ~ MaryValue (EraCrypto era),
-    HasField "_keyDeposit" (PParams era) Coin
+    DepositInfo era ~ DPState (EraCrypto era),
+    HasField "_keyDeposit" pp Coin
   ) =>
-  PParams era ->
+  pp ->
+  DPState (EraCrypto era) ->
   UTxO era ->
   TxBody era ->
   MaryValue (EraCrypto era)
@@ -160,6 +163,7 @@ utxoTransition ::
     ShelleyMAEraTxBody era,
     STS (ShelleyMAUTXO era),
     Tx era ~ ShelleyTx era,
+    DepositInfo era ~ DPState (EraCrypto era),
     Embed (EraRule "PPUP" era) (ShelleyMAUTXO era),
     Environment (EraRule "PPUP" era) ~ PpupEnv era,
     State (EraRule "PPUP" era) ~ PPUPState era,
@@ -170,7 +174,7 @@ utxoTransition ::
   ) =>
   TransitionRule (ShelleyMAUTXO era)
 utxoTransition = do
-  TRC (Shelley.UtxoEnv slot pp stakepools genDelegs, u, tx) <- judgmentContext
+  TRC (Shelley.UtxoEnv slot pp dpstate genDelegs, u, tx) <- judgmentContext
   let Shelley.UTxOState utxo _ _ ppup _ = u
   let txb = tx ^. bodyTxL
 
@@ -196,7 +200,7 @@ utxoTransition = do
   runTest $ Shelley.validateWrongNetworkWithdrawal netId txb
 
   {- consumed pp utxo txb = produced pp poolParams txb -}
-  runTest $ Shelley.validateValueNotConservedUTxO pp utxo stakepools txb
+  runTest $ Shelley.validateValueNotConservedUTxO pp dpstate utxo txb
 
   -- process Protocol Parameter Update Proposals
   ppup' <-
@@ -219,9 +223,9 @@ utxoTransition = do
   {- txsize tx ≤ maxTxSize pp -}
   runTest $ Shelley.validateMaxTxSizeUTxO pp tx
 
-  let refunded = Shelley.keyRefunds pp txb
-  let txCerts = toList $ txb ^. certsTxBodyL
-  let depositChange = totalDeposits pp (`Map.notMember` stakepools) txCerts Val.<-> refunded
+  let refunded = keyTxRefunds pp dpstate txb
+  let depositChange = totalTxDeposits pp dpstate txb Val.<-> refunded
+
   pure $! Shelley.updateUTxOState u txb depositChange ppup'
 
 -- | Ensure the transaction is within the validity window.
@@ -288,6 +292,7 @@ instance
     TxBody era ~ MATxBody era,
     TxOut era ~ ShelleyTxOut era,
     Tx era ~ ShelleyTx era,
+    DepositInfo era ~ DPState (EraCrypto era),
     Embed (EraRule "PPUP" era) (ShelleyMAUTXO era),
     Environment (EraRule "PPUP" era) ~ PpupEnv era,
     State (EraRule "PPUP" era) ~ PPUPState era,

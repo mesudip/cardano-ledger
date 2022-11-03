@@ -20,23 +20,21 @@ where
 import Cardano.Ledger.BaseTypes (ProtVer, ShelleyBase, StrictMaybe)
 import Cardano.Ledger.Coin (Coin (..))
 import Cardano.Ledger.Core
-import Cardano.Ledger.EpochBoundary (obligation)
 import Cardano.Ledger.Shelley.Era (ShelleyNEWPP)
 import Cardano.Ledger.Shelley.LedgerState
   ( AccountState,
+    DPState (..),
     DState (..),
     PPUPState (..),
     PState (..),
     UTxOState (utxosDeposited),
-    availableAfterMIR,
-    dsIRewards,
+    obligationDPState,
     pvCanFollow,
   )
 import Cardano.Ledger.Shelley.PParams
   ( ProposedPPUpdates (..),
     emptyPPPUpdates,
   )
-import Cardano.Ledger.Shelley.TxBody (MIRPot (..))
 import Control.State.Transition
   ( STS (..),
     TRC (..),
@@ -46,7 +44,6 @@ import Control.State.Transition
   )
 import Data.Default.Class (Default, def)
 import Data.Typeable (Typeable)
-import Data.UMap (rewView)
 import GHC.Generics (Generic)
 import GHC.Natural (Natural)
 import GHC.Records (HasField (..))
@@ -72,8 +69,6 @@ instance NoThunks (ShelleyNewppPredFailure era)
 
 instance
   ( Default (PParams era),
-    HasField "_keyDeposit" (PParams era) Coin,
-    HasField "_poolDeposit" (PParams era) Coin,
     HasField "_protocolVersion" (PParams era) ProtVer,
     HasField "_maxTxSize" (PParams era) Natural,
     HasField "_maxBHSize" (PParams era) Natural,
@@ -95,9 +90,7 @@ instance Default (PParams era) => Default (ShelleyNewppState era) where
 
 newPpTransition ::
   forall era.
-  ( HasField "_keyDeposit" (PParams era) Coin,
-    HasField "_poolDeposit" (PParams era) Coin,
-    HasField "_protocolVersion" (PParams era) ProtVer,
+  ( HasField "_protocolVersion" (PParams era) ProtVer,
     HasField "_maxTxSize" (PParams era) Natural,
     HasField "_maxBHSize" (PParams era) Natural,
     HasField "_maxBBSize" (PParams era) Natural,
@@ -106,7 +99,7 @@ newPpTransition ::
   TransitionRule (ShelleyNEWPP era)
 newPpTransition = do
   TRC
-    ( NewppEnv dstate pstate utxoSt acnt,
+    ( NewppEnv dstate pstate utxoSt _,
       NewppState pp ppupSt,
       ppNew
       ) <-
@@ -114,21 +107,20 @@ newPpTransition = do
 
   case ppNew of
     Just ppNew' -> do
-      let Coin oblgCurr = obligation pp (rewView (dsUnified dstate)) (psStakePoolParams pstate)
-          Coin oblgNew = obligation ppNew' (rewView (dsUnified dstate)) (psStakePoolParams pstate)
-          diff = oblgCurr - oblgNew
-          Coin availableReserves = availableAfterMIR ReservesMIR acnt (dsIRewards dstate)
+      let Coin oblgCurr = obligationDPState (DPState dstate pstate)
+      -- We no longer need to do this, because the obligation is computed exactly by
+      -- obligationDPState, and does NOT depend on the PParams. As long as it aggrees
+      -- with (utxosDeposited utxoSt) everything is OK.
+      -- Coin oblgNew = obligation ppNew' (rewView (dsUnified dstate)) (psStakePoolParams pstate)
+      -- diff = oblgCurr - oblgNew
+      -- Coin availableReserves = availableAfterMIR ReservesMIR acnt (dsIRewards dstate)
 
       Coin oblgCurr
         == utxosDeposited utxoSt
         ?! UnexpectedDepositPot (Coin oblgCurr) (utxosDeposited utxoSt)
 
-      if availableReserves + diff >= 0
-        -- Note that instantaneous rewards from the treasury are irrelevant
-        -- here, since changes in the protocol parameters do not change how much
-        -- is needed from the treasury
-        && (getField @"_maxTxSize" ppNew' + getField @"_maxBHSize" ppNew')
-          < getField @"_maxBBSize" ppNew'
+      if (getField @"_maxTxSize" ppNew' + getField @"_maxBHSize" ppNew')
+        < getField @"_maxBBSize" ppNew'
         then pure $ NewppState ppNew' (updatePpup ppupSt ppNew')
         else pure $ NewppState pp (updatePpup ppupSt pp)
     Nothing -> pure $ NewppState pp (updatePpup ppupSt pp)

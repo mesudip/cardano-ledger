@@ -46,6 +46,8 @@ import Cardano.Ledger.Shelley.LedgerState
     PPUPState (..),
     UTxOState (..),
   )
+import Cardano.Ledger.Shelley.LedgerState.DPState ()
+-- def instance for DPState
 import Cardano.Ledger.Shelley.PParams
   ( ProposedPPUpdates (..),
     ShelleyPParamsHKD (..),
@@ -72,6 +74,7 @@ import Cardano.Ledger.TxIn (TxId (..), TxIn (..), mkTxInPartial)
 import Cardano.Ledger.UTxO (UTxO (..))
 import Cardano.Ledger.Val ((<->))
 import Data.ByteString (ByteString)
+import Data.Default.Class (Default (def))
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust)
 import qualified Data.Sequence.Strict as StrictSeq
@@ -172,7 +175,7 @@ utxoEnv =
   UtxoEnv
     0
     emptyPParams {_maxTxSize = 1000}
-    mempty
+    def
     (GenDelegs mempty)
 
 aliceInitCoin :: Coin

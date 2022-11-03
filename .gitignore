@@ -52,6 +52,13 @@ specs/**/.ghc.environment.x86_64-linux-*
 
 *.pdf
 .envrc
+## Ledger Shortcuts
+SHELLY
+ALLEGRA
+MARY
+ALONZO
+BABBAGE
+CORE
 
 ## macOS
 .DS_Store

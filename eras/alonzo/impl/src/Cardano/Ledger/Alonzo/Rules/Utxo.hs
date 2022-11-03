@@ -78,6 +78,7 @@ import Cardano.Ledger.Rules.ValidationMode
   )
 import Cardano.Ledger.Shelley.HardForks (allowOutsideForecastTTL)
 import qualified Cardano.Ledger.Shelley.LedgerState as Shelley
+import Cardano.Ledger.Shelley.LedgerState.DPState (DPState)
 import Cardano.Ledger.Shelley.Rules (ShelleyUtxoPredFailure, UtxoEnv)
 import qualified Cardano.Ledger.Shelley.Rules as Shelley
 import Cardano.Ledger.Shelley.Tx (TxIn)
@@ -468,6 +469,7 @@ utxoTransition ::
     Environment (EraRule "UTXOS" era) ~ UtxoEnv era,
     State (EraRule "UTXOS" era) ~ Shelley.UTxOState era,
     Signal (EraRule "UTXOS" era) ~ Tx era,
+    DepositInfo era ~ DPState (EraCrypto era),
     HasField "_poolDeposit" (PParams era) Coin,
     HasField "_keyDeposit" (PParams era) Coin,
     HasField "_maxValSize" (PParams era) Natural,
@@ -479,7 +481,7 @@ utxoTransition ::
   ) =>
   TransitionRule (AlonzoUTXO era)
 utxoTransition = do
-  TRC (Shelley.UtxoEnv slot pp stakepools _genDelegs, u, tx) <- judgmentContext
+  TRC (Shelley.UtxoEnv slot pp dpstate _genDelegs, u, tx) <- judgmentContext
   let Shelley.UTxOState utxo _deposits _fees _ppup _ = u
 
   {-   txb := txbody tx   -}
@@ -510,7 +512,7 @@ utxoTransition = do
   runTest $ Shelley.validateBadInputsUTxO utxo inputsAndCollateral
 
   {- consumed pp utxo txb = produced pp poolParams txb -}
-  runTest $ Shelley.validateValueNotConservedUTxO pp utxo stakepools txBody
+  runTest $ Shelley.validateValueNotConservedUTxO pp dpstate utxo txBody
 
   {- adaPolicy ∉ supp mint tx
      above check not needed because mint field of type MultiAsset cannot contain ada -}
@@ -559,6 +561,7 @@ instance
     Environment (EraRule "UTXOS" era) ~ UtxoEnv era,
     State (EraRule "UTXOS" era) ~ Shelley.UTxOState era,
     Signal (EraRule "UTXOS" era) ~ Tx era,
+    DepositInfo era ~ DPState (EraCrypto era),
     HasField "_poolDeposit" (PParams era) Coin,
     HasField "_minfeeA" (PParams era) Natural,
     HasField "_minfeeB" (PParams era) Natural,

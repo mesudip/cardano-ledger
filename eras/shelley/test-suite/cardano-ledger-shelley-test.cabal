@@ -204,7 +204,8 @@ test-suite cardano-ledger-shelley-test
                 tasty-hedgehog,
                 tasty-hunit,
                 tasty-quickcheck,
-                time
+                time,
+                tree-diff
 
 
 benchmark mainbench
