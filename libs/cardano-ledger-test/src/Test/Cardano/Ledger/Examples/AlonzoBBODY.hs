@@ -93,7 +93,7 @@ import Data.Maybe (fromJust)
 import qualified Data.Sequence.Strict as StrictSeq
 import Data.UMap (View (Rewards))
 import qualified Data.UMap as UM
-import qualified PlutusLedgerApi.V1 as Plutus
+import qualified PlutusLedgerApi.V1 as PV1
 import Test.Cardano.Ledger.Examples.STSTestUtils
   ( alwaysFailsHash,
     alwaysSucceedsHash,
@@ -213,10 +213,10 @@ testAlonzoBadPMDHBlock other = error ("testAlonzoBadPMDHBlock does not work in e
 -- ============================== DATA ===============================
 
 someDatum :: Era era => Data era
-someDatum = Data (Plutus.I 123)
+someDatum = Data (PV1.I 123)
 
 anotherDatum :: Era era => Data era
-anotherDatum = Data (Plutus.I 0)
+anotherDatum = Data (PV1.I 0)
 
 validatingTx ::
   forall era.
@@ -252,7 +252,7 @@ validatingBody pf =
 validatingRedeemers :: Era era => Redeemers era
 validatingRedeemers =
   Redeemers $
-    Map.singleton (RdmrPtr Tag.Spend 0) (Data (Plutus.I 42), ExUnits 5000 5000)
+    Map.singleton (RdmrPtr Tag.Spend 0) (Data (PV1.I 42), ExUnits 5000 5000)
 
 validatingTxOut :: EraTxOut era => Proof era -> TxOut era
 validatingTxOut pf = newTxOut pf [Address (someAddr pf), Amount (inject $ Coin 4995)]
@@ -289,7 +289,7 @@ notValidatingTx pf =
       Redeemers
         ( Map.fromList
             [ ( RdmrPtr Tag.Spend 0,
-                (Data (Plutus.I 1), ExUnits 5000 5000)
+                (Data (PV1.I 1), ExUnits 5000 5000)
               )
             ]
         )
@@ -333,7 +333,7 @@ validatingBodyWithWithdrawal pf =
 validatingWithWithdrawalRedeemers :: Era era => Redeemers era
 validatingWithWithdrawalRedeemers =
   Redeemers $
-    Map.singleton (RdmrPtr Tag.Rewrd 0) (Data (Plutus.I 42), ExUnits 5000 5000)
+    Map.singleton (RdmrPtr Tag.Rewrd 0) (Data (PV1.I 42), ExUnits 5000 5000)
 
 validatingTxWithWithdrawalOut :: EraTxOut era => Proof era -> TxOut era
 validatingTxWithWithdrawalOut pf = newTxOut pf [Address (someAddr pf), Amount (inject $ Coin 1995)]
@@ -372,7 +372,7 @@ notValidatingTxWithWithdrawal pf =
             ),
           WppHash (newScriptIntegrityHash pf (pp pf) [PlutusV1] notValidatingRedeemers mempty)
         ]
-    notValidatingRedeemers = Redeemers $ Map.singleton (RdmrPtr Tag.Rewrd 0) (Data (Plutus.I 0), ExUnits 5000 5000)
+    notValidatingRedeemers = Redeemers $ Map.singleton (RdmrPtr Tag.Rewrd 0) (Data (PV1.I 0), ExUnits 5000 5000)
 
 validatingTxWithCert ::
   forall era.
@@ -408,7 +408,7 @@ validatingBodyWithCert pf =
 validatingRedeemrsWithCert :: Era era => Redeemers era
 validatingRedeemrsWithCert =
   Redeemers $
-    Map.singleton (RdmrPtr Tag.Cert 0) (Data (Plutus.I 42), ExUnits 5000 5000)
+    Map.singleton (RdmrPtr Tag.Cert 0) (Data (PV1.I 42), ExUnits 5000 5000)
 
 validatingTxWithCertOut :: EraTxOut era => Proof era -> TxOut era
 validatingTxWithCertOut pf = newTxOut pf [Address (someAddr pf), Amount (inject $ Coin 995)]
@@ -442,7 +442,7 @@ notValidatingTxWithCert pf =
           Txfee (Coin 5),
           WppHash (newScriptIntegrityHash pf (pp pf) [PlutusV1] notValidatingRedeemersWithCert mempty)
         ]
-    notValidatingRedeemersWithCert = Redeemers $ Map.singleton (RdmrPtr Tag.Cert 0) (Data (Plutus.I 0), ExUnits 5000 5000)
+    notValidatingRedeemersWithCert = Redeemers $ Map.singleton (RdmrPtr Tag.Cert 0) (Data (PV1.I 0), ExUnits 5000 5000)
 
 validatingTxWithMint ::
   forall era.
@@ -483,7 +483,7 @@ validatingBodyWithMint pf =
 validatingRedeemersWithMint :: Era era => Redeemers era
 validatingRedeemersWithMint =
   Redeemers $
-    Map.singleton (RdmrPtr Tag.Mint 0) (Data (Plutus.I 42), ExUnits 5000 5000)
+    Map.singleton (RdmrPtr Tag.Mint 0) (Data (PV1.I 42), ExUnits 5000 5000)
 
 multiAsset :: forall era. (Scriptic era, HasTokens era) => Proof era -> MultiAsset (EraCrypto era)
 multiAsset pf = forge @era 1 (always 2 pf)
@@ -522,7 +522,7 @@ notValidatingTxWithMint pf =
           Mint ma,
           WppHash (newScriptIntegrityHash pf (pp pf) [PlutusV1] notValidatingRedeemersWithMint mempty)
         ]
-    notValidatingRedeemersWithMint = Redeemers $ Map.singleton (RdmrPtr Tag.Mint 0) (Data (Plutus.I 0), ExUnits 5000 5000)
+    notValidatingRedeemersWithMint = Redeemers $ Map.singleton (RdmrPtr Tag.Mint 0) (Data (PV1.I 0), ExUnits 5000 5000)
     ma = forge @era 1 (never 1 pf)
 
 poolMDHTooBigTx ::

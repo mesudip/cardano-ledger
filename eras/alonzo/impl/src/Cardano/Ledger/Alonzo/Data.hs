@@ -87,28 +87,28 @@ import Data.Typeable (Typeable)
 import Data.Word (Word64)
 import GHC.Generics (Generic)
 import NoThunks.Class (InspectHeapNamed (..), NoThunks)
-import qualified PlutusLedgerApi.V1 as Plutus
+import qualified PlutusLedgerApi.V1 as PV1
 
 -- =====================================================================
--- Plutus.Data is the type that Plutus expects as data.
+-- PV1.Data is the type that Plutus expects as data.
 -- It is imported from the Plutus package, but it needs a few additional
 -- instances to also work in the ledger.
 
-instance FromCBOR (Annotator Plutus.Data) where
+instance FromCBOR (Annotator PV1.Data) where
   fromCBOR = pure <$> Cborg.decode
 
-instance ToCBOR Plutus.Data where
+instance ToCBOR PV1.Data where
   toCBOR = Cborg.encode
 
-deriving instance NoThunks Plutus.Data
+deriving instance NoThunks PV1.Data
 
 -- ============================================================================
 -- the newtype Data is a wrapper around the type that Plutus expects as data.
 -- The newtype will memoize the serialized bytes.
 
--- | This is a wrapper with a phantom era for Plutus.Data, since we need
+-- | This is a wrapper with a phantom era for PV1.Data, since we need
 -- something with kind (* -> *) for MemoBytes
-newtype PlutusData era = PlutusData Plutus.Data
+newtype PlutusData era = PlutusData PV1.Data
   deriving newtype (Eq, Generic, Show, ToCBOR, NFData, NoThunks, Cborg.Serialise)
 
 instance Typeable era => FromCBOR (Annotator (PlutusData era)) where
@@ -132,7 +132,7 @@ instance (EraCrypto era ~ c) => HashAnnotated (Data era) EraIndependentData c wh
 
 instance Typeable era => NoThunks (Data era)
 
-pattern Data :: Era era => Plutus.Data -> Data era
+pattern Data :: Era era => PV1.Data -> Data era
 pattern Data p <-
   DataConstr (Memo (PlutusData p) _)
   where
@@ -140,7 +140,7 @@ pattern Data p <-
 
 {-# COMPLETE Data #-}
 
-getPlutusData :: Era era => Data era -> Plutus.Data
+getPlutusData :: Era era => Data era -> PV1.Data
 getPlutusData (DataConstr (Memo (PlutusData d) _)) = d
 
 -- | Inlined data must be stored in the most compact form because it contributes
