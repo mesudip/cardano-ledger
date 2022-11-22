@@ -16,6 +16,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 module Cardano.Ledger.Shelley.LedgerState.Types where
 
@@ -69,6 +70,8 @@ import qualified Data.Map.Strict as Map
 import GHC.Generics (Generic)
 import Lens.Micro (_1, _2)
 import NoThunks.Class (NoThunks (..))
+
+-- ==================================
 
 -- | Representation of a list of pairs of key pairs, e.g., pay and stake keys
 type KeyPairs c = [(KeyPair 'Payment c, KeyPair 'Staking c)]

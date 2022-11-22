@@ -55,7 +55,7 @@ module Control.State.Transition.Trace
 where
 
 import Control.DeepSeq (NFData)
-import Control.Monad (void)
+import Control.Monad (unless, void)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Reader (MonadReader, ReaderT, ask, runReaderT)
 import Control.State.Transition.Extended hiding (Assertion, trans)
@@ -65,14 +65,14 @@ import Data.Maybe (catMaybes)
 import Data.Sequence.Strict (StrictSeq (Empty, (:<|), (:|>)))
 import qualified Data.Sequence.Strict as SS
 import qualified Data.Sequence.Strict as StrictSeq
+import Data.TreeDiff (ToExpr)
 import GHC.Generics (Generic)
 import GHC.Stack (HasCallStack)
 import Lens.Micro (Lens', lens, to, (^.), (^..))
 import Lens.Micro.TH (makeLenses)
 import NoThunks.Class (NoThunks (..))
-import Test.Tasty.HUnit (assertFailure, (@?=))
-import Test.Cardano.Ledger.Binary.TreeDiff(diffExpr,ToExpr)
-import Control.Monad(unless)
+import Test.Cardano.Ledger.Binary.TreeDiff (diffExpr)
+import Test.Tasty.HUnit (assertFailure)
 
 -- Signal and resulting state.
 --
@@ -420,13 +420,13 @@ mSt .- sig = do
 -- the expected state, given in the second argument.
 (.->) ::
   forall m st.
-  (MonadIO m, Eq st, Show st, HasCallStack) =>
+  (MonadIO m, Eq st, ToExpr st, HasCallStack) =>
   m st ->
   st ->
   m st
 mSt .-> stExpected = do
   stActual <- mSt
-  liftIO $ nodifference "check trace" stExpected stActual
+  liftIO $ noDifference "check trace" stExpected stActual
   return stActual
 
 checkTrace ::
@@ -581,8 +581,8 @@ splitTrace p (Trace env s0 sigstates) = map f xs
     f (sigstates2, s) = Trace env s sigstates2
     xs = splitAtChange p sigstates s0 Empty []
 
-
-noDifference :: (ToExpr a, Eq a) => String -> a -> a -> Assertion
+noDifference :: (ToExpr a, Eq a, HasCallStack) => [Char] -> a -> a -> IO ()
 noDifference message expected actual =
   unless (actual == expected) (assertFailure msg)
- where msg = (if null message then "" else message ++ "\n") ++ diffExpr expected actual
+  where
+    msg = (if null message then "" else message ++ "\n") ++ diffExpr expected actual

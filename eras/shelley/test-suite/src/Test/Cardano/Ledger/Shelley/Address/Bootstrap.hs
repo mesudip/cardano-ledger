@@ -48,6 +48,8 @@ import Cardano.Ledger.Shelley.LedgerState
   )
 import Cardano.Ledger.Shelley.LedgerState.DPState ()
 -- def instance for DPState
+
+import Cardano.Ledger.Shelley.LedgerState.ToExprOrphans ()
 import Cardano.Ledger.Shelley.PParams
   ( ProposedPPUpdates (..),
     ShelleyPParamsHKD (..),

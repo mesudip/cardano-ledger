@@ -108,5 +108,6 @@ library
     text,
     time,
     transformers,
+    tree-diff,
     validation-selective,
     vector-map,

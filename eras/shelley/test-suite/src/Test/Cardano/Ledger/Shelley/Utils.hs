@@ -127,6 +127,7 @@ import Data.Default.Class (Default)
 import Data.Functor.Identity (runIdentity)
 import Data.Maybe (fromMaybe)
 import Data.Time.Clock.POSIX
+import Data.TreeDiff.Class (ToExpr)
 import Data.Typeable (Proxy (Proxy))
 import Data.Word (Word64)
 import GHC.Stack
@@ -324,7 +325,7 @@ maxLLSupply = Coin $ fromIntegral $ runShelleyBase (asks maxLovelaceSupply)
 
 testSTS ::
   forall s.
-  (BaseM s ~ ShelleyBase, STS s, Eq (State s), Show (State s)) =>
+  (BaseM s ~ ShelleyBase, STS s, Eq (State s), Show (State s), ToExpr (State s)) =>
   Environment s ->
   State s ->
   Signal s ->

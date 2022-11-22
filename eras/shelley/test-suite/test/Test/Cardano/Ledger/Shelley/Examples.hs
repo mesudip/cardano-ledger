@@ -8,19 +8,20 @@ where
 
 import Cardano.Ledger.Block (Block)
 import Cardano.Ledger.Shelley ()
+import Cardano.Ledger.Shelley.LedgerState.ToExprOrphans ()
 import Cardano.Ledger.Shelley.PParams (ShelleyPParamsHKD (..))
 import Cardano.Ledger.Shelley.Scripts ()
 import Cardano.Protocol.TPraos.BHeader (BHeader)
+import Control.Monad (unless)
 import Control.State.Transition.Extended hiding (Assertion)
 import Control.State.Transition.Trace (checkTrace, (.-), (.->))
+import Data.TreeDiff (ToExpr)
+import Test.Cardano.Ledger.Binary.TreeDiff (diffExpr)
 import Test.Cardano.Ledger.Shelley.ConcreteCryptoTypes (C, C_Crypto)
 import Test.Cardano.Ledger.Shelley.Orphans ()
 import Test.Cardano.Ledger.Shelley.Rules.Chain (CHAIN, ChainState, totalAda)
 import Test.Cardano.Ledger.Shelley.Utils (applySTSTest, maxLLSupply, runShelleyBase)
-import Test.Cardano.Ledger.Binary.TreeDiff(diffExpr)
-import Data.TreeDiff(ToExpr)
-import Control.Monad(unless)
-import Test.Tasty.HUnit (Assertion, (@?=),assertFailure)
+import Test.Tasty.HUnit (Assertion, assertFailure, (@?=))
 
 data CHAINExample h era = CHAINExample
   { -- | State to start testing with
@@ -44,4 +45,5 @@ testCHAINExample (CHAINExample initSt block predicateFailure@(Left _)) = do
 noDifference :: (ToExpr a, Eq a) => String -> a -> a -> Assertion
 noDifference message expected actual =
   unless (actual == expected) (assertFailure msg)
- where msg = (if null message then "" else message ++ "\n") ++ diffExpr expected actual
+  where
+    msg = (if null message then "" else message ++ "\n") ++ diffExpr expected actual

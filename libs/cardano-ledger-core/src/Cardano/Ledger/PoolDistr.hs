@@ -69,7 +69,7 @@ newtype PoolDistr c = PoolDistr
   { unPoolDistr ::
       Map (KeyHash 'StakePool c) (IndividualPoolStake c)
   }
-  deriving stock (Show, Eq)
+  deriving stock (Show, Eq, Generic)
   deriving newtype (ToCBOR, FromCBOR, NFData, NoThunks)
 
 -- ===============================

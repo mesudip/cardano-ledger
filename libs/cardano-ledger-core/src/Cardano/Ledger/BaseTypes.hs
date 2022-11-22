@@ -113,6 +113,8 @@ import Data.Scientific (Scientific, base10Exponent, coefficient, normalize, scie
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Data.Text.Encoding (encodeUtf8)
+import Data.TreeDiff.Class (ToExpr (toExpr), defaultExprViaShow)
+import Data.TreeDiff.Expr (Expr (..))
 import Data.Typeable (Typeable)
 import Data.Word (Word16, Word64, Word8)
 import GHC.Exception.Type (Exception)
@@ -697,3 +699,27 @@ word16FromInteger :: Integer -> Maybe Word16
 word16FromInteger i
   | i < fromIntegral (minBound :: Word16) || i > fromIntegral (maxBound :: Word16) = Nothing
   | otherwise = Just (fromInteger i)
+
+-- =================================
+
+instance ToExpr TxIx
+
+instance ToExpr CertIx where
+  toExpr (CertIx x) = App "CertIx" [toExpr x]
+
+instance ToExpr UnitInterval
+
+instance ToExpr Network
+
+instance ToExpr Port
+
+instance ToExpr Url
+
+instance ToExpr Nonce where
+  toExpr = defaultExprViaShow
+
+instance ToExpr DnsName
+
+instance (ToExpr x, ToExpr y, Integral y) => ToExpr (BoundedRatio x y)
+
+instance ToExpr NonNegativeInterval

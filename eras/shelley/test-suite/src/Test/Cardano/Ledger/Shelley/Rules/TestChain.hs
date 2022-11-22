@@ -76,6 +76,7 @@ import Cardano.Ledger.Shelley.LedgerState
     rs,
   )
 import Cardano.Ledger.Shelley.LedgerState.DPState (DPState (..), keyTxRefunds, obligationDPState, totalTxDeposits)
+import Cardano.Ledger.Shelley.LedgerState.ToExprOrphans ()
 import Cardano.Ledger.Shelley.PParams (ShelleyPParamsHKD (..))
 import Cardano.Ledger.Shelley.Rewards (sumRewards)
 import Cardano.Ledger.Shelley.Rules

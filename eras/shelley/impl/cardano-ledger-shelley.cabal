@@ -68,10 +68,10 @@ library
     Cardano.Ledger.Shelley.TxBody
     Cardano.Ledger.Shelley.TxOut
     Cardano.Ledger.Shelley.UTxO
-
     Cardano.Ledger.Shelley.Era
     Cardano.Ledger.Shelley.LedgerState.Types
     Cardano.Ledger.Shelley.LedgerState.DPState
+    Cardano.Ledger.Shelley.LedgerState.ToExprOrphans
    
   other-modules:
     
@@ -114,9 +114,11 @@ library
     deepseq,
     groups,
     heapwords,
+    iproute,
     mtl,
     microlens,
     nothunks,
+    primitive,
     quiet,
     set-algebra,
     small-steps,
@@ -124,4 +126,5 @@ library
     text,
     time,
     transformers,
+    tree-diff,
     validation-selective,
