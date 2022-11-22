@@ -1,5 +1,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 
 -- | This module provides data structures and operations for talking about
 --     Non-native Script languages. It is expected that new languages (or new
@@ -51,3 +55,36 @@ instance FromCBOR Language where
 
 nonNativeLanguages :: [Language]
 nonNativeLanguages = [minBound .. maxBound]
+
+-- | Singleton for 'Language'
+data SLanguage (l :: Language) where
+  SPlutusV1 :: SLanguage 'PlutusV1
+  SPlutusV2 :: SLanguage 'PlutusV2
+
+-- | Reflection for 'SLanguage'
+fromSLanguage :: SLanguage l -> Language
+fromSLanguage = \case
+  SPlutusV1 -> PlutusV1
+  SPlutusV2 -> PlutusV2
+
+class IsLanguage l where
+  isLanguage :: SLanguage l
+  
+instance IsLanguage 'PlutusV1 where
+  isLanguage = SPlutusV1
+
+instance IsLanguage 'PlutusV2 where
+  isLanguage = SPlutusV2
+  
+class IsLang l where
+  mkSLang :: MonadFail m => Language -> m (SLanguage l)
+
+instance IsLang 'PlutusV1 where
+  mkSLang = \case
+    PlutusV1 -> pure SPlutusV1
+    l        -> fail $ "Unsupported Language: " <> show l
+
+instance IsLang 'PlutusV2 where
+  mkSLang = \case
+    PlutusV2 -> pure SPlutusV2
+    l        -> fail $ "Unsupported Language: " <> show l

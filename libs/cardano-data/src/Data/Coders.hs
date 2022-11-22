@@ -316,7 +316,8 @@ data Encode (w :: Wrapped) t where
     Encode ('Closed 'Sparse) t
   -- | Precede the encoding (in the produced bytes) with the key Word. Analagous to 'Tag', but lifts a 'Dense' encoding to a 'Sparse' encoding.
   Key :: Word -> Encode ('Closed 'Dense) t -> Encode ('Closed 'Sparse) t
-  -- | Apply a functional encoding (arising from 'Rec' or 'Sum') to get (type wise) smaller encoding. A fully saturated chain of 'ApplyE' will be a complete encoding. See also '!>' which is infix 'ApplyE'.
+  -- | Apply a functional encoding (arising from 'Rec' or 'Sum') to get (type wise) smaller encoding. 
+  -- A fully saturated chain of 'ApplyE' will be a complete encoding. See also '!>' which is infix 'ApplyE'.
   ApplyE :: Encode w (a -> t) -> Encode ('Closed r) a -> Encode w t
 
 -- The Wrapped index of ApplyE is determined by the index
