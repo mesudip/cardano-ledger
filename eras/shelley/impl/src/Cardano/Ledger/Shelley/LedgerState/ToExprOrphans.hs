@@ -71,6 +71,9 @@ import Data.TreeDiff.Expr
 import Data.UMap (Trip, UMap)
 import Data.VMap (VB, VMap, VP, toMap)
 
+trimExprViaShow :: Show a => Int -> a -> Expr
+trimExprViaShow n x = App (take n (drop 1 (show x)) ++ "..") []
+
 instance
   ( ToExpr (TxOut era),
     ToExpr (State (EraRule "PPUP" era)),
@@ -173,7 +176,7 @@ instance ToExpr (SafeHash c index) where
   toExpr x = App "SafeHash" [toExpr (extractHash x)]
 
 instance ToExpr (Hash.Hash c index) where
-  toExpr x = defaultExprViaShow x
+  toExpr x = trimExprViaShow 10 x
 
 instance ToExpr (IncrementalStake c)
 
@@ -184,7 +187,7 @@ instance ToExpr Coin
 instance ToExpr DeltaCoin
 
 instance ToExpr (CompactForm Coin) where
-  toExpr x = App "Coin" [toExpr (fromCompact x)]
+  toExpr x = toExpr (fromCompact x)
 
 instance ToExpr Ptr
 

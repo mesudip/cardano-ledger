@@ -11,6 +11,7 @@
 -- Example demonstrating using the protocol parameter update system.
 module Test.Cardano.Ledger.Shelley.Examples.Updates
   ( updatesExample,
+    updates4,
   )
 where
 
@@ -62,6 +63,7 @@ import Cardano.Protocol.TPraos.OCert (KESPeriod (..))
 import qualified Data.Map.Strict as Map
 import qualified Data.Sequence.Strict as StrictSeq
 import qualified Data.Set as Set
+import Debug.Trace (trace)
 import Test.Cardano.Ledger.Shelley.ConcreteCryptoTypes (ExMock)
 import Test.Cardano.Ledger.Shelley.Examples (CHAINExample (..), testCHAINExample)
 import qualified Test.Cardano.Ledger.Shelley.Examples.Cast as Cast
@@ -200,7 +202,7 @@ expectedStEx1 :: forall c. (ExMock (EraCrypto (ShelleyEra c))) => ChainState (Sh
 expectedStEx1 =
   C.evolveNonceUnfrozen (getBlockNonce (blockEx1 @c))
     . C.newLab blockEx1
-    . C.feesAndDeposits feeTx1 (Coin 0)
+    . C.feesAndDeposits ppEx feeTx1 [] []
     . C.newUTxO txbodyEx1
     . C.setCurrentProposals ppVotes1
     $ initStUpdates
@@ -274,7 +276,7 @@ expectedStEx2 :: forall c. (ExMock (EraCrypto (ShelleyEra c))) => ChainState (Sh
 expectedStEx2 =
   C.evolveNonceUnfrozen (getBlockNonce (blockEx2 @c))
     . C.newLab blockEx2
-    . C.feesAndDeposits feeTx2 (Coin 0)
+    . C.feesAndDeposits ppEx feeTx2 [] []
     . C.newUTxO txbodyEx2
     . C.setCurrentProposals (collectVotes ppVoteA [0, 1, 3, 4, 5])
     $ expectedStEx1
@@ -366,7 +368,7 @@ expectedStEx3 :: forall c. (ExMock (EraCrypto (ShelleyEra c))) => ChainState (Sh
 expectedStEx3 =
   C.evolveNonceFrozen (getBlockNonce (blockEx3 @c))
     . C.newLab blockEx3
-    . C.feesAndDeposits feeTx3 (Coin 0)
+    . C.feesAndDeposits ppEx feeTx3 [] []
     . C.newUTxO txbodyEx3
     . C.pulserUpdate pulserEx3
     . C.setFutureProposals (collectVotes ppVoteB [1])
@@ -433,5 +435,5 @@ updatesExample =
     [ testCase "get 3/7 votes for a pparam update" $ testCHAINExample updates1,
       testCase "get 5/7 votes for a pparam update" $ testCHAINExample updates2,
       testCase "votes for the next epoch" $ testCHAINExample updates3,
-      testCase "processes a pparam update" $ testCHAINExample updates4
+      testCase "processes a pparam update" $ testCHAINExample (trace ("UPDATE4") updates4)
     ]

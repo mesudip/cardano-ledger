@@ -113,7 +113,7 @@ import Data.Scientific (Scientific, base10Exponent, coefficient, normalize, scie
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Data.Text.Encoding (encodeUtf8)
-import Data.TreeDiff.Class (ToExpr (toExpr), defaultExprViaShow)
+import Data.TreeDiff.Class (ToExpr (toExpr))
 import Data.TreeDiff.Expr (Expr (..))
 import Data.Typeable (Typeable)
 import Data.Word (Word16, Word64, Word8)
@@ -716,7 +716,8 @@ instance ToExpr Port
 instance ToExpr Url
 
 instance ToExpr Nonce where
-  toExpr = defaultExprViaShow
+  toExpr NeutralNonce = App "NeutralNonce" []
+  toExpr (Nonce x) = App "Nonce" [App (take 10 (drop 1 (show x)) ++ "..") []]
 
 instance ToExpr DnsName
 
