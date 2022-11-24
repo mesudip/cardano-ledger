@@ -25,7 +25,7 @@ module Cardano.Ledger.Alonzo.PlutusScriptApi
 where
 
 import Cardano.Ledger.Alonzo.Data (getPlutusData)
-import Cardano.Ledger.Alonzo.Language (Language (..))
+import Cardano.Ledger.Alonzo.Language (Language (..), IsLanguage(..))
 import Cardano.Ledger.Alonzo.Scripts (AlonzoScript (..), CostModel, CostModels (..), ExUnits (..))
 import Cardano.Ledger.Alonzo.Tx (Data, ScriptPurpose (..), indexedRdmrs, txdats')
 import Cardano.Ledger.Alonzo.TxBody (AlonzoEraTxOut (..))
@@ -206,12 +206,13 @@ language (TimelockScript _) = Nothing
 --   There are two kinds of scripts, evaluate each kind using the
 --   appropriate mechanism.
 evalScripts ::
-  forall era.
+  forall era (l :: Language).
+  (IsLanguage l) =>
   (EraTx era, Script era ~ AlonzoScript era) =>
   ProtVer ->
   Tx era ->
   [(ShortByteString, Language, [Data era], ExUnits, CostModel)] ->
-  ScriptResult
+  ScriptResult l
 evalScripts _pv _tx [] = mempty
 evalScripts pv tx ((pscript, lang, ds, units, cost) : rest) =
   let beginMsg =

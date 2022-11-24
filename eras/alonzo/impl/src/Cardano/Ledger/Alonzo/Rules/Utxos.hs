@@ -136,8 +136,8 @@ instance
 
 data AlonzoUtxosEvent era
   = AlonzoPpupToUtxosEvent (Event (EraRule "PPUP" era))
-  | SuccessfulPlutusScriptsEvent (NonEmpty PlutusDebug)
-  | FailedPlutusScriptsEvent (NonEmpty PlutusDebug)
+  | SuccessfulPlutusScriptsEvent (NonEmpty (PlutusDebug l))
+  | FailedPlutusScriptsEvent (NonEmpty (PlutusDebug l))
 
 instance
   ( Era era,
@@ -332,7 +332,7 @@ scriptFailureToFailureDescription protVer (PlutusSF t pd) =
 scriptFailuresToPredicateFailure :: ProtVer -> NonEmpty ScriptFailure -> NonEmpty FailureDescription
 scriptFailuresToPredicateFailure protVer = fmap (scriptFailureToFailureDescription protVer)
 
-scriptFailuresToPlutusDebug :: NonEmpty ScriptFailure -> NonEmpty PlutusDebug
+scriptFailuresToPlutusDebug :: forall (l :: Language). NonEmpty ScriptFailure -> NonEmpty (PlutusDebug l)
 scriptFailuresToPlutusDebug = fmap (\(PlutusSF _ pdb) -> pdb)
 
 data TagMismatchDescription

@@ -91,20 +91,23 @@ import Data.Typeable (Typeable)
 import Data.Word (Word64)
 import GHC.Generics (Generic)
 import NoThunks.Class (InspectHeapNamed (..), NoThunks)
-import qualified PlutusLedgerApi.V1 as PV1
+import qualified PlutusCore.Data as PCD
 
 -- =====================================================================
--- PV1.Data is the type that Plutus expects as data.
+-- PCD.Data is the type that Plutus expects as data. For both V1 and V2.
 -- It is imported from the Plutus package, but it needs a few additional
 -- instances to also work in the ledger.
 
-instance FromCBOR (Annotator PV1.Data) where
+instance FromCBOR (Annotator PCD.Data) where
   fromCBOR = pure <$> fromPlainDecoder Cborg.decode
 
-instance ToCBOR PV1.Data where
+instance FromCBOR PCD.Data where
+  fromCBOR = fromPlainDecoder Cborg.decode
+
+instance ToCBOR PCD.Data where
   toCBOR = fromPlainEncoding . Cborg.encode
 
-deriving instance NoThunks PV1.Data
+deriving instance NoThunks PCD.Data
 
 -- ============================================================================
 -- the newtype Data is a wrapper around the type that Plutus expects as data.
@@ -112,7 +115,7 @@ deriving instance NoThunks PV1.Data
 
 -- | This is a wrapper with a phantom era for PV1.Data, since we need
 -- something with kind (* -> *) for MemoBytes
-newtype PlutusData era = PlutusData PV1.Data
+newtype PlutusData era = PlutusData PCD.Data
   deriving newtype (Eq, Generic, Show, ToCBOR, NFData, NoThunks, Cborg.Serialise)
 
 instance Typeable era => FromCBOR (Annotator (PlutusData era)) where
@@ -136,7 +139,7 @@ instance (EraCrypto era ~ c) => HashAnnotated (Data era) EraIndependentData c wh
 
 instance Typeable era => NoThunks (Data era)
 
-pattern Data :: Era era => PV1.Data -> Data era
+pattern Data :: Era era => PCD.Data -> Data era
 pattern Data p <-
   DataConstr (Memo (PlutusData p) _)
   where
@@ -144,7 +147,7 @@ pattern Data p <-
 
 {-# COMPLETE Data #-}
 
-getPlutusData :: Era era => Data era -> PV1.Data
+getPlutusData :: Era era => Data era -> PCD.Data
 getPlutusData (DataConstr (Memo (PlutusData d) _)) = d
 
 -- | Inlined data must be stored in the most compact form because it contributes
