@@ -15,7 +15,7 @@ module Cardano.Ledger.Alonzo.Tools
 where
 
 import Cardano.Ledger.Alonzo.Data (Data, Datum (..), binaryDataToData, getPlutusData)
-import Cardano.Ledger.Alonzo.Language (Language (..))
+import Cardano.Ledger.Alonzo.Language (Language (..), SLanguage(..))
 import Cardano.Ledger.Alonzo.PlutusScriptApi (knownToNotBe1Phase)
 import Cardano.Ledger.Alonzo.Scripts
   ( AlonzoScript (..),
@@ -35,6 +35,7 @@ import Cardano.Ledger.Alonzo.TxInfo
     transProtocolVersion,
     txInfo,
     valContext,
+    mkPlutusDebug,
   )
 import Cardano.Ledger.Alonzo.TxWits
   ( AlonzoEraTxWits (..),
@@ -55,23 +56,11 @@ import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
 import qualified Data.Set as Set
-import Data.Kind (Type)
 import Data.Text (Text)
 import GHC.Records (HasField (..))
 import Lens.Micro
 import qualified PlutusLedgerApi.V1 as PV1
 import qualified PlutusLedgerApi.V2 as PV2
-
--- TODO:
--- Options:
--- 1. Validation errors instead of GADT
--- 2. scriptcontext is all info from ledger that script gets
--- 3. evaluationcontext is how cost model will charge people for execution
--- 4. both scriptcontext and evaluationcontext are passed to evaluator
--- 5. datum (not data) - both isomorphic - convert between each other,
---    use is in transaction metadata. data Datum = Hash or Datum
--- 6. some data passed during submission and some more while execution, all ends up being `data`
--- 7. cost model + data Data + evaluation units -> passed to plutus evaluator
 
 -- | Script failures that can be returned by 'evaluateTransactionExecutionUnits'.
 data TransactionScriptFailure c
@@ -99,7 +88,7 @@ data TransactionScriptFailure c
     IncompatibleBudget !PV1.ExBudget
   | -- | There was no cost model for a given version of Plutus in the ledger state
     NoCostModelInLedgerState !Language
-  deriving (Eq, Show, NoThunks, Generic)
+  deriving (Eq, Show)
   
 data ValidationFailed where
   ValidationFailedV1 :: !PV1.EvaluationError -> ![Text] -> PlutusDebug 'PlutusV1 -> ValidationFailed
@@ -107,8 +96,6 @@ data ValidationFailed where
 
 deriving instance Eq (ValidationFailed)
 deriving instance Show (ValidationFailed)
-deriving instance Generic (ValidationFailed)
-deriving instance NoThunks (ValidationFailed)
 
 note :: e -> Maybe a -> Either e a
 note _ (Just x) = Right x
@@ -216,7 +203,7 @@ evaluateTransactionExecutionUnitsWithLogs pp tx utxo ei sysS costModels = do
       Map Language VersionedTxInfo ->
       RdmrPtr ->
       (Data era, ExUnits) ->
-      Either (TransactionScriptFailure v (EraCrypto era)) ([Text], ExUnits)
+      Either (TransactionScriptFailure (EraCrypto era)) ([Text], ExUnits)
     findAndCount pparams info pointer (rdmr, exunits) = do
       (sp, mscript, sh) <-
         note (RedeemerPointsToUnknownScriptHash pointer) $
@@ -242,10 +229,10 @@ evaluateTransactionExecutionUnitsWithLogs pp tx utxo ei sysS costModels = do
       case interpreter lang (getEvaluationContext cm) maxBudget script pArgs of
         (logs, Left e) -> case lang of
           PlutusV1 ->
-            let debug = PlutusDebugV1 cm exunits script pArgs protVer
+            let debug = mkPlutusDebug SPlutusV1 cm exunits script pArgs protVer -- PlutusDebugV1 cm exunits script pArgs protVer
              in Left $ ValidationFailure $ ValidationFailedV1 e logs debug
           PlutusV2 ->
-            let debug = PlutusDebugV2 cm exunits script pArgs protVer
+            let debug = mkPlutusDebug SPlutusV2 cm exunits script pArgs protVer
              in Left $ ValidationFailure $ ValidationFailedV2 e logs debug
         (logs, Right exBudget) -> note (IncompatibleBudget exBudget) $ (,) logs <$> exBudgetToExUnits exBudget
       where
