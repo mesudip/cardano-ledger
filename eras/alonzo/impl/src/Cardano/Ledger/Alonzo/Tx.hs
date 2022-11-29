@@ -148,6 +148,9 @@ import GHC.Records (HasField (..))
 import NoThunks.Class (NoThunks)
 import Numeric.Natural (Natural)
 
+import qualified Data.ByteString.Lazy as BSL
+
+
 -- ===================================================
 
 -- | Tag indicating whether non-native scripts in this transaction are expected
