@@ -10,6 +10,7 @@
 
 module Test.Cardano.Ledger.Generic.ApplyTx where
 
+import Debug.Trace(trace)
 import Cardano.Ledger.Alonzo.Data (Data (..))
 import Cardano.Ledger.Alonzo.Language (Language (PlutusV1))
 import Cardano.Ledger.Alonzo.Scripts (CostModels (..), ExUnits (ExUnits))
@@ -94,7 +95,9 @@ defaultPPs =
     MaxTxExUnits $ ExUnits 1000000 1000000,
     MaxBlockExUnits $ ExUnits 1000000 1000000,
     ProtocolVersion $ ProtVer (natVersion @5) 0,
-    CollateralPercentage 100
+    CollateralPercentage 100,
+    KeyDeposit (Coin 2),
+    PoolDeposit (Coin 5)
   ]
 
 pparams :: Proof era -> PParams era
@@ -166,28 +169,37 @@ applyCert proof model dcert = case dcert of
   (DCertDeleg (RegKey x)) ->
     model
       { mRewards = Map.insert x (Coin 0) (mRewards model),
-        mDeposited = mDeposited model <+> keydeposit
+        mDeposited = mDeposited model <+> keydeposit,
+        mKeyDeposits = Map.insert x (trace ("KEYDEPOSIT "++show keydeposit) keydeposit) (mKeyDeposits model)
       }
     where
-      pp = mPParams model
+      pp = mPParams model   
       (keydeposit, _) = keyPoolDeposits proof pp
   (DCertDeleg (DeRegKey x)) -> case Map.lookup x (mRewards model) of
     Nothing -> error ("DeRegKey not in rewards: " <> show (pcCredential x))
     Just (Coin 0) ->
       model
         { mRewards = Map.delete x (mRewards model),
-          mDeposited = mDeposited model <-> keydeposit
+          mDeposited = mDeposited model <-> keydeposit,
+          mKeyDeposits = Map.delete x (mKeyDeposits model)
         }
       where
-        pp = mPParams model
-        (keydeposit, _) = keyPoolDeposits proof pp
+        keydeposit = case Map.lookup x (mKeyDeposits model) of
+          Nothing -> mempty
+          Just c -> c
     Just (Coin _n) -> error "DeRegKey with non-zero balance"
   (DCertDeleg (Delegate (Delegation cred hash))) ->
     model {mDelegations = Map.insert cred hash (mDelegations model)}
   (DCertPool (RegPool poolparams)) ->
     model
       { mPoolParams = Map.insert hk poolparams (mPoolParams model),
-        mDeposited = mDeposited model <+> pooldeposit
+        mDeposited = if Map.member hk (mPoolDeposits model)
+                        then mDeposited model
+                        else mDeposited model <+> pooldeposit,
+        mPoolDeposits = -- Only add if it isn't already there
+          case Map.lookup hk (mPoolDeposits model) of
+           Just _ -> mPoolDeposits model
+           Nothing ->  Map.insert hk pooldeposit (mPoolDeposits model)
       }
     where
       hk = ppId poolparams

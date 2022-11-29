@@ -138,9 +138,11 @@ pcMUtxo proof m = ppMap pcTxIn (pcTxOut proof) m
 data ModelNewEpochState era = ModelNewEpochState
   { -- PState fields
     mPoolParams :: !(Map (KeyHash 'StakePool (EraCrypto era)) (PoolParams (EraCrypto era))),
+    mPoolDeposits :: !(Map (KeyHash 'StakePool (EraCrypto era)) Coin),
     -- DState state fields
     mRewards :: !(Map (Credential 'Staking (EraCrypto era)) Coin),
     mDelegations :: !(Map (Credential 'Staking (EraCrypto era)) (KeyHash 'StakePool (EraCrypto era))),
+    mKeyDeposits :: !(Map (Credential 'Staking (EraCrypto era)) Coin),
     --  _fGenDelegs,  _genDelegs, and _irwd, are for
     --  changing the PParams and are abstracted away
 
@@ -281,8 +283,10 @@ mNewEpochStateZero :: Reflect era => ModelNewEpochState era
 mNewEpochStateZero =
   ModelNewEpochState
     { mPoolParams = Map.empty,
+      mPoolDeposits = Map.empty,
       mRewards = Map.empty,
       mDelegations = Map.empty,
+      mKeyDeposits = Map.empty,
       mUTxO = Map.empty,
       mMutFee = Map.empty,
       mAccountState = accountStateZero,
@@ -345,8 +349,8 @@ instance Reflect era => Extract (EpochState era) era where
       (mAccountState x)
       (mSnapshots x)
       (extract x)
-      (pParamsZero @era)
-      (pParamsZero @era)
+      (mPParams x)
+      (mPParams x)
       nonMyopicZero
 
 instance forall era. Reflect era => Extract (NewEpochState era) era where
@@ -364,8 +368,10 @@ abstract :: NewEpochState era -> ModelNewEpochState era
 abstract x =
   ModelNewEpochState
     { mPoolParams = (psStakePoolParams . dpsPState . lsDPState . esLState . nesEs) x,
+      mPoolDeposits = (psDeposits . dpsPState . lsDPState . esLState . nesEs) x,
       mRewards = (UMap.rewView . dsUnified . dpsDState . lsDPState . esLState . nesEs) x,
       mDelegations = (UMap.delView . dsUnified . dpsDState . lsDPState . esLState . nesEs) x,
+      mKeyDeposits = (dsDeposits . dpsDState . lsDPState . esLState . nesEs) x,
       mUTxO = (unUTxO . utxosUtxo . lsUTxOState . esLState . nesEs) x,
       mMutFee = Map.empty,
       mAccountState = (esAccountState . nesEs) x,

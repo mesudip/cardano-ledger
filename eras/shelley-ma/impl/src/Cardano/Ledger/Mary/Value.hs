@@ -28,6 +28,7 @@ module Cardano.Ledger.Mary.Value
     representationSize,
     showValue,
     valueFromList,
+    ToExpr(..),
   )
 where
 
@@ -99,6 +100,9 @@ import Data.Word (Word16, Word32, Word64)
 import GHC.Generics (Generic)
 import NoThunks.Class (NoThunks (..), OnlyCheckWhnfNamed (..))
 import Prelude hiding (lookup)
+import Data.TreeDiff.Class(ToExpr(..))
+import Data.TreeDiff.Expr(Expr(App))
+import Cardano.Ledger.Shelley.LedgerState.ToExprOrphans(trimExprViaShow)
 
 -- | Asset Name
 newtype AssetName = AssetName {assetName :: SBS.ShortByteString}
@@ -127,7 +131,7 @@ instance FromCBOR AssetName where
 
 -- | Policy ID
 newtype PolicyID c = PolicyID {policyID :: ScriptHash c}
-  deriving (Show, Eq, ToCBOR, FromCBOR, Ord, NoThunks, NFData)
+  deriving (Show, Eq, ToCBOR, FromCBOR, Ord, NoThunks, NFData, Generic)
 
 -- | The MultiAssets map
 newtype MultiAsset c = MultiAsset (Map (PolicyID c) (Map AssetName Integer))
@@ -871,3 +875,15 @@ flattenMultiAsset (MultiAsset m) =
     | (policyId, m2) <- assocs m,
       (aname, amount) <- assocs m2
   ]
+
+-- ==========================================
+
+
+instance ToExpr (MaryValue c) where
+
+instance ToExpr (MultiAsset c) where
+
+instance ToExpr (PolicyID c) where
+
+instance ToExpr AssetName where
+  toExpr (AssetName sbs) = App "AssetName" [trimExprViaShow 10 sbs]

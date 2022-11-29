@@ -104,6 +104,7 @@ import GHC.Generics (Generic)
 import GHC.Records (HasField (getField))
 import NoThunks.Class (NoThunks (..))
 import Numeric.Natural (Natural)
+import Data.TreeDiff.Class(ToExpr(..))
 
 type PParams era = AlonzoPParams era
 
@@ -590,3 +591,8 @@ extendPP
   col
   mxCol =
     AlonzoPParams ma mb mxBB mxT mxBH kd pd emx a n rho tau d eE pv mnP ada cost price mxTx mxBl mxV col mxCol
+
+-- ======================================
+
+instance ToExpr (AlonzoPParamsHKD StrictMaybe era) where
+instance ToExpr (AlonzoPParamsHKD Identity era) where

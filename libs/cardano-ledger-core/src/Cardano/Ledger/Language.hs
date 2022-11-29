@@ -11,6 +11,7 @@ import Control.DeepSeq (NFData (..))
 import Data.Ix (Ix)
 import GHC.Generics (Generic)
 import NoThunks.Class (NoThunks)
+import Data.TreeDiff.Class(ToExpr(..))
 
 -- | Non-Native Script language. This is an Enumerated type.
 -- This is expected to be an open type. We will add new Constuctors
@@ -51,3 +52,6 @@ instance FromCBOR Language where
 
 nonNativeLanguages :: [Language]
 nonNativeLanguages = [minBound .. maxBound]
+
+
+instance ToExpr Language where

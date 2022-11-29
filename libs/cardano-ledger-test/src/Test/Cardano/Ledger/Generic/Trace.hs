@@ -50,6 +50,8 @@ import Cardano.Ledger.Shelley.LedgerState
     PState (..),
     StashedAVVMAddresses,
     UTxOState (..),
+    DState(dsDeposits),
+    PState(psDeposits),
   )
 import qualified Cardano.Ledger.Shelley.PParams as Shelley (ShelleyPParamsHKD (..))
 import Cardano.Ledger.Shelley.Rules
@@ -100,6 +102,7 @@ import Test.Cardano.Ledger.Generic.GenState
     GenRS,
     GenSize (..),
     GenState (..),
+    gsModel,
     getBlocksizeMax,
     getReserves,
     getSlot,
@@ -111,7 +114,7 @@ import Test.Cardano.Ledger.Generic.GenState
     runGenRS,
   )
 import Test.Cardano.Ledger.Generic.MockChain
-import Test.Cardano.Ledger.Generic.ModelState (MUtxo, stashedAVVMAddressesZero)
+import Test.Cardano.Ledger.Generic.ModelState (MUtxo, stashedAVVMAddressesZero,mKeyDeposits)
 import Test.Cardano.Ledger.Generic.PrettyCore
   ( pcCoin,
     pcCredential,
@@ -157,6 +160,7 @@ genRsTxSeq proof this lastN ans _slot | this >= lastN = do
     (unsafePerformIO (writeIORef theVector (TT proof (reverse ans))))
     (pure (Vector.fromList (reverse ans)))
 genRsTxSeq proof this lastN ans slot = do
+  -- pparam <- gets (gePParams . gsGenEnv)
   maxBlockSize <- getBlocksizeMax <$> get
   n <- lift $ choose (2 :: Int, fromIntegral maxBlockSize)
   txs <- forM [0 .. n - 1] (\i -> genRsTxAndModel proof (this + i) slot)
@@ -207,6 +211,7 @@ initialMockChainState proof gstate =
 
 makeEpochState :: Reflect era => GenState era -> LedgerState era -> EpochState era
 makeEpochState gstate ledgerstate =
+  trace ("INITIAL PPARAMS "++ show(gePParams (gsGenEnv gstate))) $
   EpochState
     { esAccountState = AccountState (getTreasury gstate) (getReserves gstate),
       esSnapshots = snaps ledgerstate,
@@ -246,6 +251,8 @@ raiseMockError ::
 raiseMockError slot (SlotNo next) epochstate pdfs txs GenState {..} =
   let utxo = unUTxO $ (utxosUtxo . lsUTxOState . esLState) epochstate
       _ssPoolParams = (psStakePoolParams . dpsPState . lsDPState . esLState) epochstate
+      pooldeposits = (psDeposits . dpsPState . lsDPState . esLState) epochstate
+      keydeposits = (dsDeposits . dpsDState . lsDPState . esLState) epochstate
    in show $
         vsep
           [ ppString "===================================",
@@ -253,6 +260,11 @@ raiseMockError slot (SlotNo next) epochstate pdfs txs GenState {..} =
             ppString "===================================",
             ppString "Stable Pools\n" <> ppSet pcKeyHash gsStablePools,
             ppString "===================================",
+            ppString "PoolDeposits\n" <> ppMap pcKeyHash pcCoin pooldeposits,
+            ppString "===================================",
+            ppString "KeyDeposits\n" <> ppMap pcCredential pcCoin keydeposits,
+            ppString "Model KeyDeposits\n" <> ppMap pcCredential pcCoin (mKeyDeposits gsModel),
+           
             -- You never know what is NEEDED to debug a failure, and what is a DISTRACTION
             -- These things certainly fall in that category. I leave them commented out so if
             -- they are not a distraction in the current error, they are easy to turn back on.
@@ -261,8 +273,8 @@ raiseMockError slot (SlotNo next) epochstate pdfs txs GenState {..} =
             -- ppString "Initial Pool Params\n" <> ppMap pcKeyHash pcPoolParams gsInitialPoolParams,
             ppString "===================================",
             ppString "Stable Delegators\n" <> ppSet pcCredential gsStableDelegators,
-            ppString "===================================",
-            ppString "Initial Rewards\n" <> ppMap pcCredential pcCoin gsInitialRewards,
+            -- ppString "===================================",
+            -- ppString "Initial Rewards\n" <> ppMap pcCredential pcCoin gsInitialRewards,
             ppString "===================================",
             showBlock utxo txs,
             ppString "===================================",
@@ -277,9 +289,11 @@ raiseMockError slot (SlotNo next) epochstate pdfs txs GenState {..} =
               <> ppMap
                 pcScriptHash
                 (scriptSummary @era reify)
-                (Map.restrictKeys gsScripts (badScripts reify pdfs))
+                (Map.restrictKeys gsScripts (badScripts reify pdfs)),
                 -- ppString "===================================",
-                -- ppString "Real Pool Params\n" <> ppMap pcKeyHash pcPoolParams poolParams
+                -- ppString "Real Pool Params\n" <> ppMap pcKeyHash pcPoolParams poolParams,
+           ppString "=====================================",
+           ppString ("Protocol Parameters\n"++show (esPp epochstate))
           ]
 
 badScripts :: Proof era -> [MockChainFailure era] -> Set.Set (ScriptHash (EraCrypto era))

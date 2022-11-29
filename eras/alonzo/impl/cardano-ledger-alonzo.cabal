@@ -92,6 +92,7 @@ library
     text,
     time,
     transformers,
+    tree-diff,
     utf8-string,
     validation-selective,
     vector

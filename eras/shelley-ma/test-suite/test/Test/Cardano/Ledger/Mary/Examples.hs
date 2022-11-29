@@ -25,6 +25,7 @@ import Lens.Micro
 import Test.Cardano.Ledger.EraBuffet (TestCrypto)
 import Test.Cardano.Ledger.Shelley.Utils (applySTSTest, runShelleyBase)
 import Test.Tasty.HUnit (Assertion, (@?=))
+import Cardano.Ledger.Shelley.LedgerState.ToExprOrphans()
 
 type MaryTest = MaryEra TestCrypto
 

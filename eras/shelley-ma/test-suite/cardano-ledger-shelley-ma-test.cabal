@@ -74,6 +74,7 @@ library
     tasty-quickcheck,
     tasty,
     text,
+    tree-diff
   hs-source-dirs: src
 
 test-suite cardano-ledger-shelley-ma-test
@@ -126,4 +127,4 @@ test-suite cardano-ledger-shelley-ma-test
       cardano-strict-containers,
       tasty-hunit,
       tasty-quickcheck,
-      tasty,
+      tasty

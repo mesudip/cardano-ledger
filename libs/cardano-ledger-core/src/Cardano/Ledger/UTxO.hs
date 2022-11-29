@@ -33,6 +33,8 @@ module Cardano.Ledger.UTxO
     makeWitnessesFromScriptKeys,
     verifyWitVKey,
     getScriptHash,
+    Consumed(..),
+    Produced(..),
   )
 where
 
@@ -255,3 +257,22 @@ class EraTxBody era => EraUTxO era where
 
   -- | Extract the set of all script hashes that are needed for script validation.
   getScriptsHashesNeeded :: ScriptsNeeded era -> Set (ScriptHash (EraCrypto era))
+
+-- ================================================================
+
+-- | Itemizing what is consumed by a transaction
+data Consumed = Consumed
+   { conInputs :: !Coin, conRefunds:: !Coin , conWithdrawals :: !Coin }
+
+instance Show Consumed where
+  show(Consumed i r w) =
+     "Consumed(Inputs "++show i ++ ", Refunds " ++ show r ++ " Withdrawals " ++ show w++") = "++show(i<>r<>w)
+ 
+-- | Itemizing what is Produced by a transaction
+data Produced = Produced
+   { proOutputs :: !Coin, proFees :: Coin, proDeposits :: !Coin }
+
+instance Show Produced where
+  show(Produced out f d) =
+     "Produced(Outputs "++show out++", Fees "++show f ++" Deposits "++show d++") = "++show(out<>f<>d)
+ 

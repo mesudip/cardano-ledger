@@ -26,6 +26,8 @@ module Cardano.Ledger.Shelley.UTxO
     produced,
     txup,
     module Core,
+    producedTxBody,
+    consumedTxBody,
   )
 where
 
@@ -172,3 +174,30 @@ instance Crypto c => EraUTxO (ShelleyEra c) where
   getScriptsNeeded = getShelleyScriptsNeeded
 
   getScriptsHashesNeeded (ShelleyScriptsNeeded scriptsHashes) = scriptsHashes
+
+
+-- =========================
+
+-- | Compute the Coin part of what is consumed by a TxBody. This should work in every Era
+consumedTxBody ::
+  ( HasField "_keyDeposit" pp Coin,
+    ShelleyEraTxBody era
+  ) => TxBody era -> pp -> DPState (EraCrypto era) -> UTxO era -> Consumed
+consumedTxBody txBody pp dpstate (UTxO u) = Consumed {conInputs =i, conRefunds = r, conWithdrawals = w }
+  where i =  coinBalance (UTxO (Map.restrictKeys u (txBody ^. inputsTxBodyL)))
+        r = keyTxRefunds pp dpstate txBody
+        w = fold . unWdrl $ txBody ^. wdrlsTxBodyL
+
+
+-- | Compute the Coin part of what is produced by a TxBody
+producedTxBody ::
+ ( ShelleyEraTxBody era,
+   HasField "_keyDeposit" pp Coin,
+   HasField "_poolDeposit" pp Coin
+ ) => TxBody era -> pp -> DPState (EraCrypto era) -> Produced
+producedTxBody txBody pp dpstate = Produced {proOutputs = out, proFees = f, proDeposits = d }
+  where out =  Val.coin (balance (txouts txBody))
+        f = txBody ^. feeTxBodyL
+        d = totalTxDeposits pp dpstate txBody
+
+ 

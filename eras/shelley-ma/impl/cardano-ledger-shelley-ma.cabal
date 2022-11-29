@@ -60,6 +60,7 @@ library
 
   build-depends:
     bytestring,
+    tree-diff,
     base16-bytestring,
     cardano-crypto-class,
     cardano-data,
@@ -78,5 +79,6 @@ library
     cardano-strict-containers,
     text,
     transformers,
+    tree-diff,
     validation-selective,
   hs-source-dirs: src

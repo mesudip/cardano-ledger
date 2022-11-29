@@ -35,6 +35,8 @@ module Cardano.Ledger.Shelley.Rules.Utxo
   )
 where
 
+import Debug.Trace(trace)
+import Cardano.Ledger.SafeHash (hashAnnotated)
 import Cardano.Ledger.Address
   ( Addr (..),
     bootstrapAddressAttrsSize,
@@ -88,6 +90,8 @@ import Cardano.Ledger.Shelley.TxBody
 import Cardano.Ledger.Shelley.UTxO
   ( produced,
     txup,
+    producedTxBody,
+    consumedTxBody,
   )
 import Cardano.Ledger.Slot (SlotNo)
 import Cardano.Ledger.UTxO
@@ -535,7 +539,10 @@ validateValueNotConservedUTxO ::
   Test (ShelleyUtxoPredFailure era)
 validateValueNotConservedUTxO pp dpstate utxo txb =
   failureUnless (consumedValue == producedValue) $
-    ValueNotConservedUTxO consumedValue producedValue
+    trace ("\nTXB HASH "++show(hashAnnotated txb)++
+           "\n"++show(consumedTxBody txb pp dpstate utxo)++
+           "\n"++show(producedTxBody txb pp dpstate))
+          (ValueNotConservedUTxO consumedValue producedValue)
   where
     consumedValue = getConsumedValue pp dpstate utxo txb
     producedValue = produced pp dpstate txb

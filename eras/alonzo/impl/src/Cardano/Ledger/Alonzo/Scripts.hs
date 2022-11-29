@@ -110,6 +110,8 @@ import qualified PlutusLedgerApi.V1 as PV1
     mkEvaluationContext,
   )
 import qualified PlutusLedgerApi.V2 as PV2 (assertScriptWellFormed, mkEvaluationContext)
+import Data.TreeDiff.Class(ToExpr(..),defaultExprViaShow)
+import Data.TreeDiff.Expr(Expr(App))
 
 -- | Marker indicating the part of a transaction for which this script is acting
 -- as a validator.
@@ -425,3 +427,15 @@ transProtocolVersion (ProtVer major minor) =
 contentsEq :: Script era -> Script era -> Bool
 contentsEq (TimelockScript x) (TimelockScript y) = Timelocks.contentsEq x y
 contentsEq x y = x == y
+
+-- =================================================================
+
+instance ToExpr CostModel where
+  toExpr (CostModel lang cmmap _) =
+    App "CostModel" [toExpr lang, toExpr cmmap, App "PV1.EvaluationContext" []]
+
+instance ToExpr CostModels where
+instance ToExpr Prices where
+
+instance ToExpr ExUnits where
+  toExpr (WrapExUnits (ExUnits' x y)) = App "ExUnits" [ defaultExprViaShow x, defaultExprViaShow y]

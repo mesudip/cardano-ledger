@@ -87,6 +87,7 @@ import GHC.Generics (Generic)
 import GHC.Records (HasField (..))
 import NoThunks.Class (NoThunks (..))
 import Numeric.Natural (Natural)
+import Data.TreeDiff.Class(ToExpr(..))
 
 type PParams era = BabbagePParams era
 
@@ -492,3 +493,8 @@ extendPP
 -- code for the reward calculation.
 instance HasField "_d" (BabbagePParams era) UnitInterval where
   getField _ = minBound
+
+-- ======================================
+
+instance ToExpr (BabbagePParamsHKD StrictMaybe era) where
+instance ToExpr (BabbagePParamsHKD Identity era) where
