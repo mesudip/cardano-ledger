@@ -330,14 +330,18 @@ minfee ::
   Core.PParams era ->
   Core.Tx era ->
   Coin
-minfee pp tx =
-  (getField @"txsize" tx <×> a pp)
-    <+> b pp
-    <+> txscriptfee (getField @"_prices" pp) allExunits
+minfee pp tx =  
+  let minFee1= txSize <×> a pp <+> feeIrrespectiveOfSize
+  in (txSize - eraCoinSize (txfee' tx) + eraCoinSize minFee1 ) <×> a pp  <+> feeIrrespectiveOfSize -- re-evaluate cost based on new fee.
   where
+    txSize = getField @"txsize" tx
+    feeIrrespectiveOfSize = b pp
+        <+> txscriptfee (getField @"_prices" pp) allExunits
     a protparam = Coin (fromIntegral (getField @"_minfeeA" protparam))
     b protparam = Coin (fromIntegral (getField @"_minfeeB" protparam))
     allExunits = totExUnits tx
+    eraCoinSize c = BSL.length $ serializeEncoding  (toCBOR c)
+
 
 totExUnits ::
   ( HasField "wits" (Core.Tx era) (Core.Witnesses era),
