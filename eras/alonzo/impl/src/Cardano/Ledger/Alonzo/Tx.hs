@@ -95,6 +95,7 @@ import Cardano.Ledger.Alonzo.TxBody
     ScriptIntegrityHash,
     TxBody (..),
     TxOut (..),
+    txfee',
   )
 import Cardano.Ledger.Alonzo.TxWitness
   ( RdmrPtr (..),
@@ -322,22 +323,20 @@ toCBORForSizeComputation ValidatedTx {body, wits, auxiliaryData} =
     <> toCBOR wits
     <> encodeNullMaybe toCBOR (strictMaybeToMaybe auxiliaryData)
 
-minfee ::
-  ( HasField "_minfeeA" (Core.PParams era) Natural,
-    HasField "_minfeeB" (Core.PParams era) Natural,
-    HasField "_prices" (Core.PParams era) Prices,
-    HasField "wits" (Core.Tx era) (Core.Witnesses era),
-    HasField "txrdmrs" (Core.Witnesses era) (Redeemers era),
-    HasField "txsize" (Core.Tx era) Integer
-  ) =>
-  Core.PParams era ->
-  Core.Tx era ->
-  Coin
+
+minfee :: (HasField "_minfeeA" r a1, HasField "_minfeeB" r a2,
+ HasField "_prices" r Prices, HasField "txfee" (Core.TxBody era) a3,
+ HasField "txrdmrs" (Core.Witnesses era) (Redeemers era),
+ HasField "wits" (Core.Tx era) (Core.Witnesses era), Integral a1,
+ Integral a2, ToCBOR a3, ToCBOR (Core.AuxiliaryData era),
+ ToCBOR (Core.TxBody era), Typeable era,
+ Core.Tx era ~ ValidatedTx era) =>
+  r -> ValidatedTx era -> Coin
 minfee pp tx =  
   let minFee1= txSize <×> a pp <+> feeIrrespectiveOfSize
-  in (txSize - eraCoinSize (txfee' tx) + eraCoinSize minFee1 ) <×> a pp  <+> feeIrrespectiveOfSize -- re-evaluate cost based on new fee.
+  in (txSize - eraCoinSize (getField @"txfee" (body tx)) + eraCoinSize minFee1 ) <×> a pp  <+> feeIrrespectiveOfSize -- re-evaluate cost based on new fee.
   where
-    txSize = getField @"txsize" tx
+    txSize =  fromIntegral $ getField @"txsize" tx
     feeIrrespectiveOfSize = b pp
         <+> txscriptfee (getField @"_prices" pp) allExunits
     a protparam = Coin (fromIntegral (getField @"_minfeeA" protparam))
