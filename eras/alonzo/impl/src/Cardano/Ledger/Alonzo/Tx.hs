@@ -95,7 +95,6 @@ import Cardano.Ledger.Alonzo.TxBody
     ScriptIntegrityHash,
     TxBody (..),
     TxOut (..),
-    txfee',
   )
 import Cardano.Ledger.Alonzo.TxWitness
   ( RdmrPtr (..),
@@ -150,6 +149,7 @@ import NoThunks.Class (NoThunks)
 import Numeric.Natural (Natural)
 
 import qualified Data.ByteString.Lazy as BSL
+import Data.Int (Int64)
 
 
 -- ===================================================
@@ -324,17 +324,33 @@ toCBORForSizeComputation ValidatedTx {body, wits, auxiliaryData} =
     <> encodeNullMaybe toCBOR (strictMaybeToMaybe auxiliaryData)
 
 
-minfee :: (HasField "_minfeeA" r a1, HasField "_minfeeB" r a2,
- HasField "_prices" r Prices, HasField "txfee" (Core.TxBody era) a3,
+
+-- minfee ::
+--   ( HasField "_minfeeA" (Core.PParams era) Natural,
+--     HasField "_minfeeB" (Core.PParams era) Natural,
+--     HasField "_prices" (Core.PParams era) Prices,
+--     HasField "wits" (Core.Tx era) (Core.Witnesses era),
+--     HasField "txrdmrs" (Core.Witnesses era) (Redeemers era),
+--     HasField "txsize" (Core.Tx era) Integer
+--   ) =>
+--    ->
+--   Core.Tx era ->
+--   Coin
+
+minfee ::
+ (HasField "_minfeeA" (Core.PParams era) Natural, 
+ HasField "_minfeeB" (Core.PParams era) Natural,
+ HasField "_prices" (Core.PParams era) Prices, 
+ HasField "txfee" (Core.TxBody era) Coin,
  HasField "txrdmrs" (Core.Witnesses era) (Redeemers era),
- HasField "wits" (Core.Tx era) (Core.Witnesses era), Integral a1,
- Integral a2, ToCBOR a3, ToCBOR (Core.AuxiliaryData era),
- ToCBOR (Core.TxBody era), Typeable era,
- Core.Tx era ~ ValidatedTx era) =>
-  r -> ValidatedTx era -> Coin
+ HasField "wits" (Core.Tx era) (Core.Witnesses era),
+ HasField "body" (Core.Tx era) (Core.TxBody era),
+ HasField "txsize" (Core.Tx era) Integer
+
+ ) =>  Core.PParams era -> Core.Tx era -> Coin
 minfee pp tx =  
   let minFee1= txSize <×> a pp <+> feeIrrespectiveOfSize
-  in (txSize - eraCoinSize (getField @"txfee" (body tx)) + eraCoinSize minFee1 ) <×> a pp  <+> feeIrrespectiveOfSize -- re-evaluate cost based on new fee.
+  in (txSize - eraCoinSize (getField @"txfee" ( getField @"body" tx)) + eraCoinSize minFee1 ) <×> a pp  <+> feeIrrespectiveOfSize -- re-evaluate cost based on new fee.
   where
     txSize =  fromIntegral $ getField @"txsize" tx
     feeIrrespectiveOfSize = b pp
@@ -342,6 +358,7 @@ minfee pp tx =
     a protparam = Coin (fromIntegral (getField @"_minfeeA" protparam))
     b protparam = Coin (fromIntegral (getField @"_minfeeB" protparam))
     allExunits = totExUnits tx
+    eraCoinSize :: Coin -> Int64
     eraCoinSize c = BSL.length $ serializeEncoding  (toCBOR c)
 
 
